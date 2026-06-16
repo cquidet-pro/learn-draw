@@ -1,0 +1,537 @@
+:root {
+  --bg: #fff8e7;
+  --accent: #ffd166;
+  --accent-2: #ef476f;
+  --ink: #3a3a55;
+  font-family: "Comic Sans MS", "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------- Home page ---------- */
+.home {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem 3rem;
+}
+
+.title {
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  margin: 0.5rem 0 0;
+  text-align: center;
+}
+
+.subtitle {
+  font-size: clamp(1.1rem, 3vw, 1.6rem);
+  margin: 0.25rem 0 2rem;
+  opacity: 0.8;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  width: min(100%, 900px);
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fff;
+  border: 6px solid var(--accent);
+  border-radius: 28px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.08);
+}
+
+.card.done {
+  border-color: #06d6a0;
+}
+
+.card-check {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #06d6a0;
+  color: #fff;
+  border: 4px solid #fff;
+  border-radius: 50%;
+  font-size: 1.3rem;
+  font-weight: 900;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.12);
+}
+
+.card:hover,
+.card:focus-visible {
+  transform: translateY(-4px) rotate(-1deg);
+  border-color: var(--accent-2);
+  outline: none;
+}
+
+.card:active {
+  transform: translateY(0);
+}
+
+.card-preview {
+  width: 100%;
+  max-width: 220px;
+  aspect-ratio: 1 / 1;
+}
+
+.card-name {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+/* ---------- Drawing player ---------- */
+.player {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+}
+
+.player-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  position: relative;
+}
+
+.player-header h1 {
+  font-size: clamp(1.3rem, 4vw, 2.2rem);
+  margin: 0.25rem 0;
+  text-align: center;
+}
+
+.home-btn {
+  background: var(--accent);
+  border: none;
+  border-radius: 999px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  padding: 0.6rem 1.2rem;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.12);
+}
+
+.home-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
+}
+
+.hint {
+  font-size: clamp(1.3rem, 4vw, 2rem);
+  font-weight: 700;
+  text-align: center;
+  margin: 0.5rem 0;
+  min-height: 2.4em;
+}
+
+.drawing {
+  width: min(80vw, 420px);
+  aspect-ratio: 1 / 1;
+  background: #fff;
+  border: 6px solid var(--accent);
+  border-radius: 28px;
+}
+
+/* Strokes from past steps: shown complete but faded. */
+.stroke-done {
+  opacity: 0.35;
+}
+
+/* Current step strokes draw themselves on a loop. */
+.stroke-drawing {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw var(--draw-duration, 5s) ease-in-out infinite;
+}
+
+/* Frozen final drawing during the celebration: solid, full, not looping. */
+.stroke-final {
+  stroke-dashoffset: 0;
+  opacity: 1;
+}
+
+@keyframes draw {
+  0% {
+    stroke-dashoffset: 1;
+  }
+  70% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stroke-drawing {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ---------- Controls ---------- */
+.controls {
+  width: min(100%, 480px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.2rem;
+}
+
+.nav-row {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.big-btn {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent-2);
+  color: #fff;
+  font-size: 2rem;
+  cursor: pointer;
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.18);
+}
+
+.big-btn:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.18);
+}
+
+.big-btn:disabled {
+  background: #ccc;
+  box-shadow: none;
+  cursor: default;
+}
+
+.step-indicator {
+  font-size: 1.4rem;
+  font-weight: 700;
+  min-width: 7rem;
+  text-align: center;
+}
+
+.speed-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+}
+
+.speed-icon {
+  font-size: 1.8rem;
+}
+
+.speed-row input[type="range"] {
+  flex: 1;
+  height: 14px;
+  accent-color: var(--accent-2);
+  cursor: pointer;
+}
+
+.hint-keys {
+  font-size: 0.95rem;
+  opacity: 0.65;
+  margin: 0;
+  text-align: center;
+}
+
+kbd {
+  background: #fff;
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  padding: 0 0.4rem;
+  font-family: inherit;
+  font-weight: 700;
+}
+
+/* ---------- Celebration overlay ---------- */
+.celebration {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(58, 58, 85, 0.55);
+  backdrop-filter: blur(2px);
+  animation: fade-in 0.3s ease both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.celebration-card {
+  position: relative;
+  z-index: 2;
+  background: #fff;
+  border: 6px solid var(--accent);
+  border-radius: 32px;
+  padding: 2rem 2.5rem 2.4rem;
+  text-align: center;
+  box-shadow: 0 12px 0 rgba(0, 0, 0, 0.18);
+  animation: pop 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+  max-width: min(92vw, 460px);
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.3) rotate(-6deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+}
+
+.celebration-close {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.8rem;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  border: none;
+  background: #f0f0f0;
+  color: var(--ink);
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.celebration-close:active {
+  transform: scale(0.92);
+}
+
+.celebration-emoji {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.celebration-card h2 {
+  font-size: clamp(2rem, 7vw, 3rem);
+  margin: 0.6rem 0 0.2rem;
+  color: var(--accent-2);
+}
+
+.celebration-card p {
+  font-size: 1.4rem;
+  margin: 0 0 1.4rem;
+}
+
+.celebration-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.home-btn.big {
+  font-size: 1.5rem;
+  padding: 0.9rem 1.6rem;
+}
+
+.ghost-btn {
+  background: transparent;
+  border: 3px solid var(--accent);
+  border-radius: 999px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 0.5rem 1.2rem;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--ink);
+}
+
+.ghost-btn:active {
+  transform: translateY(2px);
+}
+
+/* ---------- Fireworks ---------- */
+.fireworks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.firework {
+  position: absolute;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  /* `currentColor` (set per-firework via inline `color`) drives every particle. */
+  animation: firework 1.8s ease-out infinite;
+}
+
+@keyframes firework {
+  0% {
+    opacity: 0;
+    box-shadow: 0 0 currentColor;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    box-shadow:
+      0 -3rem currentColor, 2.1rem -2.1rem currentColor, 3rem 0 currentColor,
+      2.1rem 2.1rem currentColor, 0 3rem currentColor, -2.1rem 2.1rem currentColor,
+      -3rem 0 currentColor, -2.1rem -2.1rem currentColor, 0 -5rem currentColor,
+      3.5rem -3.5rem currentColor, 5rem 0 currentColor, 3.5rem 3.5rem currentColor,
+      0 5rem currentColor, -3.5rem 3.5rem currentColor, -5rem 0 currentColor,
+      -3.5rem -3.5rem currentColor;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .celebration,
+  .celebration-card {
+    animation: none;
+  }
+  .firework {
+    animation-iteration-count: 1;
+  }
+}
+
+/* ---------- Voice control ---------- */
+.voice-panel {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.6rem;
+  max-width: min(92vw, 360px);
+}
+
+.voice-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fff;
+  border: 4px solid var(--accent);
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 1.5rem;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.12);
+}
+
+.voice-btn-label {
+  font-size: 1rem;
+}
+
+.voice-btn.on {
+  border-color: var(--accent-2);
+  animation: mic-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes mic-pulse {
+  0%,
+  100% {
+    box-shadow: 0 5px 0 rgba(0, 0, 0, 0.12), 0 0 0 0 rgba(239, 71, 111, 0.5);
+  }
+  50% {
+    box-shadow: 0 5px 0 rgba(0, 0, 0, 0.12), 0 0 0 12px rgba(239, 71, 111, 0);
+  }
+}
+
+.voice-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.3rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 0.5rem 0.8rem;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.08);
+  text-align: right;
+}
+
+.voice-legend {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.voice-legend b {
+  color: var(--accent-2);
+}
+
+.voice-heard {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.voice-error {
+  background: #ffe3e3;
+  color: #b00020;
+  border-radius: 12px;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.9rem;
+  max-width: 16rem;
+  text-align: right;
+}
+
+.voice-note {
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .voice-btn.on {
+    animation: none;
+  }
+}
