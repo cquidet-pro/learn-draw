@@ -218,6 +218,45 @@ body {
   opacity: 0.75;
 }
 
+/* Wraps the drawing so the finishing stars can be positioned around it. */
+.art-stage {
+  position: relative;
+  align-self: center;
+}
+
+/* Twinkly stars shown around the finished picture (before the celebration). */
+.finish-stars {
+  position: absolute;
+  inset: -7%;
+  pointer-events: none;
+}
+
+.finish-star {
+  position: absolute;
+  font-size: clamp(1.4rem, 5vw, 2.4rem);
+  animation: twinkle 1.3s ease-in-out infinite;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.15));
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    transform: scale(0.5) rotate(-8deg);
+    opacity: 0.25;
+  }
+  50% {
+    transform: scale(1.15) rotate(8deg);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .finish-star {
+    animation: none;
+    opacity: 1;
+  }
+}
+
 /* Strokes from past steps: shown complete but faded. */
 .stroke-done {
   opacity: 0.35;

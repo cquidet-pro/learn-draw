@@ -22,6 +22,19 @@ interface Props {
   onGoTo: (animal: Animal) => void;
 }
 
+// Twinkly stars shown around the finished picture (before the celebration).
+// Positions are relative to a box inset slightly outside the drawing.
+const FINISH_STARS: { char: string; style: React.CSSProperties }[] = [
+  { char: "✨", style: { top: "0%", left: "0%" } },
+  { char: "⭐", style: { top: "-5%", left: "45%" } },
+  { char: "✨", style: { top: "0%", right: "0%" } },
+  { char: "⭐", style: { top: "42%", right: "-5%" } },
+  { char: "✨", style: { bottom: "0%", right: "2%" } },
+  { char: "🌟", style: { bottom: "-5%", left: "45%" } },
+  { char: "✨", style: { bottom: "0%", left: "2%" } },
+  { char: "⭐", style: { top: "42%", left: "-5%" } },
+];
+
 export function DrawingPlayer({
   animal,
   pool,
@@ -31,6 +44,9 @@ export function DrawingPlayer({
   onGoTo,
 }: Props) {
   const player = useDrawingPlayer(animal.steps.length);
+  // After the last step, the picture first "finishes" (shown static with stars
+  // around it); pressing next once more pops the celebration.
+  const [finished, setFinished] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
 
   // Decided once when the celebration appears, so the countdown target is stable.
@@ -39,24 +55,28 @@ export function DrawingPlayer({
     [celebrating, pool, animal.id, completed],
   );
 
-  // Space/▶ on the last step doesn't auto-celebrate — it takes one more,
-  // deliberate press to pop the fireworks (avoids ending by accident).
+  // Last step → first press shows the finished picture with stars (no pop-up);
+  // a second press pops the celebration. Every transition is one deliberate
+  // press, so finishing by accident is easy to undo.
   const handleNext = useCallback(() => {
     if (celebrating) return;
-    if (player.isLast) {
+    if (finished) {
       setCelebrating(true);
+    } else if (player.isLast) {
+      setFinished(true);
       onComplete();
     } else {
       player.next();
     }
-  }, [celebrating, player, onComplete]);
+  }, [celebrating, finished, player, onComplete]);
 
-  // Back from the celebration just returns to the last step, so a mistaken
-  // press is fully recoverable.
+  // Back steps out one stage at a time: celebration → finished → last step,
+  // so a mistaken press is fully recoverable.
   const handlePrev = useCallback(() => {
     if (celebrating) setCelebrating(false);
+    else if (finished) setFinished(false);
     else player.prev();
-  }, [celebrating, player]);
+  }, [celebrating, finished, player]);
 
   useKeyboard({ onNext: handleNext, onPrev: handlePrev, onHome });
 
@@ -93,42 +113,64 @@ export function DrawingPlayer({
       </div>
 
       <p className="hint">
-        {player.isLast && !celebrating ? "All done? Press Space! 🎉" : step.hint}
+        {celebrating
+          ? ""
+          : finished
+            ? "Yay, all done! ⭐ Press ▶ for a surprise! 🎉"
+            : player.isLast
+              ? "All done? Press Space! 🎉"
+              : step.hint}
       </p>
 
-      {animal.image ? (
-        <div className="art-compare">
-          <figure className="art-pane">
-            <AnimatedDrawing
-              animal={animal}
-              stepIndex={player.stepIndex}
-              duration={player.duration}
-              frozen={celebrating}
-            />
-            <figcaption className="art-label">Your sketch ✏️</figcaption>
-          </figure>
-          <figure className="art-pane">
-            <img
-              className="original-art"
-              src={animal.image}
-              alt={`${animal.name} by ${animal.artist}`}
-            />
-            <figcaption className="art-label">The real painting 🖼️</figcaption>
-          </figure>
-        </div>
-      ) : (
-        <AnimatedDrawing
-          animal={animal}
-          stepIndex={player.stepIndex}
-          duration={player.duration}
-          frozen={celebrating}
-        />
-      )}
+      <div className="art-stage">
+        {animal.image ? (
+          <div className="art-compare">
+            <figure className="art-pane">
+              <AnimatedDrawing
+                animal={animal}
+                stepIndex={player.stepIndex}
+                duration={player.duration}
+                frozen={finished || celebrating}
+              />
+              <figcaption className="art-label">Your sketch ✏️</figcaption>
+            </figure>
+            <figure className="art-pane">
+              <img
+                className="original-art"
+                src={animal.image}
+                alt={`${animal.name} by ${animal.artist}`}
+              />
+              <figcaption className="art-label">The real painting 🖼️</figcaption>
+            </figure>
+          </div>
+        ) : (
+          <AnimatedDrawing
+            animal={animal}
+            stepIndex={player.stepIndex}
+            duration={player.duration}
+            frozen={finished || celebrating}
+          />
+        )}
+
+        {finished && (
+          <div className="finish-stars" aria-hidden="true">
+            {FINISH_STARS.map((s, i) => (
+              <span
+                key={i}
+                className="finish-star"
+                style={{ ...s.style, animationDelay: `${i * 0.15}s` }}
+              >
+                {s.char}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
 
       <Controls
         stepIndex={player.stepIndex}
         stepCount={animal.steps.length}
-        prevDisabled={player.isFirst && !celebrating}
+        prevDisabled={player.isFirst && !finished && !celebrating}
         nextDisabled={celebrating}
         duration={player.duration}
         onPrev={handlePrev}
@@ -146,6 +188,7 @@ export function DrawingPlayer({
           onAgain={onHome}
           onWatchAgain={() => {
             setCelebrating(false);
+            setFinished(false);
             player.reset();
           }}
           onBack={handlePrev}
