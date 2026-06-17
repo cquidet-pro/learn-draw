@@ -21,6 +21,17 @@ import { fish7 } from "./drawings/fish-7";
 import { butterfly7 } from "./drawings/butterfly-7";
 import { flower7 } from "./drawings/flower-7";
 import { house7 } from "./drawings/house-7";
+import { hedgehog7 } from "./drawings/hedgehog-7";
+import { dinosaur7 } from "./drawings/dinosaur-7";
+import { tree7 } from "./drawings/tree-7";
+import { sun7 } from "./drawings/sun-7";
+import { rainbow7 } from "./drawings/rainbow-7";
+import { cloud7 } from "./drawings/cloud-7";
+import { star7 } from "./drawings/star-7";
+import { heart7 } from "./drawings/heart-7";
+import { car7 } from "./drawings/car-7";
+import { family7 } from "./drawings/family-7";
+import { princess7 } from "./drawings/princess-7";
 
 /** A single tutorial step. */
 export interface DrawStep {
@@ -87,6 +98,17 @@ export const animals: Animal[] = [
   butterfly7,
   flower7,
   house7,
+  hedgehog7,
+  dinosaur7,
+  tree7,
+  sun7,
+  rainbow7,
+  cloud7,
+  star7,
+  heart7,
+  car7,
+  family7,
+  princess7,
 ];
 
 export function getAnimal(id: string): Animal | undefined {
