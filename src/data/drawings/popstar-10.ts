@@ -54,7 +54,7 @@ export const popstar10: Animal = {
       color: "#ffd166",
       strokes: [
         "M 18,160 L 182,160",
-        "M 100,4 L 64,60 M 100,4 L 136,60 M 64,60 L 136,60",
+        "M 6,8 L 64,150 M 30,6 L 96,150",
       ],
     },
     {

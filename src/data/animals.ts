@@ -18,6 +18,9 @@ import { princess } from "./drawings/princess";
 import { popstar } from "./drawings/popstar";
 import { popstar7 } from "./drawings/popstar-7";
 import { popstar10 } from "./drawings/popstar-10";
+import { heromask } from "./drawings/heromask";
+import { heromask7 } from "./drawings/heromask-7";
+import { heromask10 } from "./drawings/heromask-10";
 import { dog7 } from "./drawings/dog-7";
 import { cat7 } from "./drawings/cat-7";
 import { fish7 } from "./drawings/fish-7";
@@ -112,6 +115,7 @@ export const animals: Animal[] = [
   family,
   princess,
   popstar,
+  heromask,
   // Level 7 — more refined versions of the same subjects.
   dog7,
   cat7,
@@ -131,6 +135,7 @@ export const animals: Animal[] = [
   family7,
   princess7,
   popstar7,
+  heromask7,
   // Level 10 — even more detailed versions with little scenes.
   dog10,
   cat10,
@@ -150,6 +155,7 @@ export const animals: Animal[] = [
   princess10,
   house10,
   popstar10,
+  heromask10,
 ];
 
 export function getAnimal(id: string): Animal | undefined {
