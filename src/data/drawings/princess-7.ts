@@ -34,18 +34,21 @@ export const princess7: Animal = {
       hint: "Draw a big flowy dress 👗",
       color: "#ef476f",
       strokes: [
-        "M 100,72 L 66,162 L 134,162 Z",
-        "M 86,96 L 114,96",
-        "M 66,162 Q 100,154 134,162",
+        "M 100,74 Q 72,116 60,162 Q 100,176 140,162 Q 128,116 100,74 Z",
+        "M 84,100 Q 100,106 116,100",
       ],
     },
     {
-      hint: "Add arms and a magic wand!",
+      hint: "Add her arms",
       color: "#d39a6a",
+      strokes: ["M 86,82 Q 70,104 76,122", "M 114,82 Q 134,98 132,116"],
+    },
+    {
+      hint: "Give her a magic wand! ✨",
+      color: "#ffd166",
       strokes: [
-        "M 88,104 L 72,122 M 112,104 L 132,116",
-        "M 132,116 L 145,102",
-        "M 145,96 l 2,5 l 5,0 l -4,4 l 2,5 l -5,-3 l -5,3 l 2,-5 l -4,-4 l 5,0 z",
+        "M 132,116 L 146,100",
+        "M 146,94 l 2,5 l 5,0 l -4,4 l 2,5 l -5,-3 l -5,3 l 2,-5 l -4,-4 l 5,0 z",
       ],
     },
     {

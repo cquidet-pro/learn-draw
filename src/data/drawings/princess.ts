@@ -1,6 +1,6 @@
 import type { Animal } from "../animals";
 
-// A simple princess with a crown and a big dress.
+// A cute princess with a crown and a flowing gown.
 export const princess: Animal = {
   id: "princess",
   name: "Princess",
@@ -9,28 +9,35 @@ export const princess: Animal = {
   color: "#ef476f",
   steps: [
     {
-      hint: "Draw the head",
+      hint: "Start with a round head",
       color: "#d39a6a",
-      strokes: ["M 84,56 a 16,16 0 1,0 32,0 a 16,16 0 1,0 -32,0"],
+      strokes: ["M 82,60 a 18,18 0 1,0 36,0 a 18,18 0 1,0 -36,0"],
     },
     {
       hint: "Add a sparkly crown 👑",
       color: "#ffd166",
-      strokes: ["M 85,44 L 89,28 L 100,38 L 111,28 L 115,44 Z"],
+      strokes: ["M 84,50 L 88,33 L 94,47 L 100,30 L 106,47 L 112,33 L 116,50 Z"],
     },
     {
       hint: "Draw a big flowy dress 👗",
       color: "#ef476f",
-      strokes: ["M 100,72 L 68,162 L 132,162 Z"],
+      strokes: [
+        "M 100,78 Q 76,116 62,160 Q 100,176 138,160 Q 124,116 100,78 Z",
+        "M 86,104 Q 100,110 114,104",
+      ],
     },
     {
-      hint: "Add arms and a happy face! 😊",
+      hint: "Add her arms",
       color: "#d39a6a",
+      strokes: ["M 88,84 Q 72,102 76,118", "M 112,84 Q 128,102 124,118"],
+    },
+    {
+      hint: "Finish with a happy face! 😊",
+      color: "#5b3a29",
       strokes: [
-        "M 86,100 L 70,122 M 114,100 L 130,122",
-        "M 92,56 a 2,2 0 1,0 4,0 a 2,2 0 1,0 -4,0",
-        "M 104,56 a 2,2 0 1,0 4,0 a 2,2 0 1,0 -4,0",
-        "M 92,64 Q 100,70 108,64",
+        "M 91.5,57 a 2.5,2.5 0 1,0 5,0 a 2.5,2.5 0 1,0 -5,0",
+        "M 103.5,57 a 2.5,2.5 0 1,0 5,0 a 2.5,2.5 0 1,0 -5,0",
+        "M 94,66 Q 100,71 106,66",
       ],
     },
   ],

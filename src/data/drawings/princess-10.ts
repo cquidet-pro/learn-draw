@@ -9,27 +9,44 @@ export const princess10: Animal = {
   color: "#ef476f",
   viewBox: "0 0 200 200",
   steps: [
-    { hint: "Draw the head", color: "#d39a6a", strokes: ["M 64,56 a 15,15 0 1,0 30,0 a 15,15 0 1,0 -30,0"] },
+    {
+      hint: "Draw the head",
+      color: "#d39a6a",
+      strokes: ["M 64,56 a 15,15 0 1,0 30,0 a 15,15 0 1,0 -30,0"],
+    },
     {
       hint: "Add long flowing hair",
       color: "#6b4f3a",
-      strokes: ["M 53,50 Q 53,29 79,29 Q 105,29 105,50 Q 107,73 99,90", "M 57,90 Q 49,73 51,50"],
+      strokes: [
+        "M 53,50 Q 53,29 79,29 Q 105,29 105,50 Q 107,73 99,90",
+        "M 57,90 Q 49,73 51,50",
+      ],
     },
     {
       hint: "Add a sparkly jewelled crown 👑",
       color: "#ffd166",
-      strokes: ["M 64,40 L 68,27 L 79,36 L 90,27 L 94,40 Z", "M 79,33 a 2,2 0 1,0 4,0 a 2,2 0 1,0 -4,0"],
+      strokes: [
+        "M 64,40 L 68,27 L 79,36 L 90,27 L 94,40 Z",
+        "M 79,33 a 2,2 0 1,0 4,0 a 2,2 0 1,0 -4,0",
+      ],
     },
     {
       hint: "Draw a big flowy dress 👗",
       color: "#ef476f",
-      strokes: ["M 79,71 L 47,160 L 111,160 Z", "M 65,95 L 93,95", "M 47,160 Q 79,152 111,160"],
+      strokes: [
+        "M 79,72 Q 53,114 42,160 Q 79,174 116,160 Q 105,114 79,72 Z",
+        "M 64,100 Q 79,106 94,100",
+      ],
     },
     {
-      hint: "Add arms and a magic wand! ✨",
+      hint: "Add her arms",
       color: "#d39a6a",
+      strokes: ["M 66,82 Q 50,104 56,120", "M 92,82 Q 112,98 112,116"],
+    },
+    {
+      hint: "Give her a magic wand! ✨",
+      color: "#ffd166",
       strokes: [
-        "M 67,103 L 52,120 M 91,103 L 112,116",
         "M 112,116 L 126,100",
         "M 126,94 l 2,5 l 5,0 l -4,4 l 2,5 l -5,-3 l -5,3 l 2,-5 l -4,-4 l 5,0 z",
       ],
