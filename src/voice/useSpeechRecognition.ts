@@ -5,8 +5,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 interface SpeechRecAlternative {
   transcript: string;
 }
+interface SpeechRecResult extends ArrayLike<SpeechRecAlternative> {
+  isFinal: boolean;
+}
 interface SpeechRecEvent {
-  results: ArrayLike<ArrayLike<SpeechRecAlternative>>;
+  results: ArrayLike<SpeechRecResult>;
 }
 interface SpeechRecErrorEvent {
   error: string;
@@ -33,13 +36,18 @@ function getCtor(): SpeechRecCtor | null {
 }
 
 /**
- * Wraps the browser's continuous speech recognition. Calls `onResult` with each
- * final transcript. Returns controls + state for a mic toggle.
+ * Wraps the browser's continuous speech recognition. Calls `onResult` with the
+ * live transcript as the user speaks (interim results) so commands fire as soon
+ * as the word is recognized, rather than waiting for an end-of-speech pause.
+ * `isFinal` marks the recognizer's finalized transcript for that utterance.
+ * Returns controls + state for a mic toggle.
  *
  * Recognition is restarted automatically on `onend` (browsers stop after a
  * pause), so it keeps listening until the user turns it off.
  */
-export function useSpeechRecognition(onResult: (transcript: string) => void) {
+export function useSpeechRecognition(
+  onResult: (transcript: string, isFinal: boolean) => void,
+) {
   // Keep the latest callback without re-creating the recognition instance.
   const onResultRef = useRef(onResult);
   onResultRef.current = onResult;
@@ -66,11 +74,15 @@ export function useSpeechRecognition(onResult: (transcript: string) => void) {
     if (!rec) {
       rec = new Ctor();
       rec.continuous = true;
-      rec.interimResults = false;
+      // Interim results let us react the moment a word is recognized instead of
+      // waiting for the browser to detect end-of-speech (which felt slow).
+      rec.interimResults = true;
       rec.lang = "en-US";
       rec.onresult = (e) => {
         const last = e.results[e.results.length - 1];
-        if (last && last[0]) onResultRef.current(last[0].transcript);
+        if (last && last[0]) {
+          onResultRef.current(last[0].transcript, last.isFinal);
+        }
       };
       rec.onerror = (e) => {
         if (e.error === "not-allowed" || e.error === "service-not-allowed") {

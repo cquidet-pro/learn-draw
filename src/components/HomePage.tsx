@@ -65,21 +65,35 @@ export function HomePage({
   }, [printing, visible, level]);
 
   const onCommand = useCallback(
-    (transcript: string) => {
-      if (heardAny(transcript, ["up"])) return scrollPage(-1);
-      if (heardAny(transcript, ["down"])) return scrollPage(1);
-      if (heardAny(transcript, ["facts", "fun facts"])) return onOpenFacts();
-      if (heardAny(transcript, ["paintings", "painting", "art", "famous"]))
-        return onOpenPaintings();
-      if (heardAny(transcript, ["print", "coloring", "color me"]))
-        return void handlePrint();
+    (transcript: string): boolean => {
+      if (heardAny(transcript, ["up"])) {
+        scrollPage(-1);
+        return true;
+      }
+      if (heardAny(transcript, ["down"])) {
+        scrollPage(1);
+        return true;
+      }
+      if (heardAny(transcript, ["facts", "fun facts"])) {
+        onOpenFacts();
+        return true;
+      }
+      if (heardAny(transcript, ["paintings", "painting", "art", "famous"])) {
+        onOpenPaintings();
+        return true;
+      }
+      if (heardAny(transcript, ["print", "coloring", "color me"])) {
+        handlePrint();
+        return true;
+      }
       for (const animal of visible) {
         const words = ALIASES[animal.id] ?? [animal.name.toLowerCase()];
         if (heardAny(transcript, words)) {
           onPick(animal);
-          return;
+          return true;
         }
       }
+      return false;
     },
     [onPick, onOpenFacts, onOpenPaintings, visible, handlePrint],
   );

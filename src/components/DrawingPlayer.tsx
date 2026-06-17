@@ -82,11 +82,20 @@ export function DrawingPlayer({
 
   // Voice commands. Check "back" before "next" so "go back" isn't read as "go".
   const onCommand = useCallback(
-    (transcript: string) => {
-      if (heardAny(transcript, ["home", "menu", "exit"])) onHome();
-      else if (heardAny(transcript, ["back", "previous"])) handlePrev();
-      else if (heardAny(transcript, ["next", "go", "forward", "more"]))
+    (transcript: string): boolean => {
+      if (heardAny(transcript, ["home", "menu", "exit"])) {
+        onHome();
+        return true;
+      }
+      if (heardAny(transcript, ["back", "previous"])) {
+        handlePrev();
+        return true;
+      }
+      if (heardAny(transcript, ["next", "go", "forward", "more"])) {
         handleNext();
+        return true;
+      }
+      return false;
     },
     [onHome, handlePrev, handleNext],
   );

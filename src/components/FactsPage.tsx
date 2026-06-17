@@ -32,8 +32,12 @@ const FACTS: { emoji: string; text: string }[] = [
 
 export function FactsPage({ onHome }: Props) {
   const onCommand = useCallback(
-    (transcript: string) => {
-      if (heardAny(transcript, ["home", "back", "menu"])) onHome();
+    (transcript: string): boolean => {
+      if (heardAny(transcript, ["home", "back", "menu"])) {
+        onHome();
+        return true;
+      }
+      return false;
     },
     [onHome],
   );

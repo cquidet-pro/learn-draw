@@ -15,8 +15,9 @@ interface VoiceContextValue {
   lastHeard: string | null;
   error: string | null;
   toggle: () => void;
-  /** Register the current screen's command handler. Returns an unregister fn. */
-  register: (handler: (transcript: string) => void) => () => void;
+  /** Register the current screen's command handler. Returns an unregister fn.
+   *  The handler returns `true` when it acted on a command. */
+  register: (handler: (transcript: string) => boolean) => () => void;
 }
 
 const VoiceContext = createContext<VoiceContextValue | null>(null);
@@ -32,19 +33,34 @@ function useVoice(): VoiceContextValue {
  * the lowercased transcript. Pass a STABLE callback (useCallback) so it isn't
  * re-registered every render.
  */
-export function useVoiceControl(onCommand: (transcript: string) => void) {
+export function useVoiceControl(onCommand: (transcript: string) => boolean) {
   const { register } = useVoice();
   useEffect(() => register(onCommand), [register, onCommand]);
 }
 
 export function VoiceProvider({ children }: { children: ReactNode }) {
-  const handlerRef = useRef<((t: string) => void) | null>(null);
+  const handlerRef = useRef<((t: string) => boolean) | null>(null);
   const [lastHeard, setLastHeard] = useState<string | null>(null);
+  // We act on interim (live) results for speed, but a command must fire only
+  // once per spoken phrase. After one fires we "disarm" and ignore the rest of
+  // that utterance — including its later final transcript — re-arming only once
+  // the utterance has finalized.
+  const armedRef = useRef(true);
 
-  const onResult = useCallback((transcript: string) => {
+  const onResult = useCallback((transcript: string, isFinal: boolean) => {
     const text = transcript.trim();
-    setLastHeard(text);
-    handlerRef.current?.(text.toLowerCase());
+    if (text) setLastHeard(text);
+
+    if (!armedRef.current) {
+      // Waiting out the handled utterance; re-arm when it finalizes.
+      if (isFinal) armedRef.current = true;
+      return;
+    }
+    if (!text) return;
+
+    const handled = handlerRef.current?.(text.toLowerCase());
+    // If we acted on an interim guess, mute the rest of this utterance.
+    if (handled && !isFinal) armedRef.current = false;
   }, []);
 
   const { supported, listening, error, start, stop } =
@@ -55,7 +71,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
     else start();
   }, [listening, start, stop]);
 
-  const register = useCallback((handler: (t: string) => void) => {
+  const register = useCallback((handler: (t: string) => boolean) => {
     handlerRef.current = handler;
     return () => {
       if (handlerRef.current === handler) handlerRef.current = null;

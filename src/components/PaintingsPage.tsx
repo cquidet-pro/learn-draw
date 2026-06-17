@@ -13,16 +13,20 @@ interface Props {
 
 export function PaintingsPage({ onPick, onHome, completed }: Props) {
   const onCommand = useCallback(
-    (transcript: string) => {
-      if (heardAny(transcript, ["home", "back", "menu"])) return onHome();
+    (transcript: string): boolean => {
+      if (heardAny(transcript, ["home", "back", "menu"])) {
+        onHome();
+        return true;
+      }
       for (const m of masterpieces) {
         const words = [m.name.toLowerCase()];
         if (m.artist) words.push(m.artist.toLowerCase());
         if (heardAny(transcript, words)) {
           onPick(m);
-          return;
+          return true;
         }
       }
+      return false;
     },
     [onPick, onHome],
   );
