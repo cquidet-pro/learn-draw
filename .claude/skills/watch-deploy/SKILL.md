@@ -47,8 +47,10 @@ live URL, so they can immediately try it out — including from a mobile session
    - Do not block forever: if it is still running after ~5 minutes, report the
      current status and the run URL rather than waiting silently.
 
-3. **Notify the user.** Send the result as a **proactive** message (so it surfaces
-   as a push notification on web/mobile):
+3. **Notify the user.** Send the result as a **proactive** message. The Claude app
+   turns a proactive message into a **push notification on the user's phone** when the
+   app is backgrounded — so the completion message below *is* the phone notification.
+   There is no separate push API to call; just emit the message proactively:
 
    - On `conclusion == "success"`: tell the user the deploy is done and include the
      live link — **https://cquidet-pro.github.io/learn-draw/** — inviting them to try
@@ -62,3 +64,16 @@ live URL, so they can immediately try it out — including from a mobile session
 - No `gh` CLI is available in this environment — use the `mcp__github__*` tools above.
 - Keep notifications to one per deploy: the start ("watching the deploy…") is optional;
   the completion notification is the important one.
+
+## Getting the phone notification
+
+For the completion message to arrive as a **push notification on the user's phone**,
+the notification is delivered by the Claude mobile app — it requires:
+
+- Notifications enabled for the Claude app (phone OS settings + in-app settings).
+- This session still running when the deploy completes (the agent must be actively
+  watching the run, as this skill does). If the session has ended, no notification
+  fires — the watch only works while the session is alive.
+
+The agent does not have a direct push-notification tool; emitting the completion
+message proactively is what triggers the app's push.
