@@ -206,3 +206,9 @@ export function previewStrokes(animal: Animal): { d: string; color: string }[] {
     step.strokes.map((d) => ({ d, color: step.color ?? animal.color })),
   );
 }
+
+/** Every filled shape (for drawings that use them) — painted behind the outline
+ *  strokes in the static card preview, so colored art shows up on the home card. */
+export function previewFills(animal: Animal): { d: string; color: string }[] {
+  return animal.steps.flatMap((step) => step.fills ?? []);
+}

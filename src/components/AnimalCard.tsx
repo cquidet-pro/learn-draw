@@ -1,5 +1,5 @@
 import type { Animal } from "../data/animals";
-import { previewStrokes } from "../data/animals";
+import { previewFills, previewStrokes } from "../data/animals";
 
 interface Props {
   animal: Animal;
@@ -24,6 +24,9 @@ export function AnimalCard({ animal, done, subtitle, onClick }: Props) {
         </span>
       )}
       <svg className="card-preview" viewBox={animal.viewBox} aria-hidden="true">
+        {previewFills(animal).map((f, i) => (
+          <path key={`fill-${i}`} d={f.d} fill={f.color} stroke="none" />
+        ))}
         {previewStrokes(animal).map((s, i) => (
           <path
             key={i}
