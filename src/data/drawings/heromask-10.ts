@@ -16,37 +16,33 @@ export const heromask10: Animal = {
       ],
     },
     {
-      hint: "Add two big hero eyes 👀",
+      hint: "Add an eye mask across the eyes 🦸",
       color: "#1a1a2e",
       strokes: [
-        "M 60,84 Q 76,72 94,84 Q 91,102 76,104 Q 62,101 60,84 Z",
-        "M 140,84 Q 124,72 106,84 Q 109,102 124,104 Q 138,101 140,84 Z",
+        "M 48,82 Q 56,68 76,70 Q 90,72 100,82 Q 110,72 124,70 Q 144,68 152,82 Q 152,106 128,108 Q 108,108 100,96 Q 92,108 72,108 Q 48,106 48,82 Z",
       ],
     },
     {
-      hint: "Add a brow line, nose and mouth",
-      strokes: ["M 54,74 Q 100,62 146,74", "M 100,108 L 100,116", "M 88,122 Q 100,128 112,122"],
-    },
-    {
-      hint: "Add a star-burst pattern from the middle ⚡",
+      hint: "Add two big eyes 👀",
       color: "#1a1a2e",
       strokes: [
-        "M 100,114 L 66,140 M 100,114 L 100,152 M 100,114 L 134,140 M 100,114 L 58,120 M 100,114 L 142,120",
+        "M 62,84 Q 76,74 92,84 Q 89,100 76,102 Q 64,99 62,84 Z",
+        "M 138,84 Q 124,74 108,84 Q 111,100 124,102 Q 136,99 138,84 Z",
       ],
     },
     {
-      hint: "Add curved panel lines on the cheeks",
-      color: "#1a1a2e",
-      strokes: ["M 56,108 Q 66,132 60,156", "M 144,108 Q 134,132 140,156"],
+      hint: "Add a nose and a mouth",
+      strokes: ["M 100,112 L 100,122", "M 86,128 Q 100,134 114,128"],
     },
     {
-      hint: "Finish with a star emblem and little stars! ⭐",
-      color: "#ffd166",
-      strokes: [
-        "M 100,40 l 3,9 l 9,1 l -7,6 l 2,9 l -7,-5 l -7,5 l 2,-9 l -7,-6 l 9,-1 z",
-        "M 76,150 l 2,5 l 6,1 l -4,4 l 1,5 l -5,-3 l -5,3 l 1,-5 l -4,-4 l 6,-1 z",
-        "M 124,150 l 2,5 l 6,1 l -4,4 l 1,5 l -5,-3 l -5,3 l 1,-5 l -4,-4 l 6,-1 z",
-      ],
+      hint: "Add bold pattern lines from the middle ⚡",
+      color: "#1a1a2e",
+      strokes: ["M 100,118 L 70,146 M 100,118 L 100,156 M 100,118 L 130,146"],
+    },
+    {
+      hint: "Finish with curved panel lines on the cheeks",
+      color: "#1a1a2e",
+      strokes: ["M 56,110 Q 66,134 60,158", "M 144,110 Q 134,134 140,158"],
     },
   ],
 };
