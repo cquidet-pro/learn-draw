@@ -5,7 +5,7 @@ import { useKeyboard } from "../hooks/useKeyboard";
 import { AnimatedDrawing } from "./AnimatedDrawing";
 import { Controls } from "./Controls";
 import { Celebration } from "./Celebration";
-import { useVoiceControl } from "../voice/VoiceProvider";
+import { useVoiceControl, VoiceButton } from "../voice/VoiceProvider";
 import { heardAny } from "../voice/match";
 
 interface Props {
@@ -64,6 +64,10 @@ export function DrawingPlayer({ animal, onHome, onComplete }: Props) {
           {animal.emoji} How to draw a {animal.name}
         </h1>
       </header>
+
+      <div className="control-bar">
+        <VoiceButton />
+      </div>
 
       <p className="hint">
         {player.isLast && !celebrating ? "All done? Press Space! 🎉" : step.hint}

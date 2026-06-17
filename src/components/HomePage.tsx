@@ -2,8 +2,13 @@ import { useCallback } from "react";
 import { animals } from "../data/animals";
 import type { Animal } from "../data/animals";
 import { AnimalCard } from "./AnimalCard";
-import { useVoiceControl } from "../voice/VoiceProvider";
+import { useVoiceControl, VoiceButton } from "../voice/VoiceProvider";
 import { heardAny } from "../voice/match";
+
+/** Smoothly scroll the page up (-1) or down (+1) by most of a screenful. */
+function scrollPage(dir: 1 | -1) {
+  window.scrollBy({ top: dir * Math.round(window.innerHeight * 0.7), behavior: "smooth" });
+}
 
 // Spoken words (beyond each drawing's own name) that select it.
 const ALIASES: Record<string, string[]> = {
@@ -35,6 +40,8 @@ interface Props {
 export function HomePage({ onPick, completed }: Props) {
   const onCommand = useCallback(
     (transcript: string) => {
+      if (heardAny(transcript, ["up"])) return scrollPage(-1);
+      if (heardAny(transcript, ["down"])) return scrollPage(1);
       for (const animal of animals) {
         const words = ALIASES[animal.id] ?? [animal.name.toLowerCase()];
         if (heardAny(transcript, words)) {
@@ -51,6 +58,25 @@ export function HomePage({ onPick, completed }: Props) {
     <div className="home">
       <h1 className="title">🎨 Let's Learn to Draw!</h1>
       <p className="subtitle">Pick something to draw 👇</p>
+      <div className="control-bar">
+        <VoiceButton />
+        <div className="scroll-btns">
+          <button
+            className="scroll-btn"
+            onClick={() => scrollPage(-1)}
+            aria-label="Scroll up"
+          >
+            ▲
+          </button>
+          <button
+            className="scroll-btn"
+            onClick={() => scrollPage(1)}
+            aria-label="Scroll down"
+          >
+            ▼
+          </button>
+        </div>
+      </div>
       <div className="card-grid">
         {animals.map((animal) => (
           <AnimalCard

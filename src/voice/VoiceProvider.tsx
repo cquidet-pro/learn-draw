@@ -11,11 +11,21 @@ import { useSpeechRecognition } from "./useSpeechRecognition";
 
 interface VoiceContextValue {
   supported: boolean;
+  listening: boolean;
+  lastHeard: string | null;
+  error: string | null;
+  toggle: () => void;
   /** Register the current screen's command handler. Returns an unregister fn. */
   register: (handler: (transcript: string) => void) => () => void;
 }
 
 const VoiceContext = createContext<VoiceContextValue | null>(null);
+
+function useVoice(): VoiceContextValue {
+  const ctx = useContext(VoiceContext);
+  if (!ctx) throw new Error("useVoice must be used within a VoiceProvider");
+  return ctx;
+}
 
 /**
  * Screens call this to receive voice commands while mounted. `onCommand` gets
@@ -23,11 +33,8 @@ const VoiceContext = createContext<VoiceContextValue | null>(null);
  * re-registered every render.
  */
 export function useVoiceControl(onCommand: (transcript: string) => void) {
-  const ctx = useContext(VoiceContext);
-  useEffect(() => {
-    if (!ctx) return;
-    return ctx.register(onCommand);
-  }, [ctx, onCommand]);
+  const { register } = useVoice();
+  useEffect(() => register(onCommand), [register, onCommand]);
 }
 
 export function VoiceProvider({ children }: { children: ReactNode }) {
@@ -43,6 +50,11 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
   const { supported, listening, error, start, stop } =
     useSpeechRecognition(onResult);
 
+  const toggle = useCallback(() => {
+    if (listening) stop();
+    else start();
+  }, [listening, start, stop]);
+
   const register = useCallback((handler: (t: string) => void) => {
     handlerRef.current = handler;
     return () => {
@@ -51,67 +63,44 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <VoiceContext.Provider value={{ supported, register }}>
+    <VoiceContext.Provider
+      value={{ supported, listening, lastHeard, error, toggle, register }}
+    >
       {children}
-      <VoicePanel
-        supported={supported}
-        listening={listening}
-        error={error}
-        lastHeard={lastHeard}
-        onToggle={listening ? stop : start}
-      />
+      {listening && (
+        <div className="voice-toast">
+          <span className="voice-legend">
+            Say a name · <b>next</b> · <b>back</b> · <b>up</b> · <b>down</b>
+          </span>
+          {lastHeard && <span className="voice-heard">🗣️ "{lastHeard}"</span>}
+        </div>
+      )}
+      {error && <div className="voice-toast voice-toast-error">{error}</div>}
     </VoiceContext.Provider>
   );
 }
 
-interface PanelProps {
-  supported: boolean;
-  listening: boolean;
-  error: string | null;
-  lastHeard: string | null;
-  onToggle: () => void;
-}
+/** The mic on/off toggle. Place it wherever you want in the layout. */
+export function VoiceButton() {
+  const { supported, listening, toggle } = useVoice();
 
-function VoicePanel({
-  supported,
-  listening,
-  error,
-  lastHeard,
-  onToggle,
-}: PanelProps) {
   if (!supported) {
     return (
-      <div className="voice-panel">
-        <span className="voice-note">🎤 Voice isn't supported in this browser</span>
-      </div>
+      <span className="voice-note">🎤 Voice isn't supported in this browser</span>
     );
   }
 
   return (
-    <div className="voice-panel">
-      {listening && (
-        <div className="voice-info">
-          <span className="voice-legend">
-            Say a name (<b>dog</b>, <b>sun</b>, <b>car</b>…) · <b>next</b> ·{" "}
-            <b>back</b> · <b>home</b>
-          </span>
-          {lastHeard && (
-            <span className="voice-heard">🗣️ "{lastHeard}"</span>
-          )}
-        </div>
-      )}
-      {error && <span className="voice-error">{error}</span>}
-      <button
-        className={listening ? "voice-btn on" : "voice-btn"}
-        onClick={onToggle}
-        aria-label={listening ? "Turn off voice control" : "Turn on voice control"}
-        aria-pressed={listening}
-      >
-        {listening ? "🎤" : "🎙️"}
-        <span className="voice-btn-label">
-          {listening ? "Listening…" : "Talk to me"}
-        </span>
-      </button>
-    </div>
+    <button
+      className={listening ? "voice-btn on" : "voice-btn"}
+      onClick={toggle}
+      aria-label={listening ? "Turn off voice control" : "Turn on voice control"}
+      aria-pressed={listening}
+    >
+      {listening ? "🎤" : "🎙️"}
+      <span className="voice-btn-label">
+        {listening ? "Listening…" : "Talk to me"}
+      </span>
+    </button>
   );
 }

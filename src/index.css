@@ -442,19 +442,44 @@ kbd {
   }
 }
 
-/* ---------- Voice control ---------- */
-.voice-panel {
-  position: fixed;
-  right: 1rem;
-  bottom: 1rem;
-  z-index: 20;
+/* ---------- Control bar (mic + scroll buttons) ---------- */
+.control-bar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  width: 100%;
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.6rem;
-  max-width: min(92vw, 360px);
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.7rem 1rem;
+  margin-bottom: 0.5rem;
+  background: var(--bg);
 }
 
+.scroll-btns {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.scroll-btn {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 4px solid var(--accent);
+  background: #fff;
+  color: var(--ink);
+  font-size: 1.4rem;
+  cursor: pointer;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.12);
+}
+
+.scroll-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
+}
+
+/* ---------- Voice control ---------- */
 .voice-btn {
   display: flex;
   align-items: center;
@@ -489,16 +514,28 @@ kbd {
   }
 }
 
-.voice-info {
+.voice-note {
+  font-size: 0.9rem;
+  opacity: 0.6;
+}
+
+/* Non-blocking status toast at the bottom while listening. */
+.voice-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  transform: translateX(-50%);
+  z-index: 25;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 0.3rem;
-  background: rgba(255, 255, 255, 0.95);
+  align-items: center;
+  gap: 0.2rem;
+  background: rgba(255, 255, 255, 0.96);
   border-radius: 16px;
-  padding: 0.5rem 0.8rem;
-  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.08);
-  text-align: right;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
+  max-width: min(92vw, 420px);
+  text-align: center;
 }
 
 .voice-legend {
@@ -515,23 +552,17 @@ kbd {
   font-weight: 700;
 }
 
-.voice-error {
+.voice-toast-error {
   background: #ffe3e3;
   color: #b00020;
-  border-radius: 12px;
-  padding: 0.4rem 0.7rem;
   font-size: 0.9rem;
-  max-width: 16rem;
-  text-align: right;
-}
-
-.voice-note {
-  font-size: 0.8rem;
-  opacity: 0.6;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .voice-btn.on {
     animation: none;
+  }
+  .scroll-btn:active {
+    transform: none;
   }
 }
