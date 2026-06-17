@@ -1,48 +1,68 @@
 import type { Animal } from "../animals";
 
-// An original superhero mask of our own design. Harder version.
+// An original masked superhero of our own design. Harder version.
 export const heromask10: Animal = {
   id: "heromask-10",
-  name: "Hero Mask",
+  name: "Superhero",
   emoji: "🦸",
   level: 10,
   color: "#e63946",
   viewBox: "0 0 200 200",
   steps: [
     {
-      hint: "Draw the mask shape 🦸",
+      hint: "Draw the hero's head 🦸",
       strokes: [
-        "M 100,26 C 140,26 160,58 158,100 C 156,138 130,170 100,170 C 70,170 44,138 42,100 C 40,58 60,26 100,26 Z",
+        "M 100,30 C 128,30 142,52 140,76 C 138,102 120,116 100,116 C 80,116 62,102 60,76 C 58,52 72,30 100,30 Z",
       ],
     },
     {
-      hint: "Add an eye mask across the eyes 🦸",
-      color: "#1a1a2e",
+      hint: "Add a big flowing cape!",
       strokes: [
-        "M 48,82 Q 56,68 76,70 Q 90,72 100,82 Q 110,72 124,70 Q 144,68 152,82 Q 152,106 128,108 Q 108,108 100,96 Q 92,108 72,108 Q 48,106 48,82 Z",
+        "M 78,116 L 44,148 L 38,186 L 86,158 Z",
+        "M 122,116 L 156,148 L 162,186 L 114,158 Z",
       ],
     },
     {
-      hint: "Add two big eyes 👀",
-      color: "#1a1a2e",
+      hint: "Add the body and collar",
       strokes: [
-        "M 62,84 Q 76,74 92,84 Q 89,100 76,102 Q 64,99 62,84 Z",
-        "M 138,84 Q 124,74 108,84 Q 111,100 124,102 Q 136,99 138,84 Z",
+        "M 80,116 Q 100,126 120,116 L 132,186 L 68,186 Z",
+        "M 84,118 L 100,128 L 116,118",
       ],
     },
     {
-      hint: "Add a nose and a mouth",
-      strokes: ["M 100,112 L 100,122", "M 86,128 Q 100,134 114,128"],
+      hint: "Add a hero belt",
+      color: "#1a1a2e",
+      strokes: [
+        "M 70,168 L 130,168",
+        "M 95,164 L 105,164 L 105,174 L 95,174 Z",
+      ],
     },
     {
-      hint: "Add bold pattern lines from the middle ⚡",
+      hint: "Add the eye mask 🦸",
       color: "#1a1a2e",
-      strokes: ["M 100,118 L 70,146 M 100,118 L 100,156 M 100,118 L 130,146"],
+      strokes: [
+        "M 64,64 Q 72,54 86,56 Q 95,58 100,64 Q 105,58 114,56 Q 128,54 136,64 Q 136,80 118,82 Q 104,82 100,74 Q 96,82 82,82 Q 64,80 64,64 Z",
+      ],
     },
     {
-      hint: "Finish with curved panel lines on the cheeks",
+      hint: "Add the eyes 👀",
       color: "#1a1a2e",
-      strokes: ["M 56,110 Q 66,134 60,158", "M 144,110 Q 134,134 140,158"],
+      strokes: [
+        "M 76,66 Q 84,59 92,66 Q 90,75 84,76 Q 78,74 76,66 Z",
+        "M 124,66 Q 116,59 108,66 Q 110,75 116,76 Q 122,74 124,66 Z",
+      ],
+    },
+    {
+      hint: "Add a brave smile",
+      strokes: ["M 90,98 Q 100,104 110,98"],
+    },
+    {
+      hint: "Finish with a lightning emblem in a shield! ⚡",
+      color: "#ffd166",
+      strokes: [
+        "M 100,132 L 116,138 L 112,156 L 100,162 L 88,156 L 84,138 Z",
+        "M 104,138 L 95,149 L 101,149 L 96,158",
+      ],
     },
   ],
 };
