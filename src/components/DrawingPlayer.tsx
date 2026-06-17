@@ -96,12 +96,34 @@ export function DrawingPlayer({
         {player.isLast && !celebrating ? "All done? Press Space! 🎉" : step.hint}
       </p>
 
-      <AnimatedDrawing
-        animal={animal}
-        stepIndex={player.stepIndex}
-        duration={player.duration}
-        frozen={celebrating}
-      />
+      {animal.image ? (
+        <div className="art-compare">
+          <figure className="art-pane">
+            <AnimatedDrawing
+              animal={animal}
+              stepIndex={player.stepIndex}
+              duration={player.duration}
+              frozen={celebrating}
+            />
+            <figcaption className="art-label">Your sketch ✏️</figcaption>
+          </figure>
+          <figure className="art-pane">
+            <img
+              className="original-art"
+              src={animal.image}
+              alt={`${animal.name} by ${animal.artist}`}
+            />
+            <figcaption className="art-label">The real painting 🖼️</figcaption>
+          </figure>
+        </div>
+      ) : (
+        <AnimatedDrawing
+          animal={animal}
+          stepIndex={player.stepIndex}
+          duration={player.duration}
+          frozen={celebrating}
+        />
+      )}
 
       <Controls
         stepIndex={player.stepIndex}

@@ -183,6 +183,41 @@ body {
   border-radius: 28px;
 }
 
+/* Side-by-side sketch + real painting (Famous Paintings) */
+.art-compare {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1.2rem;
+}
+
+.art-pane {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.art-compare .drawing {
+  width: min(70vw, 300px);
+}
+
+.original-art {
+  width: min(70vw, 300px);
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border: 6px solid var(--accent-2);
+  border-radius: 28px;
+}
+
+.art-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+  opacity: 0.75;
+}
+
 /* Strokes from past steps: shown complete but faded. */
 .stroke-done {
   opacity: 0.35;

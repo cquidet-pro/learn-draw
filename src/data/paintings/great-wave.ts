@@ -1,4 +1,5 @@
 import type { Animal } from "../animals";
+import greatWaveImg from "../../assets/paintings/great-wave.jpg";
 
 // A simple, original kid-sketch inspired by Hokusai's "The Great Wave off Kanagawa".
 export const greatWave: Animal = {
@@ -7,6 +8,7 @@ export const greatWave: Animal = {
   emoji: "🌊",
   artist: "Hokusai",
   fact: "Hokusai made this in Japan almost 200 years ago — it's printed from carved wood!",
+  image: greatWaveImg,
   viewBox: "0 0 200 200",
   color: "#1d4e89",
   steps: [

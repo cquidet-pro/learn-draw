@@ -1,4 +1,5 @@
 import type { Animal } from "../animals";
+import starryNightImg from "../../assets/paintings/starry-night.jpg";
 
 // A simple, original kid-sketch inspired by Van Gogh's "The Starry Night".
 export const starryNight: Animal = {
@@ -7,6 +8,7 @@ export const starryNight: Animal = {
   emoji: "🌌",
   artist: "Van Gogh",
   fact: "Vincent van Gogh painted Starry Night from his window — with big swirly brushstrokes!",
+  image: starryNightImg,
   viewBox: "0 0 200 200",
   color: "#3a5ba0",
   steps: [

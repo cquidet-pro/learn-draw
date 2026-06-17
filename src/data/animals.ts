@@ -50,6 +50,8 @@ export interface Animal {
   artist?: string;
   /** A short, kid-friendly fun fact shown when the drawing is finished. */
   fact?: string;
+  /** For "Famous Paintings": the real artwork to show side by side (public domain only). */
+  image?: string;
   steps: DrawStep[];
 }
 
