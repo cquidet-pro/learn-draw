@@ -65,7 +65,7 @@ export interface DrawStep {
   color?: string;
 }
 
-/** Difficulty level, shown to the child as an age. */
+/** Difficulty level, shown to the child as Easy (5) / Medium (7) / Harder (10). */
 export type Level = 5 | 7 | 10;
 
 /** A drawing the child can learn — an animal, object, or scene. */

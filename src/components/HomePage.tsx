@@ -108,7 +108,7 @@ export function HomePage({
         <p className="empty-state">
           More drawings for this level are coming soon! 🎨✨
           <br />
-          Try the 🐣 5 level for now.
+          Try the 🌱 Easy level for now.
         </p>
       ) : (
         <div className="card-grid">
