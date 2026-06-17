@@ -8,6 +8,7 @@ export const family: Animal = {
   emoji: "👪",
   viewBox: "0 0 200 200",
   color: "#3a3a55",
+  colorReveal: true,
   steps: [
     {
       hint: "Draw Daddy 🧔",
@@ -48,6 +49,10 @@ export const family: Animal = {
         "M 157,91 L 146,102 M 157,91 L 168,102",
         "M 157,120 L 148,148 M 157,120 L 166,148",
       ],
+    },
+    {
+      hint: "Now color your family in! 🖍️",
+      strokes: [],
     },
   ],
 };
