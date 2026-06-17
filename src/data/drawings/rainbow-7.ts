@@ -8,6 +8,7 @@ export const rainbow7: Animal = {
   level: 7,
   color: "#e63946",
   viewBox: "0 0 200 200",
+  colorReveal: true,
   steps: [
     { hint: "Start with a red arc 🔴", color: "#e63946", strokes: ["M 28,160 A 72,72 0 0,1 172,160"] },
     { hint: "Now orange 🟠", color: "#f4a300", strokes: ["M 38,160 A 62,62 0 0,1 162,160"] },
@@ -29,6 +30,10 @@ export const rainbow7: Animal = {
       strokes: [
         "M 178,164 Q 188,164 186,153 Q 189,144 175,146 Q 170,136 157,144 Q 148,142 150,156 Q 144,164 157,164 Z",
       ],
+    },
+    {
+      hint: "Now color the whole rainbow in! 🌈",
+      strokes: [],
     },
   ],
 };

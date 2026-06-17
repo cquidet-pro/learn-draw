@@ -9,6 +9,7 @@ export const family7: Animal = {
   level: 7,
   color: "#3a3a55",
   viewBox: "0 0 200 200",
+  colorReveal: true,
   steps: [
     {
       hint: "Draw Daddy 🧔",
@@ -68,6 +69,10 @@ export const family7: Animal = {
       hint: "Draw the grassy ground 🌱",
       color: "#06d6a0",
       strokes: ["M 8,158 L 192,158"],
+    },
+    {
+      hint: "Now color your family in! 🖍️",
+      strokes: [],
     },
   ],
 };
