@@ -11,6 +11,7 @@ export const picassoPortrait: Animal = {
   fact: "Picasso often showed a face from the front and the side at the same time — two views in one!",
   viewBox: "0 0 200 200",
   color: "#3a3a55",
+  colorReveal: true,
   steps: [
     {
       hint: "Draw a big head shape 🟣",
@@ -54,6 +55,10 @@ export const picassoPortrait: Animal = {
         "M 70,34 Q 58,14 90,17 Q 122,10 140,34 Q 152,50 147,68",
         "M 150,94 q 13,4 7,19 q -9,2 -11,-9",
       ],
+    },
+    {
+      hint: "Now bring it to life with color! 🎨",
+      strokes: [],
     },
   ],
 };

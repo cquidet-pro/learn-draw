@@ -30,13 +30,17 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen }: Props) 
     .map((step, si) => ({ step, si }))
     .filter(({ si }) => si <= stepIndex);
 
-  // A "coloring" step has fills but no strokes of its own. While it's the
-  // current step we keep all the outlines solid (the line art is finished — we
-  // are just filling it in).
+  // A "coloring" step has no outline strokes of its own (it only fills, or — for
+  // the pencil-sketch masterpieces — just reveals the colors). While it's the
+  // current step we keep all the outlines solid (the line art is finished).
   const current = animal.steps[stepIndex];
-  const coloringNow =
-    !frozen && !!current?.fills?.length && !current?.strokes?.length;
+  const coloringNow = !frozen && !!current && current.strokes.length === 0;
   const allSolid = frozen || coloringNow;
+
+  // Pencil-sketch mode: strokes are drawn in pencil gray until the picture is
+  // finished, then shown in their real colors at the "color it in" step.
+  const PENCIL = "#bdb6a8";
+  const revealColors = !animal.colorReveal || coloringNow || frozen;
 
   return (
     <svg
@@ -66,7 +70,7 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen }: Props) 
           : isCurrent
             ? "stroke-drawing"
             : "stroke-done";
-        const strokeColor = step.color ?? animal.color;
+        const strokeColor = revealColors ? step.color ?? animal.color : PENCIL;
         return step.strokes.map((d, ki) => (
           <path
             key={`${si}-${ki}-${isCurrent ? stepIndex : "done"}`}

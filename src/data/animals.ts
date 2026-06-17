@@ -100,6 +100,13 @@ export interface Animal {
   fact?: string;
   /** For "Famous Paintings": the real artwork to show side by side (public domain only). */
   image?: string;
+  /**
+   * "Pencil sketch, then color" mode: the outline strokes are drawn in a light
+   * pencil color and only revealed in their real per-step colors once the final
+   * "color it in" step is reached. Used by the masterpieces, whose colored
+   * brushstrokes aren't closed fillable shapes.
+   */
+  colorReveal?: boolean;
   steps: DrawStep[];
 }
 

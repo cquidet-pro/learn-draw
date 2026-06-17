@@ -11,6 +11,7 @@ export const starryNight: Animal = {
   image: starryNightImg,
   viewBox: "0 0 200 200",
   color: "#3a5ba0",
+  colorReveal: true,
   steps: [
     {
       hint: "Draw the rolling hills at the bottom 🏞️",
@@ -44,6 +45,10 @@ export const starryNight: Animal = {
       strokes: [
         "M 40,168 C 30,124 50,96 42,58 C 38,96 30,124 38,168 Z",
       ],
+    },
+    {
+      hint: "Now bring it to life with color! 🎨",
+      strokes: [],
     },
   ],
 };

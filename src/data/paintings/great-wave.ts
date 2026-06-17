@@ -11,6 +11,7 @@ export const greatWave: Animal = {
   image: greatWaveImg,
   viewBox: "0 0 200 200",
   color: "#1d4e89",
+  colorReveal: true,
   steps: [
     {
       hint: "Draw the big curling wave 🌊",
@@ -41,6 +42,10 @@ export const greatWave: Animal = {
         "M 40,138 Q 62,150 86,138",
         "M 96,150 Q 116,160 138,150",
       ],
+    },
+    {
+      hint: "Now bring it to life with color! 🎨",
+      strokes: [],
     },
   ],
 };

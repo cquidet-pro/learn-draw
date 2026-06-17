@@ -10,6 +10,7 @@ export const cubistFace: Animal = {
   fact: "Picasso drew faces from the front and the side at the same time — that's Cubism!",
   viewBox: "0 0 200 200",
   color: "#3a3a55",
+  colorReveal: true,
   steps: [
     {
       hint: "Draw a wonky face shape 🟦",
@@ -38,6 +39,10 @@ export const cubistFace: Animal = {
       hint: "Finish with cubist lines! 🎨",
       color: "#9b5de5",
       strokes: ["M 100,40 L 100,110 M 56,90 L 146,96"],
+    },
+    {
+      hint: "Now bring it to life with color! 🎨",
+      strokes: [],
     },
   ],
 };
