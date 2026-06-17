@@ -32,6 +32,23 @@ import { heart7 } from "./drawings/heart-7";
 import { car7 } from "./drawings/car-7";
 import { family7 } from "./drawings/family-7";
 import { princess7 } from "./drawings/princess-7";
+import { dog10 } from "./drawings/dog-10";
+import { cat10 } from "./drawings/cat-10";
+import { hedgehog10 } from "./drawings/hedgehog-10";
+import { fish10 } from "./drawings/fish-10";
+import { dinosaur10 } from "./drawings/dinosaur-10";
+import { butterfly10 } from "./drawings/butterfly-10";
+import { flower10 } from "./drawings/flower-10";
+import { tree10 } from "./drawings/tree-10";
+import { sun10 } from "./drawings/sun-10";
+import { rainbow10 } from "./drawings/rainbow-10";
+import { cloud10 } from "./drawings/cloud-10";
+import { star10 } from "./drawings/star-10";
+import { heart10 } from "./drawings/heart-10";
+import { car10 } from "./drawings/car-10";
+import { family10 } from "./drawings/family-10";
+import { princess10 } from "./drawings/princess-10";
+import { house10 } from "./drawings/house-10";
 
 /** A single tutorial step. */
 export interface DrawStep {
@@ -109,6 +126,24 @@ export const animals: Animal[] = [
   car7,
   family7,
   princess7,
+  // Level 10 — even more detailed versions with little scenes.
+  dog10,
+  cat10,
+  hedgehog10,
+  fish10,
+  dinosaur10,
+  butterfly10,
+  flower10,
+  tree10,
+  sun10,
+  rainbow10,
+  cloud10,
+  star10,
+  heart10,
+  car10,
+  family10,
+  princess10,
+  house10,
 ];
 
 export function getAnimal(id: string): Animal | undefined {

@@ -1,0 +1,33 @@
+import type { Animal } from "../animals";
+
+// A heart with highlight, an arrow and little hearts around it (10-year-old level).
+export const heart10: Animal = {
+  id: "heart-10",
+  name: "Heart",
+  emoji: "❤️",
+  level: 10,
+  color: "#ef476f",
+  viewBox: "0 0 200 200",
+  steps: [
+    { hint: "Draw the left side of the heart", strokes: ["M 100,150 C 58,118 48,86 70,71 C 88,59 100,78 100,90"] },
+    { hint: "Now mirror it on the right! ❤️", strokes: ["M 100,90 C 100,78 112,59 130,71 C 152,86 142,118 100,150"] },
+    { hint: "Add a shiny highlight ✨", color: "#ff8fab", strokes: ["M 78,80 Q 74,92 82,102", "M 88,76 Q 86,80 88,84"] },
+    {
+      hint: "Shoot an arrow through it! 🏹",
+      color: "#6b4f3a",
+      strokes: [
+        "M 40,118 L 160,72",
+        "M 160,72 L 150,70 M 160,72 L 154,81",
+        "M 40,118 L 30,116 L 36,124 L 26,122",
+      ],
+    },
+    {
+      hint: "Finish with little hearts floating up!",
+      color: "#ff8fab",
+      strokes: [
+        "M 40,56 C 33,51 31,45 37,41 C 41,38 44,41 44,45 C 44,41 47,38 51,41 C 57,45 55,51 48,56 Z",
+        "M 162,60 C 155,55 153,49 159,45 C 163,42 166,45 166,49 C 166,45 169,42 173,45 C 179,49 177,55 170,60 Z",
+      ],
+    },
+  ],
+};
