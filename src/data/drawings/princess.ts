@@ -24,13 +24,26 @@ export const princess: Animal = {
       strokes: ["M 100,72 L 68,162 L 132,162 Z"],
     },
     {
-      hint: "Add arms and a happy face! 😊",
+      hint: "Add the arms",
       color: "#d39a6a",
+      strokes: ["M 86,100 L 70,122 M 114,100 L 130,122"],
+    },
+    {
+      hint: "Add big cute eyes and a sweet smile 😊",
+      color: "#6b4f3a",
       strokes: [
-        "M 86,100 L 70,122 M 114,100 L 130,122",
-        "M 92,56 a 2,2 0 1,0 4,0 a 2,2 0 1,0 -4,0",
-        "M 104,56 a 2,2 0 1,0 4,0 a 2,2 0 1,0 -4,0",
-        "M 92,64 Q 100,70 108,64",
+        "M 89,55 a 4,4 0 1,0 8,0 a 4,4 0 1,0 -8,0",
+        "M 103,55 a 4,4 0 1,0 8,0 a 4,4 0 1,0 -8,0",
+        "M 86,51 L 83,48 M 114,51 L 117,48",
+        "M 93,64 Q 100,70 107,64",
+      ],
+    },
+    {
+      hint: "Finish with rosy cheeks! 🌸",
+      color: "#ff8fab",
+      strokes: [
+        "M 86,62 a 3,3 0 1,0 6,0 a 3,3 0 1,0 -6,0",
+        "M 108,62 a 3,3 0 1,0 6,0 a 3,3 0 1,0 -6,0",
       ],
     },
   ],

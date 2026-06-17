@@ -35,12 +35,21 @@ export const princess10: Animal = {
       ],
     },
     {
-      hint: "Add a happy face 😊",
+      hint: "Add big cute eyes and a sweet smile 😊",
       color: "#6b4f3a",
       strokes: [
-        "M 72,55 a 2,2 0 1,0 4,0 a 2,2 0 1,0 -4,0",
-        "M 84,55 a 2,2 0 1,0 4,0 a 2,2 0 1,0 -4,0",
-        "M 72,64 Q 79,70 87,64",
+        "M 69,55 a 3.5,3.5 0 1,0 7,0 a 3.5,3.5 0 1,0 -7,0",
+        "M 82,55 a 3.5,3.5 0 1,0 7,0 a 3.5,3.5 0 1,0 -7,0",
+        "M 66,51 L 63,48 M 92,51 L 95,48",
+        "M 72,63 Q 79,69 86,63",
+      ],
+    },
+    {
+      hint: "Add rosy cheeks! 🌸",
+      color: "#ff8fab",
+      strokes: [
+        "M 65,61 a 3,3 0 1,0 6,0 a 3,3 0 1,0 -6,0",
+        "M 87,61 a 3,3 0 1,0 6,0 a 3,3 0 1,0 -6,0",
       ],
     },
     {
