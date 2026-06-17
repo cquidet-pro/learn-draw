@@ -58,12 +58,14 @@ export const popstar10: Animal = {
       ],
     },
     {
-      hint: "Finish with musical notes and sparkles! 🎵",
+      hint: "Finish with musical notes and a star! 🎵⭐",
       color: "#ef476f",
       strokes: [
-        "M 150,80 L 150,96 M 146,96 a 4,3 0 1,0 8,0 a 4,3 0 1,0 -8,0",
-        "M 40,96 L 40,110 M 36,110 a 3,2.5 0 1,0 7,0 a 3,2.5 0 1,0 -7,0",
-        "M 158,120 L 158,130 M 153,125 L 163,125",
+        "M 144,100 a 6,4.5 0 1,0 12,0 a 6,4.5 0 1,0 -12,0",
+        "M 156,100 L 156,76 q 9,3 7,14",
+        "M 34,110 a 5,4 0 1,0 10,0 a 5,4 0 1,0 -10,0",
+        "M 44,110 L 44,90 q 8,3 6,12",
+        "M 158,118 l 2,5 l 6,1 l -4,4 l 1,5 l -5,-3 l -5,3 l 1,-5 l -4,-4 l 6,-1 z",
       ],
     },
   ],
