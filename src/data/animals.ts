@@ -46,6 +46,10 @@ export interface Animal {
   color: string;
   /** Difficulty level (defaults to 5). More complex drawings come later. */
   level?: Level;
+  /** For "Famous Paintings": the artist this sketch is inspired by. */
+  artist?: string;
+  /** A short, kid-friendly fun fact shown when the drawing is finished. */
+  fact?: string;
   steps: DrawStep[];
 }
 
@@ -85,21 +89,23 @@ export function drawingsForLevel(level: Level): Animal[] {
 }
 
 /**
- * Pick the next drawing to auto-advance to after finishing one: prefer one at
- * the same level that hasn't been done yet; if all are done, pick a random one
- * (never the one we just finished, when avoidable).
+ * Pick the next drawing to auto-advance to after finishing one, from the given
+ * pool (e.g. the animals at the current level, or the masterpieces): prefer one
+ * that hasn't been done yet; if all are done, pick a random one. Never the one
+ * we just finished, when avoidable.
  */
-export function chooseNextDrawing(
+export function chooseNext(
+  pool: Animal[],
   currentId: string,
   completed: Set<string>,
 ): Animal {
-  const current = getAnimal(currentId);
-  const level = current ? drawingLevel(current) : 5;
-  const sameLevel = drawingsForLevel(level).filter((a) => a.id !== currentId);
-  const undone = sameLevel.filter((a) => !completed.has(a.id));
-  const pool = undone.length > 0 ? undone : sameLevel;
-  if (pool.length === 0) return current ?? animals[0];
-  return pool[Math.floor(Math.random() * pool.length)];
+  const others = pool.filter((a) => a.id !== currentId);
+  const undone = others.filter((a) => !completed.has(a.id));
+  const choices = undone.length > 0 ? undone : others;
+  if (choices.length === 0) {
+    return pool.find((a) => a.id === currentId) ?? pool[0];
+  }
+  return choices[Math.floor(Math.random() * choices.length)];
 }
 
 /** Every stroke with its resolved color — used for the static card preview. */

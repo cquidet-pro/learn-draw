@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 
 interface Props {
   animalName: string;
+  /** Optional fun fact shown on finishing (used by Famous Paintings). */
+  fact?: string;
   /** Name/emoji of the drawing we'll auto-advance to. */
   nextName: string;
   nextEmoji: string;
@@ -29,6 +31,7 @@ const BURSTS = [
 
 export function Celebration({
   animalName,
+  fact,
   nextName,
   nextEmoji,
   onAutoNext,
@@ -80,6 +83,7 @@ export function Celebration({
         <p>
           You drew a <strong>{animalName}</strong>! 🥳
         </p>
+        {fact && <p className="celebration-fact">💡 {fact}</p>}
 
         <div className="celebration-buttons">
           <button className="home-btn big next-btn" onClick={onAutoNext}>

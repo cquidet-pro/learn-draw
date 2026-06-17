@@ -1,8 +1,11 @@
 import { useCallback, useState } from "react";
 import type { Animal, Level } from "./data/animals";
+import { drawingsForLevel } from "./data/animals";
+import { masterpieces, isMasterpiece } from "./data/masterpieces";
 import { HomePage } from "./components/HomePage";
 import { DrawingPlayer } from "./components/DrawingPlayer";
 import { FactsPage } from "./components/FactsPage";
+import { PaintingsPage } from "./components/PaintingsPage";
 import { VoiceProvider } from "./voice/VoiceProvider";
 
 const COMPLETED_KEY = "learn-draw:completed";
@@ -25,6 +28,9 @@ function loadLevel(): Level {
 export function App() {
   const [selected, setSelected] = useState<Animal | null>(null);
   const [showFacts, setShowFacts] = useState(false);
+  // Keeping this true while a painting is selected means "Home"/"Pick another"
+  // return to the paintings gallery rather than the main home screen.
+  const [showPaintings, setShowPaintings] = useState(false);
   // Animals the child has finished — shown with a green check on the home page.
   const [completed, setCompleted] = useState<Set<string>>(loadCompleted);
   const [level, setLevelState] = useState<Level>(loadLevel);
@@ -53,14 +59,27 @@ export function App() {
 
   let screen;
   if (selected) {
+    // Auto-advance stays within the collection the drawing came from.
+    const pool = isMasterpiece(selected.id)
+      ? masterpieces
+      : drawingsForLevel(level);
     screen = (
       <DrawingPlayer
         key={selected.id}
         animal={selected}
+        pool={pool}
         completed={completed}
         onHome={() => setSelected(null)}
         onComplete={() => markCompleted(selected.id)}
         onGoTo={setSelected}
+      />
+    );
+  } else if (showPaintings) {
+    screen = (
+      <PaintingsPage
+        onPick={setSelected}
+        onHome={() => setShowPaintings(false)}
+        completed={completed}
       />
     );
   } else if (showFacts) {
@@ -73,6 +92,7 @@ export function App() {
         level={level}
         onLevelChange={setLevel}
         onOpenFacts={() => setShowFacts(true)}
+        onOpenPaintings={() => setShowPaintings(true)}
       />
     );
   }

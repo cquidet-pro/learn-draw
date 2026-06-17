@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import type { Animal } from "../data/animals";
-import { chooseNextDrawing } from "../data/animals";
+import { chooseNext } from "../data/animals";
 import { useDrawingPlayer } from "../hooks/useDrawingPlayer";
 import { useKeyboard } from "../hooks/useKeyboard";
 import { AnimatedDrawing } from "./AnimatedDrawing";
@@ -11,6 +11,8 @@ import { heardAny } from "../voice/match";
 
 interface Props {
   animal: Animal;
+  /** The sibling drawings to auto-advance among (same collection/level). */
+  pool: Animal[];
   /** Drawings already finished — used to pick the next one to auto-advance to. */
   completed: Set<string>;
   onHome: () => void;
@@ -22,6 +24,7 @@ interface Props {
 
 export function DrawingPlayer({
   animal,
+  pool,
   completed,
   onHome,
   onComplete,
@@ -32,8 +35,8 @@ export function DrawingPlayer({
 
   // Decided once when the celebration appears, so the countdown target is stable.
   const nextTarget = useMemo(
-    () => (celebrating ? chooseNextDrawing(animal.id, completed) : null),
-    [celebrating, animal.id, completed],
+    () => (celebrating ? chooseNext(pool, animal.id, completed) : null),
+    [celebrating, pool, animal.id, completed],
   );
 
   // Space/▶ on the last step doesn't auto-celebrate — it takes one more,
@@ -78,8 +81,11 @@ export function DrawingPlayer({
           🏠 Home
         </button>
         <h1>
-          {animal.emoji} How to draw a {animal.name}
+          {animal.artist
+            ? `${animal.emoji} ${animal.name}`
+            : `${animal.emoji} How to draw a ${animal.name}`}
         </h1>
+        {animal.artist && <span className="artist-line">by {animal.artist}</span>}
       </header>
 
       <div className="control-bar">
@@ -111,6 +117,7 @@ export function DrawingPlayer({
       {celebrating && nextTarget && (
         <Celebration
           animalName={animal.name}
+          fact={animal.fact}
           nextName={nextTarget.name}
           nextEmoji={nextTarget.emoji}
           onAutoNext={() => onGoTo(nextTarget)}

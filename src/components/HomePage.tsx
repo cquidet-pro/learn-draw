@@ -39,6 +39,7 @@ interface Props {
   level: Level;
   onLevelChange: (level: Level) => void;
   onOpenFacts: () => void;
+  onOpenPaintings: () => void;
 }
 
 export function HomePage({
@@ -47,6 +48,7 @@ export function HomePage({
   level,
   onLevelChange,
   onOpenFacts,
+  onOpenPaintings,
 }: Props) {
   const visible = drawingsForLevel(level);
 
@@ -55,6 +57,8 @@ export function HomePage({
       if (heardAny(transcript, ["up"])) return scrollPage(-1);
       if (heardAny(transcript, ["down"])) return scrollPage(1);
       if (heardAny(transcript, ["facts", "fun facts"])) return onOpenFacts();
+      if (heardAny(transcript, ["paintings", "painting", "art", "famous"]))
+        return onOpenPaintings();
       for (const animal of visible) {
         const words = ALIASES[animal.id] ?? [animal.name.toLowerCase()];
         if (heardAny(transcript, words)) {
@@ -63,7 +67,7 @@ export function HomePage({
         }
       }
     },
-    [onPick, onOpenFacts, visible],
+    [onPick, onOpenFacts, onOpenPaintings, visible],
   );
   useVoiceControl(onCommand);
 
@@ -92,6 +96,9 @@ export function HomePage({
             ▼
           </button>
         </div>
+        <button className="facts-btn" onClick={onOpenPaintings}>
+          🖼️ Famous Paintings
+        </button>
         <button className="facts-btn" onClick={onOpenFacts}>
           💡 Fun Facts
         </button>
