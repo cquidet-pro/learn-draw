@@ -1,15 +1,18 @@
 import type { Animal } from "../animals";
 
-// A colorful symmetrical butterfly.
+// A colorful symmetrical kawaii butterfly: dark outline first, colored in last.
+const OUTLINE = "#4f3a2c";
+
 export const butterfly: Animal = {
   id: "butterfly",
   name: "Butterfly",
   emoji: "🦋",
   viewBox: "0 0 200 200",
-  color: "#6b4f3a",
+  color: OUTLINE,
   steps: [
     {
       hint: "Draw the body and antennae 🦋",
+      color: OUTLINE,
       strokes: [
         "M 100,78 Q 95,80 95,100 L 95,138 Q 95,148 100,148 Q 105,148 105,138 L 105,100 Q 105,80 100,78 Z",
         "M 98,80 Q 90,66 83,64",
@@ -18,7 +21,7 @@ export const butterfly: Animal = {
     },
     {
       hint: "Add the big top wings",
-      color: "#ef476f",
+      color: OUTLINE,
       strokes: [
         "M 95,98 Q 52,58 48,96 Q 48,116 95,112 Z",
         "M 105,98 Q 148,58 152,96 Q 152,116 105,112 Z",
@@ -26,7 +29,7 @@ export const butterfly: Animal = {
     },
     {
       hint: "Add the bottom wings",
-      color: "#118ab2",
+      color: OUTLINE,
       strokes: [
         "M 95,116 Q 60,132 70,152 Q 82,162 98,138 Z",
         "M 105,116 Q 140,132 130,152 Q 118,162 102,138 Z",
@@ -34,12 +37,31 @@ export const butterfly: Animal = {
     },
     {
       hint: "Add pretty spots! 🌈",
-      color: "#ffd166",
+      color: OUTLINE,
       strokes: [
         "M 64,90 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0",
         "M 126,90 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0",
         "M 78,142 a 4,4 0 1,0 8,0 a 4,4 0 1,0 -8,0",
         "M 114,142 a 4,4 0 1,0 8,0 a 4,4 0 1,0 -8,0",
+      ],
+    },
+    {
+      hint: "Now color it all in! 🖍️",
+      color: OUTLINE,
+      strokes: [],
+      fills: [
+        { d: "M 95,98 Q 52,58 48,96 Q 48,116 95,112 Z", color: "#ff6f9c" },
+        { d: "M 105,98 Q 148,58 152,96 Q 152,116 105,112 Z", color: "#ff6f9c" },
+        { d: "M 95,116 Q 60,132 70,152 Q 82,162 98,138 Z", color: "#36a9e1" },
+        { d: "M 105,116 Q 140,132 130,152 Q 118,162 102,138 Z", color: "#36a9e1" },
+        {
+          d: "M 100,78 Q 95,80 95,100 L 95,138 Q 95,148 100,148 Q 105,148 105,138 L 105,100 Q 105,80 100,78 Z",
+          color: "#5b3a29",
+        },
+        { d: "M 64,90 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0", color: "#ffd23f" },
+        { d: "M 126,90 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0", color: "#ffd23f" },
+        { d: "M 78,142 a 4,4 0 1,0 8,0 a 4,4 0 1,0 -8,0", color: "#ffd23f" },
+        { d: "M 114,142 a 4,4 0 1,0 8,0 a 4,4 0 1,0 -8,0", color: "#ffd23f" },
       ],
     },
   ],
