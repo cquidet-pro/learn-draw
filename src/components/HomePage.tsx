@@ -80,27 +80,29 @@ export function HomePage({
 
       <div className="control-bar">
         <VoiceButton />
-        <div className="scroll-btns">
-          <button
-            className="scroll-btn"
-            onClick={() => scrollPage(-1)}
-            aria-label="Scroll up"
-          >
-            ▲
-          </button>
-          <button
-            className="scroll-btn"
-            onClick={() => scrollPage(1)}
-            aria-label="Scroll down"
-          >
-            ▼
-          </button>
-        </div>
         <button className="facts-btn" onClick={onOpenPaintings}>
           🖼️ Famous Paintings
         </button>
         <button className="facts-btn" onClick={onOpenFacts}>
           💡 Fun Facts
+        </button>
+      </div>
+
+      {/* Up/down scroll controls on the left, centred at the drawing level. */}
+      <div className="side-scroll">
+        <button
+          className="scroll-btn"
+          onClick={() => scrollPage(-1)}
+          aria-label="Scroll up"
+        >
+          ▲
+        </button>
+        <button
+          className="scroll-btn"
+          onClick={() => scrollPage(1)}
+          aria-label="Scroll down"
+        >
+          ▼
         </button>
       </div>
 

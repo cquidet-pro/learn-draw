@@ -653,9 +653,16 @@ kbd {
   margin: 0;
 }
 
-.scroll-btns {
+/* Up/down scroll buttons fixed on the left, centred at the drawing level. */
+.side-scroll {
+  position: fixed;
+  left: 0.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 6;
   display: flex;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.6rem;
 }
 
 .scroll-btn {
