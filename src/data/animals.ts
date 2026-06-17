@@ -15,6 +15,12 @@ import { star } from "./drawings/star";
 import { heart } from "./drawings/heart";
 import { family } from "./drawings/family";
 import { princess } from "./drawings/princess";
+import { dog7 } from "./drawings/dog-7";
+import { cat7 } from "./drawings/cat-7";
+import { fish7 } from "./drawings/fish-7";
+import { butterfly7 } from "./drawings/butterfly-7";
+import { flower7 } from "./drawings/flower-7";
+import { house7 } from "./drawings/house-7";
 
 /** A single tutorial step. */
 export interface DrawStep {
@@ -74,6 +80,13 @@ export const animals: Animal[] = [
   car,
   family,
   princess,
+  // Level 7 — more refined versions of the same subjects.
+  dog7,
+  cat7,
+  fish7,
+  butterfly7,
+  flower7,
+  house7,
 ];
 
 export function getAnimal(id: string): Animal | undefined {
