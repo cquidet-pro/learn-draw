@@ -1,6 +1,7 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { drawingsForLevel } from "../data/animals";
 import type { Animal, Level } from "../data/animals";
+import { downloadColoringPdf } from "../lib/coloringPdf";
 import { AnimalCard } from "./AnimalCard";
 import { LevelSelector } from "./LevelSelector";
 import { useVoiceControl, VoiceButton } from "../voice/VoiceProvider";
@@ -51,6 +52,17 @@ export function HomePage({
   onOpenPaintings,
 }: Props) {
   const visible = drawingsForLevel(level);
+  const [printing, setPrinting] = useState(false);
+
+  const handlePrint = useCallback(async () => {
+    if (printing || visible.length === 0) return;
+    setPrinting(true);
+    try {
+      await downloadColoringPdf(visible, level);
+    } finally {
+      setPrinting(false);
+    }
+  }, [printing, visible, level]);
 
   const onCommand = useCallback(
     (transcript: string) => {
@@ -59,6 +71,8 @@ export function HomePage({
       if (heardAny(transcript, ["facts", "fun facts"])) return onOpenFacts();
       if (heardAny(transcript, ["paintings", "painting", "art", "famous"]))
         return onOpenPaintings();
+      if (heardAny(transcript, ["print", "coloring", "color me"]))
+        return void handlePrint();
       for (const animal of visible) {
         const words = ALIASES[animal.id] ?? [animal.name.toLowerCase()];
         if (heardAny(transcript, words)) {
@@ -67,7 +81,7 @@ export function HomePage({
         }
       }
     },
-    [onPick, onOpenFacts, onOpenPaintings, visible],
+    [onPick, onOpenFacts, onOpenPaintings, visible, handlePrint],
   );
   useVoiceControl(onCommand);
 
@@ -85,6 +99,13 @@ export function HomePage({
         </button>
         <button className="facts-btn" onClick={onOpenFacts}>
           💡 Fun Facts
+        </button>
+        <button
+          className="facts-btn"
+          onClick={handlePrint}
+          disabled={printing || visible.length === 0}
+        >
+          {printing ? "⏳ Making PDF…" : "🖨️ Print to color"}
         </button>
       </div>
 
