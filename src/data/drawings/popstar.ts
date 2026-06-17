@@ -1,0 +1,50 @@
+import type { Animal } from "../animals";
+
+// An original cartoon pop star (our own design). Easy version.
+export const popstar: Animal = {
+  id: "popstar",
+  name: "Pop Star",
+  emoji: "🎤",
+  level: 5,
+  color: "#9b5de5",
+  viewBox: "0 0 200 200",
+  steps: [
+    {
+      hint: "Draw the face and cool hair",
+      strokes: [
+        "M 78,54 a 22,22 0 1,0 44,0 a 22,22 0 1,0 -44,0",
+        "M 78,50 Q 74,26 100,26 Q 126,26 122,50 Q 119,38 108,36 Q 100,32 92,36 Q 81,38 78,50 Z",
+      ],
+    },
+    {
+      hint: "Add eyes and a big smile 🎶",
+      strokes: [
+        "M 89,52 a 3,3 0 1,0 6,0 a 3,3 0 1,0 -6,0",
+        "M 105,52 a 3,3 0 1,0 6,0 a 3,3 0 1,0 -6,0",
+        "M 88,60 Q 100,70 112,60",
+      ],
+    },
+    {
+      hint: "Add the body, arms and legs",
+      strokes: [
+        "M 86,76 Q 100,84 114,76 L 120,120 L 80,120 Z",
+        "M 90,120 L 86,152 M 110,120 L 114,152",
+        "M 86,152 L 77,154 M 114,152 L 123,154",
+        "M 114,86 L 134,70 M 86,88 L 70,104",
+      ],
+    },
+    {
+      hint: "Add a microphone to sing into! 🎤",
+      color: "#3a3a55",
+      strokes: [
+        "M 132,60 a 7,7 0 1,0 14,0 a 7,7 0 1,0 -14,0",
+        "M 137,66 L 134,70",
+      ],
+    },
+    {
+      hint: "Finish with a sparkly star! ⭐",
+      color: "#ffd166",
+      strokes: ["M 50,40 l 3,9 l 9,1 l -7,6 l 2,9 l -7,-5 l -7,5 l 2,-9 l -7,-6 l 9,-1 z"],
+    },
+  ],
+};
