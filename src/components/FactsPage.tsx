@@ -18,6 +18,16 @@ const FACTS: { emoji: string; text: string }[] = [
   { emoji: "🚀", text: "Astronauts have drawn pictures up in space!" },
   { emoji: "🌈", text: "A rainbow has 7 colors — use every crayon!" },
   { emoji: "🐙", text: "An octopus can change its color, like it's drawing on itself." },
+  { emoji: "👶", text: "Babies love to scribble — it's how they start learning to draw!" },
+  { emoji: "🖌️", text: "The first paintbrushes were made from animal hair and twigs." },
+  { emoji: "🔵", text: "Mix blue and yellow and you get green — like magic!" },
+  { emoji: "🐘", text: "Some elephants can hold a brush with their trunk and paint!" },
+  { emoji: "📏", text: "Drawing shapes like circles and squares helps you draw anything." },
+  { emoji: "🌙", text: "Artists drew maps of the Moon long before anyone went there." },
+  { emoji: "🐝", text: "Bees see colors we can't — they'd draw with secret crayons!" },
+  { emoji: "👀", text: "Looking carefully at things helps you draw them better." },
+  { emoji: "🦖", text: "We know what dinosaurs might look like thanks to artists' drawings." },
+  { emoji: "❤️", text: "Drawing for someone you love is the best kind of gift." },
 ];
 
 export function FactsPage({ onHome }: Props) {
