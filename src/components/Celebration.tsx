@@ -1,5 +1,12 @@
+import { useEffect, useState } from "react";
+
 interface Props {
   animalName: string;
+  /** Name/emoji of the drawing we'll auto-advance to. */
+  nextName: string;
+  nextEmoji: string;
+  /** Start the next drawing now (also fired automatically when the timer ends). */
+  onAutoNext: () => void;
   /** Go back to the home screen to pick another drawing. */
   onAgain: () => void;
   /** Replay the same drawing from step 1. */
@@ -7,6 +14,8 @@ interface Props {
   /** Dismiss the celebration and return to the last step (e.g. opened by mistake). */
   onBack: () => void;
 }
+
+const COUNTDOWN = 10;
 
 // Firework bursts at varied positions, colors, and timings.
 const BURSTS = [
@@ -18,7 +27,27 @@ const BURSTS = [
   { left: "58%", top: "46%", color: "#ff7b00", delay: "1.45s" },
 ];
 
-export function Celebration({ animalName, onAgain, onWatchAgain, onBack }: Props) {
+export function Celebration({
+  animalName,
+  nextName,
+  nextEmoji,
+  onAutoNext,
+  onAgain,
+  onWatchAgain,
+  onBack,
+}: Props) {
+  const [secs, setSecs] = useState(COUNTDOWN);
+
+  // Tick down once a second; when it hits zero, auto-advance to the next drawing.
+  useEffect(() => {
+    if (secs <= 0) {
+      onAutoNext();
+      return;
+    }
+    const t = setTimeout(() => setSecs((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [secs, onAutoNext]);
+
   return (
     <div className="celebration" role="dialog" aria-live="assertive">
       <div className="fireworks" aria-hidden="true">
@@ -51,9 +80,18 @@ export function Celebration({ animalName, onAgain, onWatchAgain, onBack }: Props
         <p>
           You drew a <strong>{animalName}</strong>! 🥳
         </p>
+
         <div className="celebration-buttons">
-          <button className="home-btn big" onClick={onAgain}>
-            🎨 Draw another!
+          <button className="home-btn big next-btn" onClick={onAutoNext}>
+            <span>
+              Next: {nextEmoji} {nextName}
+            </span>
+            <span className="next-count" aria-live="polite">
+              starting in {secs}s
+            </span>
+          </button>
+          <button className="ghost-btn" onClick={onAgain}>
+            🎨 Pick another
           </button>
           <button className="ghost-btn" onClick={onWatchAgain}>
             ↺ Watch again

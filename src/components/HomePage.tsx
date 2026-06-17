@@ -1,7 +1,8 @@
 import { useCallback } from "react";
-import { animals } from "../data/animals";
-import type { Animal } from "../data/animals";
+import { drawingsForLevel } from "../data/animals";
+import type { Animal, Level } from "../data/animals";
 import { AnimalCard } from "./AnimalCard";
+import { LevelSelector } from "./LevelSelector";
 import { useVoiceControl, VoiceButton } from "../voice/VoiceProvider";
 import { heardAny } from "../voice/match";
 
@@ -35,14 +36,26 @@ interface Props {
   onPick: (animal: Animal) => void;
   /** Ids of animals already finished — shown with a green check. */
   completed: Set<string>;
+  level: Level;
+  onLevelChange: (level: Level) => void;
+  onOpenFacts: () => void;
 }
 
-export function HomePage({ onPick, completed }: Props) {
+export function HomePage({
+  onPick,
+  completed,
+  level,
+  onLevelChange,
+  onOpenFacts,
+}: Props) {
+  const visible = drawingsForLevel(level);
+
   const onCommand = useCallback(
     (transcript: string) => {
       if (heardAny(transcript, ["up"])) return scrollPage(-1);
       if (heardAny(transcript, ["down"])) return scrollPage(1);
-      for (const animal of animals) {
+      if (heardAny(transcript, ["facts", "fun facts"])) return onOpenFacts();
+      for (const animal of visible) {
         const words = ALIASES[animal.id] ?? [animal.name.toLowerCase()];
         if (heardAny(transcript, words)) {
           onPick(animal);
@@ -50,7 +63,7 @@ export function HomePage({ onPick, completed }: Props) {
         }
       }
     },
-    [onPick],
+    [onPick, onOpenFacts, visible],
   );
   useVoiceControl(onCommand);
 
@@ -58,6 +71,9 @@ export function HomePage({ onPick, completed }: Props) {
     <div className="home">
       <h1 className="title">🎨 Let's Learn to Draw!</h1>
       <p className="subtitle">Pick something to draw 👇</p>
+
+      <LevelSelector level={level} onChange={onLevelChange} />
+
       <div className="control-bar">
         <VoiceButton />
         <div className="scroll-btns">
@@ -76,17 +92,29 @@ export function HomePage({ onPick, completed }: Props) {
             ▼
           </button>
         </div>
+        <button className="facts-btn" onClick={onOpenFacts}>
+          💡 Fun Facts
+        </button>
       </div>
-      <div className="card-grid">
-        {animals.map((animal) => (
-          <AnimalCard
-            key={animal.id}
-            animal={animal}
-            done={completed.has(animal.id)}
-            onClick={() => onPick(animal)}
-          />
-        ))}
-      </div>
+
+      {visible.length === 0 ? (
+        <p className="empty-state">
+          More drawings for this level are coming soon! 🎨✨
+          <br />
+          Try the 🐣 5 level for now.
+        </p>
+      ) : (
+        <div className="card-grid">
+          {visible.map((animal) => (
+            <AnimalCard
+              key={animal.id}
+              animal={animal}
+              done={completed.has(animal.id)}
+              onClick={() => onPick(animal)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

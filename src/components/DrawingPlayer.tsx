@@ -1,5 +1,6 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { Animal } from "../data/animals";
+import { chooseNextDrawing } from "../data/animals";
 import { useDrawingPlayer } from "../hooks/useDrawingPlayer";
 import { useKeyboard } from "../hooks/useKeyboard";
 import { AnimatedDrawing } from "./AnimatedDrawing";
@@ -10,14 +11,30 @@ import { heardAny } from "../voice/match";
 
 interface Props {
   animal: Animal;
+  /** Drawings already finished — used to pick the next one to auto-advance to. */
+  completed: Set<string>;
   onHome: () => void;
   /** Called when the child finishes the drawing (the celebration fires). */
   onComplete: () => void;
+  /** Navigate to another drawing (used by the celebration's auto-advance). */
+  onGoTo: (animal: Animal) => void;
 }
 
-export function DrawingPlayer({ animal, onHome, onComplete }: Props) {
+export function DrawingPlayer({
+  animal,
+  completed,
+  onHome,
+  onComplete,
+  onGoTo,
+}: Props) {
   const player = useDrawingPlayer(animal.steps.length);
   const [celebrating, setCelebrating] = useState(false);
+
+  // Decided once when the celebration appears, so the countdown target is stable.
+  const nextTarget = useMemo(
+    () => (celebrating ? chooseNextDrawing(animal.id, completed) : null),
+    [celebrating, animal.id, completed],
+  );
 
   // Space/▶ on the last step doesn't auto-celebrate — it takes one more,
   // deliberate press to pop the fireworks (avoids ending by accident).
@@ -91,9 +108,12 @@ export function DrawingPlayer({ animal, onHome, onComplete }: Props) {
         onSpeedChange={player.setDuration}
       />
 
-      {celebrating && (
+      {celebrating && nextTarget && (
         <Celebration
           animalName={animal.name}
+          nextName={nextTarget.name}
+          nextEmoji={nextTarget.emoji}
+          onAutoNext={() => onGoTo(nextTarget)}
           onAgain={onHome}
           onWatchAgain={() => {
             setCelebrating(false);

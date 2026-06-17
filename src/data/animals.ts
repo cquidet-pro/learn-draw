@@ -31,6 +31,9 @@ export interface DrawStep {
   color?: string;
 }
 
+/** Difficulty level, shown to the child as an age. */
+export type Level = 5 | 7 | 10;
+
 /** A drawing the child can learn — an animal, object, or scene. */
 export interface Animal {
   id: string;
@@ -41,6 +44,8 @@ export interface Animal {
   viewBox: string;
   /** Base stroke color (per-step `color` can override it). */
   color: string;
+  /** Difficulty level (defaults to 5). More complex drawings come later. */
+  level?: Level;
   steps: DrawStep[];
 }
 
@@ -67,6 +72,34 @@ export const animals: Animal[] = [
 
 export function getAnimal(id: string): Animal | undefined {
   return animals.find((a) => a.id === id);
+}
+
+/** Resolved difficulty level (drawings without an explicit level are level 5). */
+export function drawingLevel(animal: Animal): Level {
+  return animal.level ?? 5;
+}
+
+/** Drawings available at a given level. */
+export function drawingsForLevel(level: Level): Animal[] {
+  return animals.filter((a) => drawingLevel(a) === level);
+}
+
+/**
+ * Pick the next drawing to auto-advance to after finishing one: prefer one at
+ * the same level that hasn't been done yet; if all are done, pick a random one
+ * (never the one we just finished, when avoidable).
+ */
+export function chooseNextDrawing(
+  currentId: string,
+  completed: Set<string>,
+): Animal {
+  const current = getAnimal(currentId);
+  const level = current ? drawingLevel(current) : 5;
+  const sameLevel = drawingsForLevel(level).filter((a) => a.id !== currentId);
+  const undone = sameLevel.filter((a) => !completed.has(a.id));
+  const pool = undone.length > 0 ? undone : sameLevel;
+  if (pool.length === 0) return current ?? animals[0];
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 /** Every stroke with its resolved color — used for the static card preview. */

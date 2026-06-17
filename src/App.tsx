@@ -1,31 +1,40 @@
 import { useCallback, useState } from "react";
-import type { Animal } from "./data/animals";
+import type { Animal, Level } from "./data/animals";
 import { HomePage } from "./components/HomePage";
 import { DrawingPlayer } from "./components/DrawingPlayer";
+import { FactsPage } from "./components/FactsPage";
 import { VoiceProvider } from "./voice/VoiceProvider";
 
-const STORAGE_KEY = "learn-draw:completed";
+const COMPLETED_KEY = "learn-draw:completed";
+const LEVEL_KEY = "learn-draw:level";
 
 function loadCompleted(): Set<string> {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(COMPLETED_KEY);
     return new Set(raw ? (JSON.parse(raw) as string[]) : []);
   } catch {
     return new Set();
   }
 }
 
+function loadLevel(): Level {
+  const n = Number(localStorage.getItem(LEVEL_KEY));
+  return n === 7 || n === 10 ? n : 5;
+}
+
 export function App() {
   const [selected, setSelected] = useState<Animal | null>(null);
+  const [showFacts, setShowFacts] = useState(false);
   // Animals the child has finished — shown with a green check on the home page.
   const [completed, setCompleted] = useState<Set<string>>(loadCompleted);
+  const [level, setLevelState] = useState<Level>(loadLevel);
 
   const markCompleted = useCallback((id: string) => {
     setCompleted((prev) => {
       if (prev.has(id)) return prev;
       const next = new Set(prev).add(id);
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify([...next]));
+        localStorage.setItem(COMPLETED_KEY, JSON.stringify([...next]));
       } catch {
         /* ignore storage errors (e.g. private mode) */
       }
@@ -33,18 +42,40 @@ export function App() {
     });
   }, []);
 
-  return (
-    <VoiceProvider>
-      {selected ? (
-        <DrawingPlayer
-          key={selected.id}
-          animal={selected}
-          onHome={() => setSelected(null)}
-          onComplete={() => markCompleted(selected.id)}
-        />
-      ) : (
-        <HomePage onPick={setSelected} completed={completed} />
-      )}
-    </VoiceProvider>
-  );
+  const setLevel = useCallback((lvl: Level) => {
+    setLevelState(lvl);
+    try {
+      localStorage.setItem(LEVEL_KEY, String(lvl));
+    } catch {
+      /* ignore storage errors */
+    }
+  }, []);
+
+  let screen;
+  if (selected) {
+    screen = (
+      <DrawingPlayer
+        key={selected.id}
+        animal={selected}
+        completed={completed}
+        onHome={() => setSelected(null)}
+        onComplete={() => markCompleted(selected.id)}
+        onGoTo={setSelected}
+      />
+    );
+  } else if (showFacts) {
+    screen = <FactsPage onHome={() => setShowFacts(false)} />;
+  } else {
+    screen = (
+      <HomePage
+        onPick={setSelected}
+        completed={completed}
+        level={level}
+        onLevelChange={setLevel}
+        onOpenFacts={() => setShowFacts(true)}
+      />
+    );
+  }
+
+  return <VoiceProvider>{screen}</VoiceProvider>;
 }
