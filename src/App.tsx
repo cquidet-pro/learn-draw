@@ -60,16 +60,19 @@ export function App() {
   let screen;
   if (selected) {
     // Auto-advance stays within the collection the drawing came from.
-    const pool = isMasterpiece(selected.id)
-      ? masterpieces
-      : drawingsForLevel(level);
+    const inPaintings = isMasterpiece(selected.id);
+    const pool = inPaintings ? masterpieces : drawingsForLevel(level);
     screen = (
       <DrawingPlayer
         key={selected.id}
         animal={selected}
         pool={pool}
         completed={completed}
+        // Leaving a painting returns to the paintings gallery (so "pick another"
+        // stays among paintings), so label the back button for that, not "Home".
         onHome={() => setSelected(null)}
+        homeLabel={inPaintings ? "🖼️ Paintings" : "🏠 Home"}
+        homeAria={inPaintings ? "Back to paintings" : "Back to home"}
         onComplete={() => markCompleted(selected.id)}
         onGoTo={setSelected}
       />

@@ -16,6 +16,10 @@ interface Props {
   /** Drawings already finished — used to pick the next one to auto-advance to. */
   completed: Set<string>;
   onHome: () => void;
+  /** Label for the back button — defaults to the home button, but paintings
+   *  return to the paintings gallery, so it's labelled for that destination. */
+  homeLabel?: string;
+  homeAria?: string;
   /** Called when the child finishes the drawing (the celebration fires). */
   onComplete: () => void;
   /** Navigate to another drawing (used by the celebration's auto-advance). */
@@ -40,6 +44,8 @@ export function DrawingPlayer({
   pool,
   completed,
   onHome,
+  homeLabel = "🏠 Home",
+  homeAria = "Back to home",
   onComplete,
   onGoTo,
 }: Props) {
@@ -106,8 +112,8 @@ export function DrawingPlayer({
   return (
     <div className="player">
       <header className="player-header">
-        <button className="home-btn" onClick={onHome} aria-label="Back to home">
-          🏠 Home
+        <button className="home-btn" onClick={onHome} aria-label={homeAria}>
+          {homeLabel}
         </button>
         <h1>
           {animal.artist
