@@ -40,26 +40,41 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen }: Props) 
             ? "stroke-final"
             : "stroke-drawing"
           : "stroke-done";
+        const fillClass = isCurrent || frozen ? "fill-current" : "fill-done";
         const strokeColor = step.color ?? animal.color;
 
-        return step.strokes.map((d, ki) => (
-          <path
-            key={`${si}-${ki}-${isCurrent ? stepIndex : "done"}`}
-            d={d}
-            pathLength={1}
-            fill="none"
-            stroke={strokeColor}
-            strokeWidth={4}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className={className}
-            style={
-              isCurrent && !frozen
-                ? ({ "--draw-duration": `${duration}s` } as React.CSSProperties)
-                : undefined
-            }
-          />
-        ));
+        return (
+          <g key={si}>
+            {/* Solid color fills sit behind this step's outline strokes. */}
+            {step.fills?.map((f, fi) => (
+              <path
+                key={`fill-${si}-${fi}`}
+                d={f.d}
+                fill={f.color}
+                stroke="none"
+                className={fillClass}
+              />
+            ))}
+            {step.strokes.map((d, ki) => (
+              <path
+                key={`${si}-${ki}-${isCurrent ? stepIndex : "done"}`}
+                d={d}
+                pathLength={1}
+                fill="none"
+                stroke={strokeColor}
+                strokeWidth={4}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={className}
+                style={
+                  isCurrent && !frozen
+                    ? ({ "--draw-duration": `${duration}s` } as React.CSSProperties)
+                    : undefined
+                }
+              />
+            ))}
+          </g>
+        );
       })}
     </svg>
   );

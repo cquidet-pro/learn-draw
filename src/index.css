@@ -223,6 +223,18 @@ body {
   opacity: 0.35;
 }
 
+/* Solid color fills (e.g. the kawaii princess) stay fully colored as the
+   picture builds up — only the outline strokes fade to highlight the current
+   step. The current step's fill fades in gently as it appears. */
+.fill-current {
+  opacity: 1;
+  animation: fade-in 0.4s ease both;
+}
+
+.fill-done {
+  opacity: 1;
+}
+
 /* Current step strokes draw themselves on a loop. */
 .stroke-drawing {
   stroke-dasharray: 1;

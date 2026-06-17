@@ -69,6 +69,14 @@ export interface DrawStep {
   /** Optional stroke color for this step's strokes, overriding the base color
    *  (used by multi-color drawings like the rainbow or a flower). */
   color?: string;
+  /**
+   * Optional solid filled shapes painted *behind* this step's outline strokes,
+   * for richer art (e.g. the kawaii princess: skin, hair, dress fills). Each
+   * has its own fill color. Fills are not part of the printable coloring
+   * outline — that uses only `strokes` — so filled drawings should also include
+   * outline strokes for every shape worth tracing/coloring.
+   */
+  fills?: { d: string; color: string }[];
 }
 
 /** Difficulty level, shown to the child as Easy (5) / Medium (7) / Harder (10). */
