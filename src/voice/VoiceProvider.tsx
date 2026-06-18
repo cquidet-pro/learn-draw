@@ -83,22 +83,15 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
       value={{ supported, listening, lastHeard, error, toggle, register }}
     >
       {children}
-      {listening && (
-        <div className="voice-toast">
-          <span className="voice-legend">
-            Say a name · <b>next</b> · <b>back</b> · <b>up</b> · <b>down</b>
-          </span>
-          {lastHeard && <span className="voice-heard">🗣️ "{lastHeard}"</span>}
-        </div>
-      )}
       {error && <div className="voice-toast voice-toast-error">{error}</div>}
     </VoiceContext.Provider>
   );
 }
 
-/** The mic on/off toggle. Place it wherever you want in the layout. */
+/** The mic on/off toggle. While listening, a little legend bubble appears
+ *  right next to it showing what you can say. Place it anywhere in the layout. */
 export function VoiceButton() {
-  const { supported, listening, toggle } = useVoice();
+  const { supported, listening, lastHeard, toggle } = useVoice();
 
   if (!supported) {
     return (
@@ -107,16 +100,26 @@ export function VoiceButton() {
   }
 
   return (
-    <button
-      className={listening ? "voice-btn on" : "voice-btn"}
-      onClick={toggle}
-      aria-label={listening ? "Turn off voice control" : "Turn on voice control"}
-      aria-pressed={listening}
-    >
-      {listening ? "🎤" : "🎙️"}
-      <span className="voice-btn-label">
-        {listening ? "Listening…" : "Talk to me"}
-      </span>
-    </button>
+    <span className="voice-control">
+      <button
+        className={listening ? "voice-btn on" : "voice-btn"}
+        onClick={toggle}
+        aria-label={listening ? "Turn off voice control" : "Turn on voice control"}
+        aria-pressed={listening}
+      >
+        {listening ? "🎤" : "🎙️"}
+        <span className="voice-btn-label">
+          {listening ? "Listening…" : "Talk to me"}
+        </span>
+      </button>
+      {listening && (
+        <span className="voice-legend-pop">
+          <span className="voice-legend">
+            Say a name · <b>next</b> · <b>back</b> · <b>up</b> · <b>down</b>
+          </span>
+          {lastHeard && <span className="voice-heard">🗣️ "{lastHeard}"</span>}
+        </span>
+      )}
+    </span>
   );
 }

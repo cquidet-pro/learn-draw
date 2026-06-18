@@ -100,6 +100,8 @@ interface TimeLimitValue {
   remainingSec: number;
   locked: boolean;
   setPin: (pin: string) => void;
+  /** Remove the grown-up code entirely (settings become unlocked). */
+  clearPin: () => void;
   verifyPin: (pin: string) => boolean;
   setLimit: (min: number) => void;
   /** Give back today's time so the child can keep going (used to unlock). */
@@ -172,6 +174,15 @@ export function TimeLimitProvider({ children }: { children: ReactNode }) {
     setPinState(p);
     try {
       localStorage.setItem(PIN_KEY, p);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const clearPin = useCallback(() => {
+    setPinState(null);
+    try {
+      localStorage.removeItem(PIN_KEY);
     } catch {
       /* ignore */
     }
@@ -275,6 +286,7 @@ export function TimeLimitProvider({ children }: { children: ReactNode }) {
     remainingSec,
     locked,
     setPin,
+    clearPin,
     verifyPin,
     setLimit,
     resetToday,

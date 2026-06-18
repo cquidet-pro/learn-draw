@@ -8,12 +8,19 @@ interface Props {
 
 const PRESETS = [0, 15, 30, 45, 60];
 
-/** Grown-up time-limit settings, gated by a 4-digit PIN. First use creates the
- *  PIN (entered twice); after that it's required to open these settings. */
+/**
+ * Grown-up time-limit settings. By default the panel opens straight away — no
+ * code needed. The grown-up can tick "Lock settings with a code" to protect it;
+ * the code is only asked for when they press Done. A code is also required (and
+ * so requested on Done) whenever a time limit or the full-screen lock is on,
+ * since those unlock screens ask for it. Once a code exists, re-opening these
+ * settings asks for it first.
+ */
 export function TimeLimitSettings({ onClose }: Props) {
   const {
     hasPin,
     setPin,
+    clearPin,
     verifyPin,
     limitMin,
     setLimit,
@@ -23,22 +30,77 @@ export function TimeLimitSettings({ onClose }: Props) {
     fsSupported,
     setFsLock,
   } = useTimeLimit();
-  const [authed, setAuthed] = useState(false);
+
+  // "verify" → enter existing code to open; "settings" → the panel; "create" →
+  // set a (new) code, confirmed on Done.
+  const [mode, setMode] = useState<"verify" | "settings" | "create">(
+    hasPin ? "verify" : "settings",
+  );
   const [error, setError] = useState<string | null>(null);
   const [firstEntry, setFirstEntry] = useState<string | null>(null);
-  const [changing, setChanging] = useState(false);
+  // The grown-up's intent for the "lock settings" toggle (starts from reality).
+  const [lockChecked, setLockChecked] = useState(hasPin);
+  const [changeCode, setChangeCode] = useState(false);
+
+  // A time limit or full-screen lock can't work without a code to unlock them,
+  // so they force the lock on. The toggle is then shown on and not editable.
+  const lockForced = limitMin > 0 || fsLock;
+  const lockOn = lockChecked || lockForced;
+
+  // Leaving the settings: capture a new code if one is now needed (which keeps
+  // a time limit / full-screen lock from being un-unlockable), drop the code if
+  // the lock was switched off, otherwise just close.
+  const commitAndClose = () => {
+    if (lockOn && (!hasPin || changeCode)) {
+      setFirstEntry(null);
+      setError(null);
+      setMode("create");
+      return;
+    }
+    if (!lockOn && hasPin) clearPin();
+    onClose();
+  };
+
+  // The ✕ and tapping outside: in "create" step back to the settings (so you
+  // can't slip out leaving a lock with no code); in "verify" just close (no
+  // changes were made); in "settings" reconcile like Done.
+  const dismiss = () => {
+    if (mode === "create") {
+      setMode("settings");
+      setFirstEntry(null);
+      setError(null);
+    } else if (mode === "verify") {
+      onClose();
+    } else {
+      commitAndClose();
+    }
+  };
 
   let body: React.ReactNode;
 
-  if (!authed && !hasPin) {
-    // Create a new PIN: enter it, then confirm.
+  if (mode === "verify") {
+    body = (
+      <>
+        <h2>Grown-up code 🔒</h2>
+        <p>Enter your 4-digit code to open the settings</p>
+        <PinPad
+          onComplete={(c) =>
+            verifyPin(c) ? setMode("settings") : setError("Wrong code")
+          }
+          error={error}
+        />
+      </>
+    );
+  } else if (mode === "create") {
+    // Set a new code: enter it, then confirm. Saved code is used everywhere
+    // a grown-up code is asked for (settings, time's-up, exit full screen).
     const onCreate = (code: string) => {
       if (firstEntry == null) {
         setFirstEntry(code);
         setError(null);
       } else if (firstEntry === code) {
         setPin(code);
-        setAuthed(true);
+        onClose();
       } else {
         setFirstEntry(null);
         setError("Codes didn't match — start again");
@@ -48,23 +110,14 @@ export function TimeLimitSettings({ onClose }: Props) {
       <>
         <h2>Set a grown-up code 🔒</h2>
         <p>{firstEntry == null ? "Make up a 4-digit code" : "Enter it again to confirm"}</p>
-        <PinPad key={firstEntry == null ? "first" : "confirm"} onComplete={onCreate} error={error} />
-      </>
-    );
-  } else if (!authed) {
-    // Verify existing PIN.
-    body = (
-      <>
-        <h2>Grown-up code 🔒</h2>
-        <p>Enter your 4-digit code to change the time limit</p>
         <PinPad
-          onComplete={(c) => (verifyPin(c) ? setAuthed(true) : setError("Wrong code"))}
+          key={firstEntry == null ? "first" : "confirm"}
+          onComplete={onCreate}
           error={error}
         />
       </>
     );
   } else {
-    // Authenticated: the actual settings.
     body = (
       <>
         <h2>⏱️ Daily time limit</h2>
@@ -98,26 +151,38 @@ export function TimeLimitSettings({ onClose }: Props) {
           <p className="tl-note">Full screen isn't supported on this device.</p>
         )}
 
+        <div className="tl-fs-row">
+          <span>🔒 Lock settings with a code</span>
+          <button
+            className={lockOn ? "tl-toggle on" : "tl-toggle"}
+            disabled={lockForced}
+            onClick={() => setLockChecked((v) => !v)}
+            aria-pressed={lockOn}
+          >
+            {lockOn ? "On" : "Off"}
+          </button>
+        </div>
+        {lockForced && (
+          <p className="tl-note">
+            A code is needed for the time limit and full-screen lock.
+          </p>
+        )}
+
         <div className="tl-actions">
           <button className="tl-action" onClick={resetToday}>
             ↺ Reset today's timer
           </button>
-          <button className="tl-action" onClick={() => setChanging((v) => !v)}>
-            🔑 Change code
-          </button>
+          {hasPin && lockOn && (
+            <button
+              className={changeCode ? "tl-action on" : "tl-action"}
+              onClick={() => setChangeCode((v) => !v)}
+            >
+              🔑 {changeCode ? "New code on Done" : "Change code"}
+            </button>
+          )}
         </div>
-        {changing && (
-          <>
-            <p>Enter a new 4-digit code</p>
-            <PinPad
-              onComplete={(c) => {
-                setPin(c);
-                setChanging(false);
-              }}
-            />
-          </>
-        )}
-        <button className="pill-btn tl-done" onClick={onClose}>
+
+        <button className="pill-btn tl-done" onClick={commitAndClose}>
           Done
         </button>
       </>
@@ -125,9 +190,9 @@ export function TimeLimitSettings({ onClose }: Props) {
   }
 
   return (
-    <div className="tl-modal-scrim" onClick={onClose}>
+    <div className="tl-modal-scrim" onClick={dismiss}>
       <div className="tl-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="tl-close" onClick={onClose} aria-label="Close">
+        <button className="tl-close" onClick={dismiss} aria-label="Close">
           ✕
         </button>
         {body}
