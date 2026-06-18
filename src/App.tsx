@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Animal, Level } from "./data/animals";
 import { drawingsForLevel } from "./data/animals";
 import { masterpieces, isMasterpiece } from "./data/masterpieces";
@@ -29,18 +29,64 @@ function loadLevel(): Level {
   return n === 7 || n === 10 ? n : 5;
 }
 
+// Each in-app screen is a route on a navigation stack. The browser Back button
+// pops the stack (returning to the previous screen) instead of leaving the
+// site — important for young children, who could otherwise navigate away with
+// a single tap. "home" is always the bottom of the stack.
+type Route =
+  | { kind: "home" }
+  | { kind: "paintings" }
+  | { kind: "facts" }
+  | { kind: "privacy" }
+  | { kind: "contact" }
+  | { kind: "terms" }
+  | { kind: "drawing"; animal: Animal };
+
 export function App() {
-  const [selected, setSelected] = useState<Animal | null>(null);
-  const [showFacts, setShowFacts] = useState(false);
-  const [showPrivacy, setShowPrivacy] = useState(false);
-  const [showContact, setShowContact] = useState(false);
-  const [showTerms, setShowTerms] = useState(false);
-  // Keeping this true while a painting is selected means "Home"/"Pick another"
-  // return to the paintings gallery rather than the main home screen.
-  const [showPaintings, setShowPaintings] = useState(false);
   // Animals the child has finished — shown with a green check on the home page.
   const [completed, setCompleted] = useState<Set<string>>(loadCompleted);
   const [level, setLevelState] = useState<Level>(loadLevel);
+
+  const [stack, setStack] = useState<Route[]>([{ kind: "home" }]);
+  const current = stack[stack.length - 1];
+  const previous = stack[stack.length - 2];
+
+  // Mirror the stack depth in the browser's history so the Back/Forward
+  // buttons (and Android's hardware back) move through our screens.
+  const depthRef = useRef(0);
+
+  useEffect(() => {
+    // Establish a base history entry for the home screen.
+    window.history.replaceState({ depth: 0 }, "");
+    const onPop = (e: PopStateEvent) => {
+      const depth =
+        e.state && typeof e.state.depth === "number" ? e.state.depth : 0;
+      depthRef.current = depth;
+      // Truncate the stack to match where history landed.
+      setStack((prev) => prev.slice(0, depth + 1));
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  // Navigate forward into a new screen (adds a history entry).
+  const push = useCallback((route: Route) => {
+    depthRef.current += 1;
+    window.history.pushState({ depth: depthRef.current }, "");
+    setStack((prev) => [...prev, route]);
+  }, []);
+
+  // Swap the current screen without growing history (used for auto-advance,
+  // so Back returns to where the child started, not through every drawing).
+  const replace = useCallback((route: Route) => {
+    setStack((prev) => [...prev.slice(0, -1), route]);
+  }, []);
+
+  // Go back one screen. Drives the browser so Back button and our own
+  // Home/Back buttons share a single code path.
+  const goBack = useCallback(() => {
+    window.history.back();
+  }, []);
 
   const markCompleted = useCallback((id: string) => {
     setCompleted((prev) => {
@@ -65,53 +111,55 @@ export function App() {
   }, []);
 
   let screen;
-  if (selected) {
+  if (current.kind === "drawing") {
+    const animal = current.animal;
     // Auto-advance stays within the collection the drawing came from.
-    const inPaintings = isMasterpiece(selected.id);
+    const inPaintings = isMasterpiece(animal.id);
     const pool = inPaintings ? masterpieces : drawingsForLevel(level);
+    // The Back button returns to whichever screen we came from, so label it
+    // to match (the paintings gallery, or home).
+    const cameFromPaintings = previous?.kind === "paintings";
     screen = (
       <DrawingPlayer
-        key={selected.id}
-        animal={selected}
+        key={animal.id}
+        animal={animal}
         pool={pool}
         completed={completed}
-        // Leaving a painting returns to the paintings gallery (so "pick another"
-        // stays among paintings), so label the back button for that, not "Home".
-        onHome={() => setSelected(null)}
-        homeLabel={inPaintings ? "🖼️ Paintings" : "🏠 Home"}
-        homeAria={inPaintings ? "Back to paintings" : "Back to home"}
-        onComplete={() => markCompleted(selected.id)}
-        onGoTo={setSelected}
+        onHome={goBack}
+        homeLabel={cameFromPaintings ? "🖼️ Paintings" : "🏠 Home"}
+        homeAria={cameFromPaintings ? "Back to paintings" : "Back to home"}
+        onComplete={() => markCompleted(animal.id)}
+        onGoTo={(next) => replace({ kind: "drawing", animal: next })}
       />
     );
-  } else if (showPaintings) {
+  } else if (current.kind === "paintings") {
     screen = (
       <PaintingsPage
-        onPick={setSelected}
-        onHome={() => setShowPaintings(false)}
+        onPick={(animal) => push({ kind: "drawing", animal })}
+        onHome={goBack}
         completed={completed}
       />
     );
-  } else if (showFacts) {
-    screen = <FactsPage onHome={() => setShowFacts(false)} />;
-  } else if (showPrivacy) {
-    screen = <PrivacyPage onHome={() => setShowPrivacy(false)} />;
-  } else if (showContact) {
-    screen = <ContactPage onHome={() => setShowContact(false)} />;
-  } else if (showTerms) {
-    screen = <TermsPage onHome={() => setShowTerms(false)} />;
+  } else if (current.kind === "facts") {
+    screen = <FactsPage onHome={goBack} />;
+  } else if (current.kind === "privacy") {
+    screen = <PrivacyPage onHome={goBack} />;
+  } else if (current.kind === "contact") {
+    screen = <ContactPage onHome={goBack} />;
+  } else if (current.kind === "terms") {
+    screen = <TermsPage onHome={goBack} />;
   } else {
     screen = (
       <HomePage
-        onPick={setSelected}
+        onPick={(animal) => push({ kind: "drawing", animal })}
         completed={completed}
         level={level}
         onLevelChange={setLevel}
-        onOpenFacts={() => setShowFacts(true)}
-        onOpenPaintings={() => setShowPaintings(true)}
-        onOpenPrivacy={() => setShowPrivacy(true)}
-        onOpenContact={() => setShowContact(true)}
-        onOpenTerms={() => setShowTerms(true)}
+        onOpenFacts={() => push({ kind: "facts" })}
+        onOpenPaintings={() => push({ kind: "paintings" })}
+        onOpenPrivacy={() => push({ kind: "privacy" })}
+        onOpenContact={() => push({ kind: "contact" })}
+        onOpenTerms={() => push({ kind: "terms" })}
       />
     );
   }
