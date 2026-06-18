@@ -141,16 +141,27 @@ export function HomePage({
       <h1 className="title">🎨 Let's Learn to Draw!</h1>
       <p className="subtitle">Pick something to draw 👇</p>
 
-      <LevelSelector level={level} onChange={onLevelChange} />
+      {/* Difficulty levels, with Famous Paintings sitting right after Harder
+          as a fourth "collection" to draw. */}
+      <div className="level-row">
+        <LevelSelector level={level} onChange={onLevelChange} />
+        <button
+          className="level-btn paintings-pick"
+          onClick={onOpenPaintings}
+          aria-label="Famous paintings"
+        >
+          <span className="level-icon" aria-hidden="true">
+            🖼️
+          </span>
+          <span className="level-label">Paintings</span>
+        </button>
+      </div>
 
       <div className="control-bar">
         <VoiceButton />
         <SoundButton />
         <button className="facts-btn" onClick={onOpenTrophies}>
           🏆 My Stickers
-        </button>
-        <button className="facts-btn" onClick={onOpenPaintings}>
-          🖼️ Famous Paintings
         </button>
         <button className="facts-btn" onClick={onOpenFacts}>
           💡 Fun Facts

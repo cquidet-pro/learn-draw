@@ -629,10 +629,25 @@ kbd {
 }
 
 /* ---------- Level selector ---------- */
+.level-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
 .level-selector {
   display: flex;
   gap: 0.6rem;
   margin: 0.2rem 0 0.4rem;
+}
+
+/* Famous Paintings as a sibling of the difficulty buttons, set apart with a
+   distinct tint so it doesn't read as a fourth difficulty toggle. */
+.paintings-pick {
+  background: #f1ecff;
+  border-color: var(--accent-2);
 }
 
 .level-btn {
