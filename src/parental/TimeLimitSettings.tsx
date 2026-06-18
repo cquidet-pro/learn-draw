@@ -13,8 +13,9 @@ const PRESETS = [0, 15, 30, 45, 60];
  * code needed. The grown-up can tick "Lock settings with a code" to protect it;
  * the code is only asked for when they press Done. A code is also required (and
  * so requested on Done) whenever a time limit or the full-screen lock is on,
- * since those unlock screens ask for it. Once a code exists, re-opening these
- * settings asks for it first.
+ * since those unlock screens ask for it. Re-opening asks for the code only when
+ * there's something to protect — i.e. a time limit or full-screen lock is
+ * active; otherwise the panel opens straight away even if a code is set.
  */
 export function TimeLimitSettings({ onClose }: Props) {
   const {
@@ -33,8 +34,13 @@ export function TimeLimitSettings({ onClose }: Props) {
 
   // "verify" → enter existing code to open; "settings" → the panel; "create" →
   // set a (new) code, confirmed on Done.
+  // We only gate opening with the code when there's actually something to
+  // protect — an active time limit or full-screen lock. With neither on (even
+  // if "lock with a code" is ticked), the panel holds nothing a child could
+  // misuse, so there's no point asking for the code each time.
+  const guardOpen = hasPin && (limitMin > 0 || fsLock);
   const [mode, setMode] = useState<"verify" | "settings" | "create">(
-    hasPin ? "verify" : "settings",
+    guardOpen ? "verify" : "settings",
   );
   const [error, setError] = useState<string | null>(null);
   const [firstEntry, setFirstEntry] = useState<string | null>(null);
