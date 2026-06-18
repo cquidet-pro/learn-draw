@@ -8,6 +8,7 @@ import { FactsPage } from "./components/FactsPage";
 import { PaintingsPage } from "./components/PaintingsPage";
 import { PrivacyPage } from "./components/PrivacyPage";
 import { ContactPage } from "./components/ContactPage";
+import { TermsPage } from "./components/TermsPage";
 import { VoiceProvider } from "./voice/VoiceProvider";
 import { TimeLimitProvider } from "./parental/TimeLimitProvider";
 
@@ -33,6 +34,7 @@ export function App() {
   const [showFacts, setShowFacts] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showContact, setShowContact] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
   // Keeping this true while a painting is selected means "Home"/"Pick another"
   // return to the paintings gallery rather than the main home screen.
   const [showPaintings, setShowPaintings] = useState(false);
@@ -96,6 +98,8 @@ export function App() {
     screen = <PrivacyPage onHome={() => setShowPrivacy(false)} />;
   } else if (showContact) {
     screen = <ContactPage onHome={() => setShowContact(false)} />;
+  } else if (showTerms) {
+    screen = <TermsPage onHome={() => setShowTerms(false)} />;
   } else {
     screen = (
       <HomePage
@@ -107,6 +111,7 @@ export function App() {
         onOpenPaintings={() => setShowPaintings(true)}
         onOpenPrivacy={() => setShowPrivacy(true)}
         onOpenContact={() => setShowContact(true)}
+        onOpenTerms={() => setShowTerms(true)}
       />
     );
   }

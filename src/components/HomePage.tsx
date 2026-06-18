@@ -44,6 +44,7 @@ interface Props {
   onOpenPaintings: () => void;
   onOpenPrivacy: () => void;
   onOpenContact: () => void;
+  onOpenTerms: () => void;
 }
 
 export function HomePage({
@@ -55,6 +56,7 @@ export function HomePage({
   onOpenPaintings,
   onOpenPrivacy,
   onOpenContact,
+  onOpenTerms,
 }: Props) {
   const visible = drawingsForLevel(level);
   const [printing, setPrinting] = useState(false);
@@ -100,6 +102,10 @@ export function HomePage({
         onOpenContact();
         return true;
       }
+      if (heardAny(transcript, ["terms", "rules"])) {
+        onOpenTerms();
+        return true;
+      }
       for (const animal of visible) {
         const words = ALIASES[animal.id] ?? [animal.name.toLowerCase()];
         if (heardAny(transcript, words)) {
@@ -109,7 +115,16 @@ export function HomePage({
       }
       return false;
     },
-    [onPick, onOpenFacts, onOpenPaintings, onOpenPrivacy, onOpenContact, visible, handlePrint],
+    [
+      onPick,
+      onOpenFacts,
+      onOpenPaintings,
+      onOpenPrivacy,
+      onOpenContact,
+      onOpenTerms,
+      visible,
+      handlePrint,
+    ],
   );
   useVoiceControl(onCommand);
 
@@ -188,6 +203,12 @@ export function HomePage({
         </span>
         <button className="footer-link" onClick={onOpenContact}>
           👋 Say hello
+        </button>
+        <span className="footer-dot" aria-hidden="true">
+          ·
+        </span>
+        <button className="footer-link" onClick={onOpenTerms}>
+          📜 Rules
         </button>
         <p className="footer-love">Made with ❤️ for happy little artists</p>
       </footer>

@@ -8,3 +8,15 @@ createRoot(document.getElementById("root")!).render(
     <App />
   </StrictMode>,
 );
+
+// Register the service worker so the app is installable and works offline.
+// Uses the Vite base URL so the scope is correct on GitHub Pages.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register(`${import.meta.env.BASE_URL}sw.js`)
+      .catch(() => {
+        /* offline support is best-effort; ignore registration failures */
+      });
+  });
+}

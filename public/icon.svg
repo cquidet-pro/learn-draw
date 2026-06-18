@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Learn to Draw">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe08a"/>
+      <stop offset="1" stop-color="#ffd166"/>
+    </linearGradient>
+  </defs>
+  <!-- warm rounded background -->
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="url(#bg)"/>
+  <!-- painter's palette -->
+  <g transform="translate(256 268) rotate(-12)">
+    <ellipse cx="0" cy="0" rx="150" ry="120" fill="#fffaf0" stroke="#3a3a4d" stroke-width="12"/>
+    <!-- thumb hole -->
+    <ellipse cx="58" cy="34" rx="34" ry="26" fill="url(#bg)" stroke="#3a3a4d" stroke-width="10"/>
+    <!-- paint blobs -->
+    <circle cx="-78" cy="-44" r="22" fill="#ef476f"/>
+    <circle cx="-12" cy="-66" r="22" fill="#ffd166"/>
+    <circle cx="54" cy="-52" r="22" fill="#06d6a0"/>
+    <circle cx="-90" cy="22" r="22" fill="#118ab2"/>
+    <circle cx="-40" cy="58" r="22" fill="#9b5de5"/>
+  </g>
+  <!-- paintbrush -->
+  <g transform="translate(330 150) rotate(40)">
+    <rect x="-12" y="0" width="24" height="150" rx="12" fill="#3a3a4d"/>
+    <rect x="-14" y="-44" width="28" height="52" rx="8" fill="#c0c7d1"/>
+    <path d="M-14 -44 L14 -44 L18 -78 Q0 -96 -18 -78 Z" fill="#ef476f"/>
+  </g>
+</svg>
