@@ -5,6 +5,7 @@ import { downloadColoringPdf } from "../lib/coloringPdf";
 import { AnimalCard } from "./AnimalCard";
 import { LevelSelector } from "./LevelSelector";
 import { useVoiceControl, VoiceButton } from "../voice/VoiceProvider";
+import { SoundButton } from "../sound/SoundProvider";
 import { heardAny } from "../voice/match";
 import { TimeLimitSettings } from "../parental/TimeLimitSettings";
 
@@ -42,6 +43,7 @@ interface Props {
   onLevelChange: (level: Level) => void;
   onOpenFacts: () => void;
   onOpenPaintings: () => void;
+  onOpenTrophies: () => void;
   onOpenPrivacy: () => void;
   onOpenContact: () => void;
   onOpenTerms: () => void;
@@ -54,6 +56,7 @@ export function HomePage({
   onLevelChange,
   onOpenFacts,
   onOpenPaintings,
+  onOpenTrophies,
   onOpenPrivacy,
   onOpenContact,
   onOpenTerms,
@@ -90,6 +93,10 @@ export function HomePage({
         onOpenPaintings();
         return true;
       }
+      if (heardAny(transcript, ["stickers", "sticker", "trophies", "trophy", "badges"])) {
+        onOpenTrophies();
+        return true;
+      }
       if (heardAny(transcript, ["print", "coloring", "color me"])) {
         handlePrint();
         return true;
@@ -119,6 +126,7 @@ export function HomePage({
       onPick,
       onOpenFacts,
       onOpenPaintings,
+      onOpenTrophies,
       onOpenPrivacy,
       onOpenContact,
       onOpenTerms,
@@ -137,6 +145,10 @@ export function HomePage({
 
       <div className="control-bar">
         <VoiceButton />
+        <SoundButton />
+        <button className="facts-btn" onClick={onOpenTrophies}>
+          🏆 My Stickers
+        </button>
         <button className="facts-btn" onClick={onOpenPaintings}>
           🖼️ Famous Paintings
         </button>

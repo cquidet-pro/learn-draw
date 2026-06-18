@@ -7,6 +7,7 @@ import { AnimatedDrawing } from "./AnimatedDrawing";
 import { Controls } from "./Controls";
 import { Celebration } from "./Celebration";
 import { useVoiceControl, VoiceButton } from "../voice/VoiceProvider";
+import { usePlaySound, SoundButton } from "../sound/SoundProvider";
 import { heardAny } from "../voice/match";
 
 interface Props {
@@ -49,6 +50,7 @@ export function DrawingPlayer({
   onComplete,
   onGoTo,
 }: Props) {
+  const playSound = usePlaySound();
   const player = useDrawingPlayer(animal.steps.length);
   // After the last step, the picture first "finishes" (shown static with stars
   // around it); pressing next once more pops the celebration.
@@ -68,13 +70,16 @@ export function DrawingPlayer({
     if (celebrating) return;
     if (finished) {
       setCelebrating(true);
+      playSound("celebrate");
     } else if (player.isLast) {
       setFinished(true);
+      playSound("finish");
       onComplete();
     } else {
       player.next();
+      playSound("step");
     }
-  }, [celebrating, finished, player, onComplete]);
+  }, [celebrating, finished, player, onComplete, playSound]);
 
   // Back steps out one stage at a time: celebration → finished → last step,
   // so a mistaken press is fully recoverable.
@@ -125,6 +130,7 @@ export function DrawingPlayer({
 
       <div className="control-bar">
         <VoiceButton />
+        <SoundButton />
       </div>
 
       <p className="hint">

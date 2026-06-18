@@ -9,7 +9,9 @@ import { PaintingsPage } from "./components/PaintingsPage";
 import { PrivacyPage } from "./components/PrivacyPage";
 import { ContactPage } from "./components/ContactPage";
 import { TermsPage } from "./components/TermsPage";
+import { TrophyPage } from "./components/TrophyPage";
 import { VoiceProvider } from "./voice/VoiceProvider";
+import { SoundProvider } from "./sound/SoundProvider";
 import { TimeLimitProvider } from "./parental/TimeLimitProvider";
 
 const COMPLETED_KEY = "learn-draw:completed";
@@ -40,6 +42,7 @@ type Route =
   | { kind: "privacy" }
   | { kind: "contact" }
   | { kind: "terms" }
+  | { kind: "trophies" }
   | { kind: "drawing"; animal: Animal };
 
 export function App() {
@@ -148,6 +151,8 @@ export function App() {
     screen = <ContactPage onHome={goBack} />;
   } else if (current.kind === "terms") {
     screen = <TermsPage onHome={goBack} />;
+  } else if (current.kind === "trophies") {
+    screen = <TrophyPage onHome={goBack} completed={completed} />;
   } else {
     screen = (
       <HomePage
@@ -157,6 +162,7 @@ export function App() {
         onLevelChange={setLevel}
         onOpenFacts={() => push({ kind: "facts" })}
         onOpenPaintings={() => push({ kind: "paintings" })}
+        onOpenTrophies={() => push({ kind: "trophies" })}
         onOpenPrivacy={() => push({ kind: "privacy" })}
         onOpenContact={() => push({ kind: "contact" })}
         onOpenTerms={() => push({ kind: "terms" })}
@@ -166,7 +172,9 @@ export function App() {
 
   return (
     <TimeLimitProvider>
-      <VoiceProvider>{screen}</VoiceProvider>
+      <SoundProvider>
+        <VoiceProvider>{screen}</VoiceProvider>
+      </SoundProvider>
     </TimeLimitProvider>
   );
 }
