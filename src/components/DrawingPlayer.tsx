@@ -102,13 +102,21 @@ export function DrawingPlayer({
         handlePrev();
         return true;
       }
+      if (heardAny(transcript, ["pause", "stop", "freeze", "wait"])) {
+        player.setPaused(true);
+        return true;
+      }
+      if (heardAny(transcript, ["play", "resume", "unpause"])) {
+        player.setPaused(false);
+        return true;
+      }
       if (heardAny(transcript, ["next", "go", "forward", "more"])) {
         handleNext();
         return true;
       }
       return false;
     },
-    [onHome, handlePrev, handleNext],
+    [onHome, handlePrev, handleNext, player.setPaused],
   );
   useVoiceControl(onCommand);
 
@@ -152,6 +160,7 @@ export function DrawingPlayer({
                 stepIndex={player.stepIndex}
                 duration={player.duration}
                 frozen={finished || celebrating}
+                paused={player.paused}
               />
               <figcaption className="art-label">Your sketch ✏️</figcaption>
             </figure>
@@ -170,6 +179,7 @@ export function DrawingPlayer({
             stepIndex={player.stepIndex}
             duration={player.duration}
             frozen={finished || celebrating}
+            paused={player.paused}
           />
         )}
 
@@ -194,9 +204,12 @@ export function DrawingPlayer({
         prevDisabled={player.isFirst && !finished && !celebrating}
         nextDisabled={celebrating}
         duration={player.duration}
+        paused={player.paused}
+        pauseDisabled={finished || celebrating}
         onPrev={handlePrev}
         onNext={handleNext}
         onSpeedChange={player.setDuration}
+        onTogglePause={player.togglePause}
       />
 
       {celebrating && nextTarget && (

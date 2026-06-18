@@ -4,14 +4,17 @@ interface Props {
   prevDisabled: boolean;
   nextDisabled: boolean;
   duration: number;
+  paused: boolean;
+  pauseDisabled: boolean;
   onPrev: () => void;
   onNext: () => void;
   onSpeedChange: (duration: number) => void;
+  onTogglePause: () => void;
 }
 
 // Speed slider maps a 0..100 position to a loop duration. Left = slow turtle
-// (10s), right = fast rabbit (2s). We invert so dragging right speeds up.
-const SLOW = 10;
+// (20s), right = fast rabbit (2s). We invert so dragging right speeds up.
+const SLOW = 20;
 const FAST = 2;
 const toDuration = (pct: number) => SLOW - (pct / 100) * (SLOW - FAST);
 const toPct = (duration: number) => ((SLOW - duration) / (SLOW - FAST)) * 100;
@@ -22,9 +25,12 @@ export function Controls({
   prevDisabled,
   nextDisabled,
   duration,
+  paused,
+  pauseDisabled,
   onPrev,
   onNext,
   onSpeedChange,
+  onTogglePause,
 }: Props) {
   return (
     <div className="controls">
@@ -53,6 +59,15 @@ export function Controls({
       </div>
 
       <div className="speed-row">
+        <button
+          className={paused ? "pause-btn paused" : "pause-btn"}
+          onClick={onTogglePause}
+          disabled={pauseDisabled}
+          aria-label={paused ? "Play the drawing" : "Pause the drawing"}
+          aria-pressed={paused}
+        >
+          {paused ? "▶️" : "⏸️"}
+        </button>
         <span className="speed-icon" aria-hidden="true">
           🐢
         </span>

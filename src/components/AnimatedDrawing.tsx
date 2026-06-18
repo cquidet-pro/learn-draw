@@ -9,6 +9,8 @@ interface Props {
   /** When true, the current step's strokes are shown solid/finished instead of
    *  looping — used during the end-of-drawing celebration. */
   frozen?: boolean;
+  /** When true, freeze the current step's draw loop where it is (pause button). */
+  paused?: boolean;
 }
 
 /**
@@ -25,7 +27,7 @@ interface Props {
  * includes the step index so React remounts them and the animation restarts
  * cleanly each time the step changes.
  */
-export function AnimatedDrawing({ animal, stepIndex, duration, frozen }: Props) {
+export function AnimatedDrawing({ animal, stepIndex, duration, frozen, paused }: Props) {
   const visible = animal.steps
     .map((step, si) => ({ step, si }))
     .filter(({ si }) => si <= stepIndex);
@@ -84,7 +86,10 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen }: Props) 
             className={className}
             style={
               isCurrent && !allSolid
-                ? ({ "--draw-duration": `${duration}s` } as React.CSSProperties)
+                ? ({
+                    "--draw-duration": `${duration}s`,
+                    animationPlayState: paused ? "paused" : "running",
+                  } as React.CSSProperties)
                 : undefined
             }
           />
