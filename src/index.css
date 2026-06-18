@@ -716,6 +716,14 @@ kbd {
   gap: 0.6rem;
 }
 
+/* On touch devices you just swipe to scroll, so the up/down buttons are
+   redundant clutter — hide them there. (Voice "up"/"down" still works.) */
+@media (hover: none) and (pointer: coarse) {
+  .side-scroll {
+    display: none;
+  }
+}
+
 .scroll-btn {
   width: 54px;
   height: 54px;
