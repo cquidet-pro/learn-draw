@@ -7,6 +7,7 @@ import { DrawingPlayer } from "./components/DrawingPlayer";
 import { FactsPage } from "./components/FactsPage";
 import { PaintingsPage } from "./components/PaintingsPage";
 import { VoiceProvider } from "./voice/VoiceProvider";
+import { TimeLimitProvider } from "./parental/TimeLimitProvider";
 
 const COMPLETED_KEY = "learn-draw:completed";
 const LEVEL_KEY = "learn-draw:level";
@@ -100,5 +101,9 @@ export function App() {
     );
   }
 
-  return <VoiceProvider>{screen}</VoiceProvider>;
+  return (
+    <TimeLimitProvider>
+      <VoiceProvider>{screen}</VoiceProvider>
+    </TimeLimitProvider>
+  );
 }

@@ -820,3 +820,219 @@ kbd {
     transform: none;
   }
 }
+
+/* ---------- Parental time limit ---------- */
+/* Whole app dimmed + unclickable when the limit is reached. */
+.app-dim {
+  filter: grayscale(1) brightness(0.78);
+  pointer-events: none;
+  user-select: none;
+}
+
+.lock-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(60, 58, 85, 0.55);
+  padding: 20px;
+}
+
+.lock-card {
+  background: #fff;
+  border-radius: 28px;
+  padding: 28px 26px 32px;
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.lock-emoji {
+  font-size: 3.4rem;
+}
+
+.lock-card h2 {
+  margin: 6px 0 4px;
+  font-size: 1.8rem;
+}
+
+.lock-prompt {
+  font-weight: 700;
+  margin-top: 14px;
+}
+
+.lock-unlock {
+  margin-top: 14px;
+}
+
+/* Time-limit settings modal. */
+.tl-modal-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(60, 58, 85, 0.5);
+  padding: 20px;
+}
+
+.tl-modal {
+  position: relative;
+  background: #fff;
+  border-radius: 28px;
+  padding: 26px 24px 28px;
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.tl-modal h2 {
+  margin: 0 0 10px;
+  font-size: 1.5rem;
+}
+
+.tl-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  border: none;
+  background: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: #888;
+}
+
+.tl-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin: 12px 0;
+}
+
+.tl-preset {
+  border: 3px solid var(--accent-2, #ef476f);
+  background: #fff;
+  color: var(--accent-2, #ef476f);
+  border-radius: 16px;
+  padding: 8px 14px;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.tl-preset.on {
+  background: var(--accent-2, #ef476f);
+  color: #fff;
+}
+
+.tl-used {
+  margin: 10px 0;
+}
+
+.tl-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.tl-action {
+  border: 2px solid #d7d7e0;
+  background: #f7f7fb;
+  border-radius: 14px;
+  padding: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tl-done {
+  margin-top: 8px;
+}
+
+/* PIN pad. */
+.pinpad {
+  margin: 8px auto 0;
+  max-width: 240px;
+}
+
+.pin-dots {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  margin: 8px 0 4px;
+}
+
+.pin-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid #bbb;
+}
+
+.pin-dot.filled {
+  background: var(--accent-2, #ef476f);
+  border-color: var(--accent-2, #ef476f);
+}
+
+.pin-error {
+  color: #e63946;
+  font-weight: 700;
+  margin: 6px 0;
+}
+
+.pin-keys {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.pin-key {
+  font-size: 1.5rem;
+  font-weight: 800;
+  padding: 14px 0;
+  border-radius: 16px;
+  border: none;
+  background: #f0f0f6;
+  cursor: pointer;
+}
+
+.pin-key:active {
+  background: #e2e2ee;
+}
+
+.pin-key-del {
+  color: #888;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-dim {
+    filter: grayscale(1);
+  }
+}
+
+/* Pill-shaped text buttons used in the time-limit dialogs. */
+.pill-btn {
+  border: none;
+  background: var(--accent-2);
+  color: #fff;
+  font-family: inherit;
+  font-size: 1.1rem;
+  font-weight: 800;
+  padding: 12px 26px;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+}
+
+.pill-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
+}

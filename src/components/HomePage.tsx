@@ -6,6 +6,7 @@ import { AnimalCard } from "./AnimalCard";
 import { LevelSelector } from "./LevelSelector";
 import { useVoiceControl, VoiceButton } from "../voice/VoiceProvider";
 import { heardAny } from "../voice/match";
+import { TimeLimitSettings } from "../parental/TimeLimitSettings";
 
 /** Smoothly scroll the page up (-1) or down (+1) by most of a screenful. */
 function scrollPage(dir: 1 | -1) {
@@ -53,6 +54,7 @@ export function HomePage({
 }: Props) {
   const visible = drawingsForLevel(level);
   const [printing, setPrinting] = useState(false);
+  const [showTimeLimit, setShowTimeLimit] = useState(false);
 
   const handlePrint = useCallback(async () => {
     if (printing || visible.length === 0) return;
@@ -121,7 +123,12 @@ export function HomePage({
         >
           {printing ? "⏳ Making PDF…" : "🖨️ Print to color"}
         </button>
+        <button className="facts-btn" onClick={() => setShowTimeLimit(true)}>
+          ⏱️ Time limit
+        </button>
       </div>
+
+      {showTimeLimit && <TimeLimitSettings onClose={() => setShowTimeLimit(false)} />}
 
       {/* Up/down scroll controls on the left, centred at the drawing level. */}
       <div className="side-scroll">
