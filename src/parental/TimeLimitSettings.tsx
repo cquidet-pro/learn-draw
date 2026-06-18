@@ -11,7 +11,18 @@ const PRESETS = [0, 15, 30, 45, 60];
 /** Grown-up time-limit settings, gated by a 4-digit PIN. First use creates the
  *  PIN (entered twice); after that it's required to open these settings. */
 export function TimeLimitSettings({ onClose }: Props) {
-  const { hasPin, setPin, verifyPin, limitMin, setLimit, usedSec, resetToday } = useTimeLimit();
+  const {
+    hasPin,
+    setPin,
+    verifyPin,
+    limitMin,
+    setLimit,
+    usedSec,
+    resetToday,
+    fsLock,
+    fsSupported,
+    setFsLock,
+  } = useTimeLimit();
   const [authed, setAuthed] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [firstEntry, setFirstEntry] = useState<string | null>(null);
@@ -72,6 +83,21 @@ export function TimeLimitSettings({ onClose }: Props) {
           Used today: <b>{Math.floor(usedSec / 60)} min</b>
           {limitMin > 0 ? ` of ${limitMin} min` : " (no limit set)"}
         </p>
+
+        <div className="tl-fs-row">
+          <span>🖥️ Keep full screen</span>
+          <button
+            className={fsLock ? "tl-toggle on" : "tl-toggle"}
+            disabled={!fsSupported}
+            onClick={() => setFsLock(!fsLock)}
+          >
+            {fsLock ? "On" : "Off"}
+          </button>
+        </div>
+        {!fsSupported && (
+          <p className="tl-note">Full screen isn't supported on this device.</p>
+        )}
+
         <div className="tl-actions">
           <button className="tl-action" onClick={resetToday}>
             ↺ Reset today's timer

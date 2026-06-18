@@ -8,13 +8,52 @@ import {
   type ReactNode,
 } from "react";
 import { LockOverlay } from "./LockOverlay";
+import { FullscreenGate } from "./FullscreenGate";
 
-// Parental daily time limit. A 4-digit PIN (set by the grown-up) gates the
-// settings and unlocking. Usage is counted per day and persisted; when it
-// reaches the limit the whole app is dimmed + made unclickable by LockOverlay.
+// Parental controls. A 4-digit PIN (set by the grown-up) gates the settings and
+// unlocking. Usage is counted per day and persisted; when it reaches the daily
+// limit the whole app is dimmed + made unclickable by LockOverlay. Optionally a
+// "keep full screen" lock keeps the child in fullscreen — exiting it shows a
+// gate that needs the PIN (or a tap to return to fullscreen).
 const PIN_KEY = "learn-draw:pin";
 const LIMIT_KEY = "learn-draw:limitMin";
 const USAGE_KEY = "learn-draw:usage";
+const FS_KEY = "learn-draw:fsLock";
+
+// Cross-browser fullscreen helpers.
+type FsDoc = Document & { webkitFullscreenElement?: Element; webkitExitFullscreen?: () => void };
+type FsEl = HTMLElement & { webkitRequestFullscreen?: () => void };
+
+function fullscreenEl(): Element | null {
+  const d = document as FsDoc;
+  return document.fullscreenElement ?? d.webkitFullscreenElement ?? null;
+}
+function fullscreenSupported(): boolean {
+  const el = document.documentElement as FsEl;
+  return !!(el.requestFullscreen || el.webkitRequestFullscreen);
+}
+function requestFullscreen(): void {
+  const el = document.documentElement as FsEl;
+  const fn = el.requestFullscreen ?? el.webkitRequestFullscreen;
+  if (!fn) return;
+  try {
+    const r = fn.call(el) as unknown as Promise<void> | undefined;
+    if (r && typeof r.catch === "function") r.catch(() => {});
+  } catch {
+    /* ignore */
+  }
+}
+function exitFullscreen(): void {
+  const d = document as FsDoc;
+  const fn = document.exitFullscreen ?? d.webkitExitFullscreen;
+  if (fullscreenEl() && fn) {
+    try {
+      fn.call(document);
+    } catch {
+      /* ignore */
+    }
+  }
+}
 
 function todayStr(): string {
   return new Date().toISOString().slice(0, 10);
@@ -45,6 +84,11 @@ interface TimeLimitValue {
   setLimit: (min: number) => void;
   /** Give back today's time so the child can keep going (used to unlock). */
   resetToday: () => void;
+  /** "Keep full screen" parental lock. */
+  fsLock: boolean;
+  fsSupported: boolean;
+  setFsLock: (on: boolean) => void;
+  enterFullscreen: () => void;
 }
 
 const TimeLimitContext = createContext<TimeLimitValue | null>(null);
@@ -126,8 +170,39 @@ export function TimeLimitProvider({ children }: { children: ReactNode }) {
 
   const resetToday = useCallback(() => setUsedSec(0), []);
 
+  // "Keep full screen" lock.
+  const fsSupported = fullscreenSupported();
+  const [fsLock, setFsLockState] = useState<boolean>(() => localStorage.getItem(FS_KEY) === "1");
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(() => !!fullscreenEl());
+
+  useEffect(() => {
+    const onChange = () => setIsFullscreen(!!fullscreenEl());
+    document.addEventListener("fullscreenchange", onChange);
+    document.addEventListener("webkitfullscreenchange", onChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", onChange);
+      document.removeEventListener("webkitfullscreenchange", onChange);
+    };
+  }, []);
+
+  const setFsLock = useCallback((on: boolean) => {
+    setFsLockState(on);
+    try {
+      localStorage.setItem(FS_KEY, on ? "1" : "0");
+    } catch {
+      /* ignore */
+    }
+    // Called from a click (user gesture), so requesting fullscreen is allowed.
+    if (on) requestFullscreen();
+    else exitFullscreen();
+  }, []);
+
+  const enterFullscreen = useCallback(() => requestFullscreen(), []);
+
   const remainingSec = limitMin > 0 ? Math.max(0, limitMin * 60 - usedSec) : Infinity;
   const locked = limitMin > 0 && usedSec >= limitMin * 60;
+  // Only enforce fullscreen where the browser supports it (graceful degrade).
+  const fsBlocked = fsLock && fsSupported && !isFullscreen;
 
   const value: TimeLimitValue = {
     hasPin: pin != null,
@@ -139,12 +214,16 @@ export function TimeLimitProvider({ children }: { children: ReactNode }) {
     verifyPin,
     setLimit,
     resetToday,
+    fsLock,
+    fsSupported,
+    setFsLock,
+    enterFullscreen,
   };
 
   return (
     <TimeLimitContext.Provider value={value}>
-      <div className={locked ? "app-dim" : undefined}>{children}</div>
-      {locked && <LockOverlay />}
+      <div className={locked || fsBlocked ? "app-dim" : undefined}>{children}</div>
+      {locked ? <LockOverlay /> : fsBlocked ? <FullscreenGate /> : null}
     </TimeLimitContext.Provider>
   );
 }

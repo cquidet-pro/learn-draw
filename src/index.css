@@ -1036,3 +1036,46 @@ kbd {
   transform: translateY(2px);
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
 }
+
+/* Keep-full-screen toggle row in the settings panel. */
+.tl-fs-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 6px 0 2px;
+  font-weight: 700;
+}
+
+.tl-toggle {
+  border: 3px solid var(--accent-2);
+  background: #fff;
+  color: var(--accent-2);
+  border-radius: 999px;
+  padding: 6px 18px;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  min-width: 64px;
+}
+
+.tl-toggle.on {
+  background: var(--accent-2);
+  color: #fff;
+}
+
+.tl-toggle:disabled {
+  border-color: #ccc;
+  color: #aaa;
+  cursor: default;
+}
+
+.tl-note {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  margin: 2px 0 0;
+}
+
+.fsg-exit {
+  margin-top: 14px;
+}
