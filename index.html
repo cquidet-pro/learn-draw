@@ -51,6 +51,25 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Learn to Draw" />
 
+    <!-- Apply the saved (or system) theme before paint to avoid a flash. -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("learn-draw:theme");
+          if (t !== "dark" && t !== "light") {
+            t =
+              window.matchMedia &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? "dark"
+                : "light";
+          }
+          document.documentElement.setAttribute("data-theme", t);
+          var m = document.querySelector('meta[name="theme-color"]');
+          if (m) m.setAttribute("content", t === "dark" ? "#181824" : "#ffd166");
+        } catch (e) {}
+      })();
+    </script>
+
     <!-- Structured data: read by Google (rich results) and AI agents alike. -->
     <script type="application/ld+json">
       {

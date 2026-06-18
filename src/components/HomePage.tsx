@@ -6,6 +6,8 @@ import { AnimalCard } from "./AnimalCard";
 import { LevelSelector } from "./LevelSelector";
 import { useVoiceControl, VoiceButton } from "../voice/VoiceProvider";
 import { SoundButton } from "../sound/SoundProvider";
+import { ThemeButton } from "../theme/ThemeButton";
+import { applyTheme } from "../theme/theme";
 import { heardAny } from "../voice/match";
 import { TimeLimitSettings } from "../parental/TimeLimitSettings";
 
@@ -113,6 +115,14 @@ export function HomePage({
         onOpenTerms();
         return true;
       }
+      if (heardAny(transcript, ["dark", "dark mode", "night", "night mode"])) {
+        applyTheme("dark");
+        return true;
+      }
+      if (heardAny(transcript, ["light", "light mode", "day", "day mode"])) {
+        applyTheme("light");
+        return true;
+      }
       for (const animal of visible) {
         const words = ALIASES[animal.id] ?? [animal.name.toLowerCase()];
         if (heardAny(transcript, words)) {
@@ -160,6 +170,7 @@ export function HomePage({
       <div className="control-bar">
         <VoiceButton />
         <SoundButton />
+        <ThemeButton />
         <button className="facts-btn" onClick={onOpenTrophies}>
           🏆 My Stickers
         </button>
