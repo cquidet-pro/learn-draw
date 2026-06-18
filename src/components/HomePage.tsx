@@ -218,6 +218,36 @@ export function HomePage({
       )}
 
       <footer className="home-footer">
+        {/* App store badges — not clickable yet; the apps aren't published. */}
+        <div className="store-badges" aria-label="Mobile apps coming soon">
+          <span
+            className="store-badge"
+            role="img"
+            aria-label="Apple App Store — coming soon"
+          >
+            <span className="store-badge-icon" aria-hidden="true">
+              🍎
+            </span>
+            <span className="store-badge-text">
+              <small>Coming soon</small>
+              <strong>App Store</strong>
+            </span>
+          </span>
+          <span
+            className="store-badge"
+            role="img"
+            aria-label="Google Play — coming soon"
+          >
+            <span className="store-badge-icon" aria-hidden="true">
+              ▶️
+            </span>
+            <span className="store-badge-text">
+              <small>Coming soon</small>
+              <strong>Google Play</strong>
+            </span>
+          </span>
+        </div>
+
         <button className="footer-link" onClick={onOpenPrivacy}>
           🔒 Privacy
         </button>
