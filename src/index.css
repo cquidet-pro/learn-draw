@@ -1089,6 +1089,13 @@ kbd {
   margin: 6px 0;
 }
 
+.pin-hint {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  opacity: 0.6;
+  text-align: center;
+}
+
 .pin-keys {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
