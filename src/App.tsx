@@ -6,6 +6,8 @@ import { HomePage } from "./components/HomePage";
 import { DrawingPlayer } from "./components/DrawingPlayer";
 import { FactsPage } from "./components/FactsPage";
 import { PaintingsPage } from "./components/PaintingsPage";
+import { PrivacyPage } from "./components/PrivacyPage";
+import { ContactPage } from "./components/ContactPage";
 import { VoiceProvider } from "./voice/VoiceProvider";
 import { TimeLimitProvider } from "./parental/TimeLimitProvider";
 
@@ -29,6 +31,8 @@ function loadLevel(): Level {
 export function App() {
   const [selected, setSelected] = useState<Animal | null>(null);
   const [showFacts, setShowFacts] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showContact, setShowContact] = useState(false);
   // Keeping this true while a painting is selected means "Home"/"Pick another"
   // return to the paintings gallery rather than the main home screen.
   const [showPaintings, setShowPaintings] = useState(false);
@@ -88,6 +92,10 @@ export function App() {
     );
   } else if (showFacts) {
     screen = <FactsPage onHome={() => setShowFacts(false)} />;
+  } else if (showPrivacy) {
+    screen = <PrivacyPage onHome={() => setShowPrivacy(false)} />;
+  } else if (showContact) {
+    screen = <ContactPage onHome={() => setShowContact(false)} />;
   } else {
     screen = (
       <HomePage
@@ -97,6 +105,8 @@ export function App() {
         onLevelChange={setLevel}
         onOpenFacts={() => setShowFacts(true)}
         onOpenPaintings={() => setShowPaintings(true)}
+        onOpenPrivacy={() => setShowPrivacy(true)}
+        onOpenContact={() => setShowContact(true)}
       />
     );
   }

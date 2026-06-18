@@ -1106,3 +1106,68 @@ kbd {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
   animation: fade-in 0.15s ease both;
 }
+
+/* ---------- Home footer (Privacy / Contact) ---------- */
+.home-footer {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.footer-link {
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--accent-2);
+  cursor: pointer;
+  padding: 0.4rem 0.6rem;
+  border-radius: 999px;
+}
+
+.footer-link:hover,
+.footer-link:focus-visible {
+  text-decoration: underline;
+  outline: none;
+}
+
+.footer-dot {
+  opacity: 0.5;
+  font-weight: 800;
+}
+
+.footer-love {
+  width: 100%;
+  text-align: center;
+  margin: 0.4rem 0 0;
+  opacity: 0.7;
+  font-weight: 700;
+}
+
+/* ---------- Privacy / Contact friendly notes ---------- */
+.made-with-love {
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin: 1.5rem 0 2rem;
+}
+
+.info-note {
+  max-width: 720px;
+  margin: 1.5rem auto 2.5rem;
+  background: #fff;
+  border: 3px dashed var(--accent);
+  border-radius: 20px;
+  padding: 1rem 1.4rem;
+}
+
+.info-note p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  opacity: 0.85;
+}

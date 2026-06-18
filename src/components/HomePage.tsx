@@ -42,6 +42,8 @@ interface Props {
   onLevelChange: (level: Level) => void;
   onOpenFacts: () => void;
   onOpenPaintings: () => void;
+  onOpenPrivacy: () => void;
+  onOpenContact: () => void;
 }
 
 export function HomePage({
@@ -51,6 +53,8 @@ export function HomePage({
   onLevelChange,
   onOpenFacts,
   onOpenPaintings,
+  onOpenPrivacy,
+  onOpenContact,
 }: Props) {
   const visible = drawingsForLevel(level);
   const [printing, setPrinting] = useState(false);
@@ -88,6 +92,14 @@ export function HomePage({
         handlePrint();
         return true;
       }
+      if (heardAny(transcript, ["privacy"])) {
+        onOpenPrivacy();
+        return true;
+      }
+      if (heardAny(transcript, ["contact", "hello", "say hello"])) {
+        onOpenContact();
+        return true;
+      }
       for (const animal of visible) {
         const words = ALIASES[animal.id] ?? [animal.name.toLowerCase()];
         if (heardAny(transcript, words)) {
@@ -97,7 +109,7 @@ export function HomePage({
       }
       return false;
     },
-    [onPick, onOpenFacts, onOpenPaintings, visible, handlePrint],
+    [onPick, onOpenFacts, onOpenPaintings, onOpenPrivacy, onOpenContact, visible, handlePrint],
   );
   useVoiceControl(onCommand);
 
@@ -166,6 +178,19 @@ export function HomePage({
           ))}
         </div>
       )}
+
+      <footer className="home-footer">
+        <button className="footer-link" onClick={onOpenPrivacy}>
+          🔒 Privacy
+        </button>
+        <span className="footer-dot" aria-hidden="true">
+          ·
+        </span>
+        <button className="footer-link" onClick={onOpenContact}>
+          👋 Say hello
+        </button>
+        <p className="footer-love">Made with ❤️ for happy little artists</p>
+      </footer>
     </div>
   );
 }
