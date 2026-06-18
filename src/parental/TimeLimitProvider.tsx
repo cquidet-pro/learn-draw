@@ -9,6 +9,7 @@ import {
 } from "react";
 import { LockOverlay } from "./LockOverlay";
 import { FullscreenGate } from "./FullscreenGate";
+import { ExitCodePrompt } from "./ExitCodePrompt";
 
 // Parental controls. A 4-digit PIN (set by the grown-up) gates the settings and
 // unlocking. Usage is counted per day and persisted; when it reaches the daily
@@ -52,6 +53,25 @@ function exitFullscreen(): void {
     } catch {
       /* ignore */
     }
+  }
+}
+
+// Keyboard Lock API (Chromium): while fullscreen, capture Escape so a single
+// press no longer exits fullscreen — it's delivered to us instead. Lets us
+// require a double-press before showing the exit-code prompt.
+type KbNav = Navigator & { keyboard?: { lock?: (keys: string[]) => Promise<void>; unlock?: () => void } };
+function lockEscape(): void {
+  try {
+    (navigator as KbNav).keyboard?.lock?.(["Escape"])?.catch(() => {});
+  } catch {
+    /* ignore */
+  }
+}
+function unlockKeyboard(): void {
+  try {
+    (navigator as KbNav).keyboard?.unlock?.();
+  } catch {
+    /* ignore */
   }
 }
 
@@ -174,16 +194,55 @@ export function TimeLimitProvider({ children }: { children: ReactNode }) {
   const fsSupported = fullscreenSupported();
   const [fsLock, setFsLockState] = useState<boolean>(() => localStorage.getItem(FS_KEY) === "1");
   const [isFullscreen, setIsFullscreen] = useState<boolean>(() => !!fullscreenEl());
+  // Shown (while staying fullscreen) when the child double-presses Escape.
+  const [exitPrompt, setExitPrompt] = useState(false);
+  // Brief "press Esc again" hint after a single Escape.
+  const [escHint, setEscHint] = useState(false);
+  const lastEscRef = useRef(0);
 
+  // Track fullscreen; when entering with the lock on, grab the keyboard so
+  // Escape stops auto-exiting (Chromium). Release + clear prompts on exit.
   useEffect(() => {
-    const onChange = () => setIsFullscreen(!!fullscreenEl());
+    const onChange = () => {
+      const fs = !!fullscreenEl();
+      setIsFullscreen(fs);
+      if (fs && fsLock) lockEscape();
+      if (!fs) {
+        unlockKeyboard();
+        setExitPrompt(false);
+        setEscHint(false);
+      }
+    };
     document.addEventListener("fullscreenchange", onChange);
     document.addEventListener("webkitfullscreenchange", onChange);
     return () => {
       document.removeEventListener("fullscreenchange", onChange);
       document.removeEventListener("webkitfullscreenchange", onChange);
     };
-  }, []);
+  }, [fsLock]);
+
+  // Double-press Escape (while locked + fullscreen) opens the exit-code prompt.
+  // This only fires where Keyboard Lock keeps us in fullscreen; otherwise the
+  // browser exits on the first Escape and the FullscreenGate handles it.
+  useEffect(() => {
+    if (!fsLock) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape" || !fullscreenEl()) return;
+      e.preventDefault();
+      const now = Date.now();
+      if (now - lastEscRef.current < 700) {
+        lastEscRef.current = 0;
+        setEscHint(false);
+        setExitPrompt(true);
+      } else {
+        lastEscRef.current = now;
+        setEscHint(true);
+        window.setTimeout(() => setEscHint(false), 1500);
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [fsLock]);
 
   const setFsLock = useCallback((on: boolean) => {
     setFsLockState(on);
@@ -193,8 +252,13 @@ export function TimeLimitProvider({ children }: { children: ReactNode }) {
       /* ignore */
     }
     // Called from a click (user gesture), so requesting fullscreen is allowed.
-    if (on) requestFullscreen();
-    else exitFullscreen();
+    if (on) {
+      requestFullscreen();
+    } else {
+      unlockKeyboard();
+      exitFullscreen();
+      setExitPrompt(false);
+    }
   }, []);
 
   const enterFullscreen = useCallback(() => requestFullscreen(), []);
@@ -222,8 +286,15 @@ export function TimeLimitProvider({ children }: { children: ReactNode }) {
 
   return (
     <TimeLimitContext.Provider value={value}>
-      <div className={locked || fsBlocked ? "app-dim" : undefined}>{children}</div>
-      {locked ? <LockOverlay /> : fsBlocked ? <FullscreenGate /> : null}
+      <div className={locked || fsBlocked || exitPrompt ? "app-dim" : undefined}>{children}</div>
+      {escHint && !exitPrompt && <div className="esc-hint">Press Esc again to exit ✏️</div>}
+      {locked ? (
+        <LockOverlay />
+      ) : fsBlocked ? (
+        <FullscreenGate />
+      ) : exitPrompt ? (
+        <ExitCodePrompt onCancel={() => setExitPrompt(false)} />
+      ) : null}
     </TimeLimitContext.Provider>
   );
 }

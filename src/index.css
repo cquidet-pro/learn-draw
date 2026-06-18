@@ -1079,3 +1079,19 @@ kbd {
 .fsg-exit {
   margin-top: 14px;
 }
+
+/* "Press Esc again to exit" hint toast (fullscreen lock). */
+.esc-hint {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1100;
+  background: rgba(60, 58, 85, 0.92);
+  color: #fff;
+  font-weight: 800;
+  padding: 10px 18px;
+  border-radius: 999px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  animation: fade-in 0.15s ease both;
+}
