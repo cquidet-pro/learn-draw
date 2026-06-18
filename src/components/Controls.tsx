@@ -13,8 +13,8 @@ interface Props {
 }
 
 // Speed slider maps a 0..100 position to a loop duration. Left = slow turtle
-// (20s), right = fast rabbit (2s). We invert so dragging right speeds up.
-const SLOW = 20;
+// (40s), right = fast rabbit (2s). We invert so dragging right speeds up.
+const SLOW = 40;
 const FAST = 2;
 const toDuration = (pct: number) => SLOW - (pct / 100) * (SLOW - FAST);
 const toPct = (duration: number) => ((SLOW - duration) / (SLOW - FAST)) * 100;

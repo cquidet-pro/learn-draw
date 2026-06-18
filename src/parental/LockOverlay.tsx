@@ -5,7 +5,7 @@ import { PinPad } from "./PinPad";
 /** Full-screen grey lock shown when the daily time limit is reached. Entering
  *  the grown-up PIN gives back today's time and dismisses the lock. */
 export function LockOverlay() {
-  const { verifyPin, resetToday } = useTimeLimit();
+  const { hasPin, verifyPin, resetToday } = useTimeLimit();
   const [entering, setEntering] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,7 +25,12 @@ export function LockOverlay() {
         </div>
         <h2>Time's up!</h2>
         <p>Great drawing today! Ask a grown-up if you'd like to keep going.</p>
-        {!entering ? (
+        {!hasPin ? (
+          // No code set: a grown-up can give back today's time with one tap.
+          <button className="pill-btn lock-unlock" onClick={resetToday}>
+            🔓 Keep going
+          </button>
+        ) : !entering ? (
           <button
             className="pill-btn lock-unlock"
             onClick={() => {

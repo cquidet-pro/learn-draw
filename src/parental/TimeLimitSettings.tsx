@@ -42,10 +42,10 @@ export function TimeLimitSettings({ onClose }: Props) {
   const [lockChecked, setLockChecked] = useState(hasPin);
   const [changeCode, setChangeCode] = useState(false);
 
-  // A time limit or full-screen lock can't work without a code to unlock them,
-  // so they force the lock on. The toggle is then shown on and not editable.
-  const lockForced = limitMin > 0 || fsLock;
-  const lockOn = lockChecked || lockForced;
+  // The "lock settings with a code" toggle is entirely optional — a time limit
+  // or full-screen lock works without one (those screens just unlock with a
+  // plain grown-up button when no code is set).
+  const lockOn = lockChecked;
 
   // Leaving the settings: capture a new code if one is now needed (which keeps
   // a time limit / full-screen lock from being un-unlockable), drop the code if
@@ -155,18 +155,12 @@ export function TimeLimitSettings({ onClose }: Props) {
           <span>🔒 Lock settings with a code</span>
           <button
             className={lockOn ? "tl-toggle on" : "tl-toggle"}
-            disabled={lockForced}
             onClick={() => setLockChecked((v) => !v)}
             aria-pressed={lockOn}
           >
             {lockOn ? "On" : "Off"}
           </button>
         </div>
-        {lockForced && (
-          <p className="tl-note">
-            A code is needed for the time limit and full-screen lock.
-          </p>
-        )}
 
         <div className="tl-actions">
           <button className="tl-action" onClick={resetToday}>
