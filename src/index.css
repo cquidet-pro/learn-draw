@@ -717,8 +717,11 @@ kbd {
 }
 
 /* On touch devices you just swipe to scroll, so the up/down buttons are
-   redundant clutter — hide them there. (Voice "up"/"down" still works.) */
-@media (hover: none) and (pointer: coarse) {
+   redundant clutter — hide them there. (Voice "up"/"down" still works.)
+   `any-pointer: coarse` = the device has a touch input; this is more robust
+   than `pointer: coarse`, which some phones (e.g. Samsung Internet / S Pen
+   devices) report as fine, leaving the buttons visible. */
+@media (any-pointer: coarse) {
   .side-scroll {
     display: none;
   }
