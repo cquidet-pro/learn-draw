@@ -318,8 +318,10 @@ body {
   opacity: 1;
 }
 
-/* Strokes of the current step not reached yet: hidden until their turn. */
+/* Strokes of the current step not reached yet: hidden until their turn.
+   Needs the dash pattern too, or the stroke would show fully drawn. */
 .stroke-seq-pending {
+  stroke-dasharray: 1;
   stroke-dashoffset: 1;
 }
 
