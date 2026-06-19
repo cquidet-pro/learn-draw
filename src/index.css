@@ -318,11 +318,12 @@ body {
   opacity: 1;
 }
 
-/* Strokes of the current step not reached yet: hidden until their turn.
-   Needs the dash pattern too, or the stroke would show fully drawn. */
+/* Strokes of the current step not reached yet: fully hidden until their turn.
+   We use visibility (not just a dash offset): with stroke-linecap:round an
+   offset-but-not-hidden path still paints a round dot at its start point, which
+   looked like stray dots appearing before the pencil reached them. */
 .stroke-seq-pending {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
+  visibility: hidden;
 }
 
 /* Frozen final drawing during the celebration: solid, full, not looping. */
