@@ -64,19 +64,6 @@ export const dog10: Animal = {
       strokes: ["M 80,92 Q 100,100 120,92", "M 100,98 a 4,4 0 1,0 8,0 a 4,4 0 1,0 -8,0"],
     },
     {
-      // The dog's name on a little "nameplate" — letters drawn one pen-stroke
-      // at a time (D: down-stroke then bowl, O: one loop, G: one stroke) so
-      // kids can watch the stroke order and copy it onto paper.
-      hint: "Now write the dog's name: D-O-G! ✏️",
-      color: "#118ab2",
-      strokes: [
-        "M 12,156 L 12,178",
-        "M 12,156 Q 26,157 26,167 Q 26,177 12,178",
-        "M 32,167 a 8,11 0 1,0 16,0 a 8,11 0 1,0 -16,0",
-        "M 66,160 Q 58,154 54,160 Q 50,167 54,174 Q 58,180 66,176 L 66,168 L 60,168",
-      ],
-    },
-    {
       hint: "Finish with the ground and a bone! 🦴",
       color: OUTLINE,
       strokes: [
@@ -103,6 +90,19 @@ export const dog10: Animal = {
         { d: "M 95,61 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0", color: "#42301f" },
         { d: "M 100,73 Q 99,84 104,86 Q 109,83 107,73 Z", color: "#ff7088" },
         { d: "M 100,98 a 4,4 0 1,0 8,0 a 4,4 0 1,0 -8,0", color: "#ffd23f" },
+      ],
+    },
+    {
+      // Last of all, once the dog is finished and coloured, write its name —
+      // letters drawn one pen-stroke at a time (D: down-stroke then bowl, O:
+      // one loop, G: one stroke) so kids can follow the order and copy it.
+      hint: "Last of all, write the dog's name: D-O-G! ✏️",
+      color: "#118ab2",
+      strokes: [
+        "M 12,156 L 12,178",
+        "M 12,156 Q 26,157 26,167 Q 26,177 12,178",
+        "M 32,167 a 8,11 0 1,0 16,0 a 8,11 0 1,0 -16,0",
+        "M 66,160 Q 58,154 54,160 Q 50,167 54,174 Q 58,180 66,176 L 66,168 L 60,168",
       ],
     },
   ],
