@@ -8,7 +8,7 @@ interface Props {
 
 // Friendly, plain-language "house rules" (kid- and grown-up-readable).
 const POINTS: { emoji: string; text: string }[] = [
-  { emoji: "🎉", text: "Learn to Draw is free to use and just for fun — draw as much as you like!" },
+  { emoji: "🎉", text: "Kidoo is free to use and just for fun — draw as much as you like!" },
   { emoji: "🖍️", text: "Everything you make here is yours. Be proud and keep creating!" },
   { emoji: "🤝", text: "Please be kind and use the app the nice way it was meant to be used." },
   { emoji: "🎨", text: "The drawings and pictures in the app belong to us — enjoy them, but please don't copy them to sell." },
@@ -56,7 +56,7 @@ export function TermsPage({ onHome }: Props) {
 
       <div className="info-note">
         <p>
-          <b>For grown-ups:</b> Learn to Draw is provided free of charge, "as is",
+          <b>For grown-ups:</b> Kidoo is provided free of charge, "as is",
           for personal, non-commercial use, without warranty of any kind. All
           source code and original artwork are the property of the author and may
           not be reproduced, redistributed or used commercially without written

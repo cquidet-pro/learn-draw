@@ -97,7 +97,7 @@ export async function downloadColoringPdf(
         const pageCount = Math.ceil(animals.length / perPage);
         doc.setFontSize(16);
         doc.text(
-          `Color me! — ${LEVEL_LABEL[level]} drawings (page ${pageNum}/${pageCount})`,
+          `Kidoo  ·  Color me! — ${LEVEL_LABEL[level]} drawings (page ${pageNum}/${pageCount})`,
           pageW / 2,
           margin + 6,
           { align: "center" },
@@ -136,5 +136,5 @@ export async function downloadColoringPdf(
     document.body.removeChild(host);
   }
 
-  doc.save(`learn-to-draw-coloring-${LEVEL_LABEL[level].toLowerCase()}.pdf`);
+  doc.save(`kidoo-coloring-${LEVEL_LABEL[level].toLowerCase()}.pdf`);
 }
