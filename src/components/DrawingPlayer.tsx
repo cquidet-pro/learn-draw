@@ -146,7 +146,7 @@ export function DrawingPlayer({
           ? ""
           : finished
             ? "Yay, all done! ⭐ Press ▶ for a surprise! 🎉"
-            : player.isLast
+            : player.isLast && step.strokes.length === 0
               ? "All done? Press Space! 🎉"
               : step.hint}
       </p>
