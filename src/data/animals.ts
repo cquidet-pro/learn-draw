@@ -77,6 +77,9 @@ export interface DrawStep {
    * outline strokes for every shape worth tracing/coloring.
    */
   fills?: { d: string; color: string }[];
+  /** Optional stroke width for this step's strokes (default 4). Thinner reads
+   *  better for small lettering, e.g. the "write the name" finale. */
+  strokeWidth?: number;
 }
 
 /** Difficulty level, shown to the child as Easy (5) / Medium (7) / Harder (10). */
