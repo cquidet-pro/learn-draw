@@ -17,6 +17,21 @@ interface Props {
 
 const PENCIL = "#bdb6a8";
 
+/**
+ * Split a path `d` into its separate pen-down sub-paths so the animator can
+ * draw each one on its own (one pencil at a time). A stroke like a stick
+ * figure's two arms is authored as "M..L.. M..L.." — a single <path> with two
+ * sub-paths that would otherwise animate together. We split on absolute `M`
+ * (every drawing uses absolute movetos for new sub-paths; a relative `m` would
+ * depend on the previous sub-path's end point, and none are used).
+ */
+function splitSubpaths(d: string): string[] {
+  return d
+    .split(/(?=M)/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
 function prefersReducedMotion(): boolean {
   return (
     typeof window !== "undefined" &&
@@ -42,9 +57,12 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen, paused }:
   const coloringNow = !frozen && !!current && current.strokes.length === 0;
   const allSolid = frozen || coloringNow;
   const reduce = prefersReducedMotion();
-  // Sequence the current step's strokes only when we're actually animating.
-  const sequencing = !allSolid && !reduce && !!current && current.strokes.length > 0;
-  const strokeCount = current?.strokes.length ?? 0;
+  // The current step animates one sub-path at a time, so expand any bundled
+  // sub-paths (e.g. two arms in one stroke) into separate segments.
+  const currentSegments = current ? current.strokes.flatMap(splitSubpaths) : [];
+  // Sequence the current step's segments only when we're actually animating.
+  const sequencing = !allSolid && !reduce && currentSegments.length > 0;
+  const strokeCount = currentSegments.length;
 
   // Which stroke of the current step is drawing now (0..strokeCount). When it
   // reaches strokeCount the whole step is drawn; we hold, then loop back to 0.
@@ -91,8 +109,11 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen, paused }:
       {visible.map(({ step, si }) => {
         const isCurrent = si === stepIndex;
         const strokeColor = revealColors ? step.color ?? animal.color : PENCIL;
+        // While this step is animating we draw its sub-paths one at a time;
+        // other steps (and frozen/coloring states) render their strokes whole.
+        const paths = isCurrent && sequencing ? currentSegments : step.strokes;
 
-        return step.strokes.map((d, ki) => {
+        return paths.map((d, ki) => {
           // Decide how this particular stroke renders.
           let className: string;
           let style: React.CSSProperties | undefined;
