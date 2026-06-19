@@ -1471,6 +1471,42 @@ kbd {
   font-weight: 700;
 }
 
+/* "Buy me a coffee" support button — sits on its own row in the footer. */
+.coffee-row {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 0.3rem;
+}
+
+.coffee-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.2rem;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffd166, #f7b733);
+  color: #5a3a00;
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 3px 0 #d99a1f;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.coffee-btn:hover,
+.coffee-btn:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 #d99a1f;
+  outline: none;
+}
+
+.coffee-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #d99a1f;
+}
+
 /* ---------- Privacy / Contact friendly notes ---------- */
 .made-with-love {
   text-align: center;

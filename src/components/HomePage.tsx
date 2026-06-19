@@ -294,6 +294,19 @@ export function HomePage({
         <button className="footer-link" onClick={onOpenTerms}>
           📜 Rules
         </button>
+
+        {/* Optional support button (for grown-ups) — opens Stripe's hosted
+            checkout in a new tab. No keys or backend involved. */}
+        <div className="coffee-row">
+          <a
+            className="coffee-btn"
+            href="https://buy.stripe.com/5kQ7sE4pQdjc2JGfrG8Zq00"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            ☕ Buy me a coffee
+          </a>
+        </div>
         <p className="footer-love">
           <strong className="footer-brand">Kidoo</strong> — made with ❤️ for
           little artists, and built with them 🖍️
