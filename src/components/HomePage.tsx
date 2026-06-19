@@ -167,6 +167,10 @@ export function HomePage({
         </button>
       </div>
 
+      {/* Visual divider between the "what to draw" picker above and the tool
+          buttons below. */}
+      <div className="section-divider" role="separator" aria-hidden="true" />
+
       <div className="control-bar">
         <VoiceButton />
         <SoundButton />

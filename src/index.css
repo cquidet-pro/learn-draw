@@ -666,6 +666,35 @@ kbd {
   gap: 0.6rem;
 }
 
+/* Soft divider separating the "what to draw" picker from the tool buttons.
+   A fading line with a little centre dot; adapts to the theme via --ink. */
+.section-divider {
+  position: relative;
+  width: min(85%, 720px);
+  height: 2px;
+  margin: 0.7rem 0 1.1rem;
+  border-radius: 2px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in srgb, var(--ink) 26%, transparent),
+    transparent
+  );
+}
+
+.section-divider::after {
+  content: "✦";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.8rem;
+  line-height: 1;
+  color: var(--accent-2);
+  background: var(--bg);
+  padding: 0 0.5rem;
+}
+
 .level-selector {
   display: flex;
   gap: 0.6rem;
