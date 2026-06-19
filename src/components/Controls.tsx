@@ -12,10 +12,10 @@ interface Props {
   onTogglePause: () => void;
 }
 
-// Speed slider maps a 0..100 position to a loop duration. Left = slow turtle
-// (40s), right = fast rabbit (2s). We invert so dragging right speeds up.
-const SLOW = 40;
-const FAST = 2;
+// Speed slider maps a 0..100 position to a per-stroke duration. Left = slow
+// turtle (8s), right = fast rabbit (1s). We invert so dragging right speeds up.
+const SLOW = 8;
+const FAST = 1;
 const toDuration = (pct: number) => SLOW - (pct / 100) * (SLOW - FAST);
 const toPct = (duration: number) => ((SLOW - duration) / (SLOW - FAST)) * 100;
 

@@ -1,14 +1,15 @@
 import { useCallback, useState } from "react";
 
-// Chosen drawing speed (loop duration in seconds) persists across pictures, so
-// a speed picked on one drawing carries over to the next one the child opens.
-const SPEED_KEY = "learn-draw:speed";
-const DEFAULT_DURATION = 7; // calmer than the old 5s default
+// Chosen drawing speed (seconds to draw ONE stroke) persists across pictures,
+// so a speed picked on one drawing carries over to the next one the child opens.
+// Key is versioned because the meaning changed from per-loop to per-stroke.
+const SPEED_KEY = "learn-draw:speed-v2";
+const DEFAULT_DURATION = 3; // seconds per stroke — strokes now draw one at a time
 
 function loadDuration(): number {
   const n = Number(localStorage.getItem(SPEED_KEY));
-  // Keep within the slider's range (2s fast … 40s slow); fall back to default.
-  return Number.isFinite(n) && n >= 2 && n <= 40 ? n : DEFAULT_DURATION;
+  // Keep within the slider's range (1s fast … 8s slow); fall back to default.
+  return Number.isFinite(n) && n >= 1 && n <= 8 ? n : DEFAULT_DURATION;
 }
 
 /**

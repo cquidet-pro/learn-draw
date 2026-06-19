@@ -303,11 +303,24 @@ body {
   opacity: 1;
 }
 
-/* Current step strokes draw themselves on a loop. */
-.stroke-drawing {
+/* Current step strokes draw one at a time, like a single pencil. The active
+   stroke draws once (1 -> 0) and stays; AnimatedDrawing advances to the next
+   stroke when this one finishes, then loops the whole step. */
+.stroke-seq-active {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  animation: draw var(--draw-duration, 5s) ease-in-out infinite;
+  animation: draw var(--seg, 3s) ease-in-out forwards;
+}
+
+/* Strokes of the current step already drawn this loop: solid. */
+.stroke-seq-drawn {
+  stroke-dashoffset: 0;
+  opacity: 1;
+}
+
+/* Strokes of the current step not reached yet: hidden until their turn. */
+.stroke-seq-pending {
+  stroke-dashoffset: 1;
 }
 
 /* Frozen final drawing during the celebration: solid, full, not looping. */
@@ -317,19 +330,17 @@ body {
 }
 
 @keyframes draw {
-  0% {
+  from {
     stroke-dashoffset: 1;
   }
-  70% {
-    stroke-dashoffset: 0;
-  }
-  100% {
+  to {
     stroke-dashoffset: 0;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .stroke-drawing {
+  .stroke-seq-active,
+  .stroke-seq-pending {
     animation: none;
     stroke-dashoffset: 0;
   }
