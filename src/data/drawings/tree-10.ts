@@ -1,7 +1,10 @@
 import type { Animal } from "../animals";
 
-// A detailed kawaii tree with a swing, a bird and the sun (level 10).
+// A detailed kawaii tree with roots, bark, a swing and a bird (level 10).
 const OUTLINE = "#4f3a2c";
+
+const CANOPY =
+  "M 88,124 Q 60,128 54,104 Q 44,86 64,76 Q 66,52 90,56 Q 100,46 110,56 Q 134,52 136,76 Q 156,86 146,104 Q 140,128 112,124 Q 100,130 88,124 Z";
 
 export const tree10: Animal = {
   id: "tree-10",
@@ -14,37 +17,42 @@ export const tree10: Animal = {
     {
       hint: "Draw the trunk with roots 🟫",
       color: OUTLINE,
-      strokes: ["M 86,176 L 86,118 L 114,118 L 114,176", "M 86,176 Q 76,180 68,182 M 114,176 Q 124,180 132,182"],
+      strokes: [
+        "M 88,124 L 88,176 L 112,176 L 112,124",
+        "M 88,176 Q 78,180 70,182 M 112,176 Q 122,180 130,182",
+      ],
     },
     {
       hint: "Add a big cloud of leaves 🌳",
       color: OUTLINE,
-      strokes: [
-        "M 70,118 Q 44,116 46,90 Q 44,62 74,62 Q 84,40 110,52 Q 140,46 142,76 Q 162,84 150,108 Q 150,124 124,120 Q 110,132 90,122 Q 76,128 70,118 Z",
-      ],
+      strokes: [CANOPY],
     },
     {
       hint: "Add yummy apples! 🍎",
       color: OUTLINE,
       strokes: [
-        "M 76,86 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0",
-        "M 112,78 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0",
-        "M 100,104 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0",
+        "M 73,84 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0",
+        "M 117,84 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0",
+        "M 95,108 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0",
       ],
     },
-    { hint: "Add bark lines on the trunk", color: OUTLINE, strokes: ["M 95,124 L 95,170 M 105,124 L 105,170"] },
+    {
+      hint: "Add bark lines on the trunk",
+      color: OUTLINE,
+      strokes: ["M 96,130 L 96,172 M 104,130 L 104,172"],
+    },
     {
       hint: "Hang a little swing from a branch 🪢",
       color: OUTLINE,
-      strokes: ["M 60,116 L 56,150 M 78,116 L 82,150", "M 52,150 L 86,150"],
+      strokes: ["M 66,122 L 64,152 M 80,122 L 82,152", "M 60,152 L 86,152"],
     },
     {
       hint: "Add a little bird 🐦",
       color: OUTLINE,
-      strokes: ["M 150,52 q 7,-7 14,0 q 7,-7 14,0"],
+      strokes: ["M 150,46 q 7,-7 14,0 q 7,-7 14,0"],
     },
     {
-      hint: "Finish with grass and the sun! ☀️",
+      hint: "Finish with grass at the bottom! 🌱",
       color: OUTLINE,
       strokes: ["M 8,182 L 192,182", "M 32,182 L 28,170 M 168,182 L 172,170"],
     },
@@ -53,14 +61,11 @@ export const tree10: Animal = {
       color: OUTLINE,
       strokes: [],
       fills: [
-        {
-          d: "M 70,118 Q 44,116 46,90 Q 44,62 74,62 Q 84,40 110,52 Q 140,46 142,76 Q 162,84 150,108 Q 150,124 124,120 Q 110,132 90,122 Q 76,128 70,118 Z",
-          color: "#46b56a",
-        },
-        { d: "M 86,176 L 86,118 L 114,118 L 114,176 Z", color: "#8a5a2b" },
-        { d: "M 76,86 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0", color: "#e63946" },
-        { d: "M 112,78 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0", color: "#e63946" },
-        { d: "M 100,104 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0", color: "#e63946" },
+        { d: "M 88,124 L 88,176 L 112,176 L 112,124 Z", color: "#8a5a2b" },
+        { d: CANOPY, color: "#46b56a" },
+        { d: "M 73,84 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0", color: "#e63946" },
+        { d: "M 117,84 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0", color: "#e63946" },
+        { d: "M 95,108 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0", color: "#e63946" },
       ],
     },
   ],
