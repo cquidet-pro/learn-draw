@@ -1515,6 +1515,111 @@ kbd {
   margin: 1.5rem 0 2rem;
 }
 
+/* ---------- Feedback form (Contact page) ---------- */
+.feedback {
+  max-width: 32rem;
+  margin: 2rem auto 0;
+  padding: 1.25rem 1.25rem 1.5rem;
+  background: var(--card-bg, #fff);
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.feedback-title {
+  text-align: center;
+  margin: 0 0 0.25rem;
+}
+
+.feedback-intro {
+  text-align: center;
+  margin: 0 0 1rem;
+  opacity: 0.8;
+}
+
+.feedback-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.feedback-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-weight: 700;
+}
+
+.feedback-field input,
+.feedback-field select,
+.feedback-field textarea {
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.6rem 0.75rem;
+  border: 2px solid var(--accent-2, #6c5ce7);
+  border-radius: 12px;
+  background: var(--bg, #fff);
+  color: inherit;
+  font-weight: 600;
+}
+
+.feedback-field textarea {
+  resize: vertical;
+  min-height: 5rem;
+}
+
+.feedback-field input:focus-visible,
+.feedback-field select:focus-visible,
+.feedback-field textarea:focus-visible {
+  outline: 3px solid var(--accent, #ffd166);
+  outline-offset: 1px;
+}
+
+/* Honeypot — visually hidden, off-screen, not announced. */
+.feedback-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.feedback-submit {
+  margin-top: 0.25rem;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffd166, #f7b733);
+  color: #5a3a00;
+  font-family: inherit;
+  font-size: 1.1rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #d99a1f;
+}
+
+.feedback-submit:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.feedback-err {
+  color: #c0392b;
+  font-weight: 700;
+  margin: 0;
+}
+
+.feedback-thanks {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.feedback-thanks-emoji {
+  font-size: 2.5rem;
+}
+
 .info-note {
   max-width: 720px;
   margin: 1.5rem auto 2.5rem;
