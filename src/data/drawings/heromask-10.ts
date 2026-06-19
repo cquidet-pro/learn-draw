@@ -1,4 +1,5 @@
 import type { Animal } from "../animals";
+import { nameStep } from "../handwriting";
 
 // An original masked superhero of our own design. Harder version — outline
 // first, colored in last.
@@ -104,5 +105,6 @@ export const heromask10: Animal = {
         },
       ],
     },
+    nameStep("SUPERHERO", { baseline: 26, height: 15 }),
   ],
 };

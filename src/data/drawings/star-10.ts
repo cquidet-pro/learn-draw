@@ -1,4 +1,5 @@
 import type { Animal } from "../animals";
+import { nameStep } from "../handwriting";
 
 // A kawaii star with a face, sparkles, a crescent moon and little stars
 // (level 10). Outline first, colored in last.
@@ -62,5 +63,6 @@ export const star10: Animal = {
         { d: "M 60,30 l 2,6 l 6,1 l -5,4 l 2,6 l -5,-3 l -5,3 l 2,-6 l -5,-4 l 6,-1 z", color: "#ffd23f" },
       ],
     },
+    nameStep("STAR", { baseline: 192, height: 22 }),
   ],
 };

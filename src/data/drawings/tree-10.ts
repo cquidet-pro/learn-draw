@@ -1,4 +1,5 @@
 import type { Animal } from "../animals";
+import { nameStep } from "../handwriting";
 
 // A detailed kawaii tree with roots, bark, a swing and a bird (level 10).
 const OUTLINE = "#4f3a2c";
@@ -68,5 +69,6 @@ export const tree10: Animal = {
         { d: "M 95,108 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0", color: "#e63946" },
       ],
     },
+    nameStep("TREE", { baseline: 197, height: 13 }),
   ],
 };

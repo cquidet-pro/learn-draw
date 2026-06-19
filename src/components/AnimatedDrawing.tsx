@@ -57,6 +57,13 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen, paused }:
   const coloringNow = !frozen && !!current && current.strokes.length === 0;
   const allSolid = frozen || coloringNow;
   const reduce = prefersReducedMotion();
+  // Some drawings finish with extra steps after the "color it in" reveal (e.g.
+  // writing the name). Once we're past that reveal the picture is complete, so
+  // its colours stay shown and earlier steps render solid rather than faded.
+  const revealIndex = animal.steps.findIndex((s) => s.strokes.length === 0);
+  const afterReveal = revealIndex >= 0 && stepIndex > revealIndex;
+  // Earlier (non-current) steps render solid once the picture is "done".
+  const pastSolid = frozen || coloringNow || afterReveal || reduce;
   // The current step animates one sub-path at a time, so expand any bundled
   // sub-paths (e.g. two arms in one stroke) into separate segments.
   const currentSegments = current ? current.strokes.flatMap(splitSubpaths) : [];
@@ -83,7 +90,7 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen, paused }:
     }
   }, [seq, sequencing, paused, strokeCount]);
 
-  const revealColors = !animal.colorReveal || coloringNow || frozen;
+  const revealColors = !animal.colorReveal || coloringNow || frozen || afterReveal;
 
   return (
     <svg
@@ -119,14 +126,15 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen, paused }:
           let style: React.CSSProperties | undefined;
           let onAnimationEnd: (() => void) | undefined;
 
-          if (allSolid || reduce) {
-            // Final reveal (the "color it in" step / celebration) or reduced
-            // motion: show EVERY stroke solid and in full colour, including
-            // earlier steps. Otherwise a picture whose colour comes from its
-            // strokes (e.g. the paintings, which have no fills) stays faded.
+          if (!isCurrent) {
+            // Earlier step: solid once the picture is complete (final reveal,
+            // celebration, a post-reveal step like writing the name, or reduced
+            // motion), otherwise faded to highlight the current step. Solid
+            // matters for pictures whose colour comes from strokes (paintings,
+            // family, rainbow) — they'd look washed out faded.
+            className = pastSolid ? "stroke-final" : "stroke-done";
+          } else if (allSolid || reduce) {
             className = "stroke-final";
-          } else if (!isCurrent) {
-            className = "stroke-done"; // earlier step (while drawing a later one): faded
           } else if (ki < seq) {
             className = "stroke-seq-drawn"; // already drawn this loop
           } else if (ki === seq) {

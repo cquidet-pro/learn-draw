@@ -1,4 +1,5 @@
 import type { Animal } from "../animals";
+import { nameStep } from "../handwriting";
 
 // A very detailed kawaii long-necked dinosaur with plates, arms and a scene
 // (level 10). Outline first, colored in last.
@@ -63,5 +64,6 @@ export const dinosaur10: Animal = {
         { d: "M 62,36 a 3,3 0 1,0 6,0 a 3,3 0 1,0 -6,0", color: "#3a2a20" },
       ],
     },
+    nameStep("DINOSAUR", { baseline: 197, height: 13 }),
   ],
 };

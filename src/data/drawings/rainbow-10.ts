@@ -1,4 +1,5 @@
 import type { Animal } from "../animals";
+import { nameStep } from "../handwriting";
 
 // A full rainbow sky scene with clouds, sun, rain and birds (10-year-old level).
 export const rainbow10: Animal = {
@@ -42,5 +43,6 @@ export const rainbow10: Animal = {
       hint: "Now color the whole sky in! 🌈",
       strokes: [],
     },
+    nameStep("RAINBOW", { baseline: 190, height: 22 }),
   ],
 };

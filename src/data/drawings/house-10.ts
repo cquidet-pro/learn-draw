@@ -1,4 +1,5 @@
 import type { Animal } from "../animals";
+import { nameStep } from "../handwriting";
 
 // A detailed kawaii house scene with a tree, fence, flowers and sun (level 10).
 const OUTLINE = "#4f3a2c";
@@ -78,5 +79,6 @@ export const house10: Animal = {
         { d: "M 24,40 a 12,12 0 1,0 24,0 a 12,12 0 1,0 -24,0", color: "#ffd23f" },
       ],
     },
+    nameStep("HOUSE", { baseline: 192, height: 20 }),
   ],
 };
