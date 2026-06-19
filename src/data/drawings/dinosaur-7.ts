@@ -41,7 +41,7 @@ export const dinosaur7: Animal = {
       hint: "Add bumpy plates along its back!",
       color: OUTLINE,
       strokes: [
-        "M 92,108 L 100,96 L 108,108 M 114,106 L 124,93 L 134,106 M 138,110 L 148,99 L 156,114",
+        "M 90,106 L 103,88 L 108,104 M 114,104 L 127,87 L 132,109 M 136,111 L 147,97 L 150,124",
       ],
     },
     {

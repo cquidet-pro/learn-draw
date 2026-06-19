@@ -22,14 +22,14 @@ export const hedgehog7: Animal = {
       hint: "Add the first row of spikes ⚡",
       color: OUTLINE,
       strokes: [
-        "M 62,96 L 58,74 L 80,90 M 94,82 L 94,56 L 112,76 M 124,76 L 132,52 L 148,74 M 154,82 L 170,64 L 174,92",
+        "M 60,102 L 73,61 L 78,91 M 90,85 L 103,47 L 108,77 M 116,74 L 129,45 L 134,73 M 140,75 L 155,49 L 162,94",
       ],
     },
     {
       hint: "Add a second row of spikes!",
       color: OUTLINE,
       strokes: [
-        "M 76,92 L 76,72 L 92,86 M 108,80 L 113,58 L 126,76 M 140,80 L 150,60 L 160,86",
+        "M 74,93 L 87,62 L 92,84 M 104,79 L 118,51 L 124,73 M 134,73 L 150,53 L 158,88",
       ],
     },
     {

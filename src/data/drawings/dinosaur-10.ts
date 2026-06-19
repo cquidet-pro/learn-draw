@@ -32,7 +32,7 @@ export const dinosaur10: Animal = {
     {
       hint: "Add bumpy plates along its back!",
       color: OUTLINE,
-      strokes: ["M 92,106 L 100,94 L 108,106 M 114,104 L 124,91 L 134,104 M 138,108 L 148,97 L 156,112"],
+      strokes: ["M 90,104 L 103,86 L 108,102 M 114,102 L 127,85 L 132,107 M 136,109 L 147,95 L 150,122"],
     },
     {
       hint: "Add an eye, a smile and spots 😄",

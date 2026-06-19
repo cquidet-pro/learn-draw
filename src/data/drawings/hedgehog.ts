@@ -21,7 +21,7 @@ export const hedgehog: Animal = {
       hint: "Add spikes on its back! ⚡",
       color: OUTLINE,
       strokes: [
-        "M 62,96 L 58,74 L 80,90 M 94,82 L 94,56 L 112,76 M 124,76 L 132,52 L 148,74 M 154,82 L 170,64 L 174,92",
+        "M 60,102 L 73,61 L 78,91 M 90,85 L 103,47 L 108,77 M 116,74 L 129,45 L 134,73 M 140,75 L 155,49 L 162,94",
       ],
     },
     {
