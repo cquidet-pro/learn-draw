@@ -33,7 +33,7 @@ export function AnimalCard({ animal, done, subtitle, onClick }: Props) {
             d={s.d}
             fill="none"
             stroke={s.color}
-            strokeWidth={4}
+            strokeWidth={s.strokeWidth}
             strokeLinecap="round"
             strokeLinejoin="round"
           />

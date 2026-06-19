@@ -11,7 +11,7 @@ export const family: Animal = {
   steps: [
     {
       hint: "Draw Daddy 🧔",
-      strokeWidth: 1.5,
+      strokeWidth: 2,
       strokes: [
         "M 26.5,61.5 a 9.5,9.5 0 1,0 19,0 a 9.5,9.5 0 1,0 -19,0",
         "M 34,70 h 4 a 6,6 0 0 1 6,6 v 13 a 6,6 0 0 1 -6,6 h -4 a 6,6 0 0 1 -6,-6 v -13 a 6,6 0 0 1 6,-6 z",
@@ -24,7 +24,7 @@ export const family: Animal = {
     },
     {
       hint: "Draw Mommy 👩",
-      strokeWidth: 1.5,
+      strokeWidth: 2,
       strokes: [
         "M 68.5,61.5 a 9.5,9.5 0 1,0 19,0 a 9.5,9.5 0 1,0 -19,0",
         "M 76,70 h 4 a 6,6 0 0 1 6,6 v 13 a 6,6 0 0 1 -6,6 h -4 a 6,6 0 0 1 -6,-6 v -13 a 6,6 0 0 1 6,-6 z",
@@ -37,7 +37,7 @@ export const family: Animal = {
     },
     {
       hint: "Draw your big brother or sister 🧒",
-      strokeWidth: 1.5,
+      strokeWidth: 2,
       strokes: [
         "M 111.16,76.76 a 6.84,6.84 0 1,0 13.68,0 a 6.84,6.84 0 1,0 -13.68,0",
         "M 116.56,82.88 h 2.88 a 4.32,4.32 0 0 1 4.32,4.32 v 9.36 a 4.32,4.32 0 0 1 -4.32,4.32 h -2.88 a 4.32,4.32 0 0 1 -4.32,-4.32 v -9.36 a 4.32,4.32 0 0 1 4.32,-4.32 z",
@@ -50,7 +50,7 @@ export const family: Animal = {
     },
     {
       hint: "And that’s little you! 🙂",
-      strokeWidth: 1.5,
+      strokeWidth: 2,
       strokes: [
         "M 148.3,83.3 a 5.7,5.7 0 1,0 11.4,0 a 5.7,5.7 0 1,0 -11.4,0",
         "M 152.8,88.4 h 2.4 a 3.6,3.6 0 0 1 3.6,3.6 v 7.8 a 3.6,3.6 0 0 1 -3.6,3.6 h -2.4 a 3.6,3.6 0 0 1 -3.6,-3.6 v -7.8 a 3.6,3.6 0 0 1 3.6,-3.6 z",
