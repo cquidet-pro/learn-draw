@@ -1,4 +1,5 @@
 import type { Animal } from "../animals";
+import { nameStep } from "../handwriting";
 
 // A very ornate kawaii butterfly with patterned wings, over a row of flowers
 // (level 10). Outline first, colored in last.
@@ -76,5 +77,6 @@ export const butterfly10: Animal = {
         { d: "M 156,162 a 5,5 0 1,0 8,0 a 5,5 0 1,0 -8,0", color: "#ff7eb6" },
       ],
     },
+    nameStep("BUTTERFLY", { baseline: 26, height: 15 }),
   ],
 };

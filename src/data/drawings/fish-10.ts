@@ -1,4 +1,5 @@
 import type { Animal } from "../animals";
+import { nameStep } from "../handwriting";
 
 // A detailed kawaii fish in an underwater scene with seaweed and bubbles
 // (level 10). Outline first, colored in last.
@@ -64,5 +65,6 @@ export const fish10: Animal = {
         { d: "M 127,86 a 2,2 0 1,0 4,0 a 2,2 0 1,0 -4,0", color: "#3a2a20" },
       ],
     },
+    nameStep("FISH", { baseline: 196, height: 15 }),
   ],
 };

@@ -1,4 +1,5 @@
 import type { Animal } from "../animals";
+import { nameStep } from "../handwriting";
 
 // A detailed kawaii flower scene with a bee and sun (level 10).
 const OUTLINE = "#4f3a2c";
@@ -79,5 +80,6 @@ export const flower10: Animal = {
         { d: "M 30,40 a 13,13 0 1,0 26,0 a 13,13 0 1,0 -26,0", color: "#ffd23f" },
       ],
     },
+    nameStep("FLOWER", { baseline: 194, height: 16 }),
   ],
 };

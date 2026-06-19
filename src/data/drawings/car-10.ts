@@ -1,4 +1,5 @@
 import type { Animal } from "../animals";
+import { nameStep } from "../handwriting";
 
 // A detailed kawaii car with mirror, exhaust, headlights, road and a sunny sky
 // (level 10). Outline first, colored in last.
@@ -77,5 +78,6 @@ export const car10: Animal = {
         { d: "M 158,34 a 12,12 0 1,0 24,0 a 12,12 0 1,0 -24,0", color: "#ffd23f" },
       ],
     },
+    nameStep("CAR", { baseline: 192, height: 18 }),
   ],
 };

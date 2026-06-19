@@ -1,4 +1,5 @@
 import type { Animal } from "../animals";
+import { nameStep } from "../handwriting";
 
 // Kawaii princess (harder level): outline drawn step by step — princess, wand,
 // castle and stars — then the whole scene is colored in at the very end.
@@ -135,5 +136,6 @@ export const princess10: Animal = {
       strokes: [],
       fills: COLOR_FILLS,
     },
+    nameStep("PRINCESS", { baseline: 194, height: 16 }),
   ],
 };

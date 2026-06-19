@@ -1,4 +1,5 @@
 import type { Animal } from "../animals";
+import { nameStep } from "../handwriting";
 
 // A heart with highlight, an arrow and little hearts around it (level 10).
 const OUTLINE = "#4f3a2c";
@@ -51,5 +52,6 @@ export const heart10: Animal = {
         },
       ],
     },
+    nameStep("HEART", { baseline: 192, height: 22 }),
   ],
 };

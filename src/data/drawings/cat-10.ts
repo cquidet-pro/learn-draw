@@ -1,4 +1,5 @@
 import type { Animal } from "../animals";
+import { nameStep } from "../handwriting";
 
 // An even more detailed sitting kawaii cat with stripes and a ball of yarn
 // (level 10). Outline first, colored in last.
@@ -70,5 +71,6 @@ export const cat10: Animal = {
         { d: "M 36,168 a 12,12 0 1,0 24,0 a 12,12 0 1,0 -24,0", color: "#9b5de5" },
       ],
     },
+    nameStep("CAT", { baseline: 198, height: 13 }),
   ],
 };

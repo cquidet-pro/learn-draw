@@ -1,4 +1,5 @@
 import type { Animal } from "../animals";
+import { nameStep } from "../handwriting";
 
 // A detailed family scene with a pet dog and a house (10-year-old level).
 export const family10: Animal = {
@@ -84,5 +85,6 @@ export const family10: Animal = {
       hint: "Now color your family scene in! 🖍️",
       strokes: [],
     },
+    nameStep("FAMILY", { baseline: 192, height: 20 }),
   ],
 };

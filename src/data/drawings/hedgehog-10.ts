@@ -1,4 +1,5 @@
 import type { Animal } from "../animals";
+import { nameStep } from "../handwriting";
 
 // A very detailed kawaii hedgehog with three spike rows, an apple and a flower
 // (level 10). Outline first, colored in last.
@@ -76,5 +77,6 @@ export const hedgehog10: Animal = {
         { d: "M 178,134 a 6,6 0 1,0 12,0 a 6,6 0 1,0 -12,0", color: "#ff7eb6" },
       ],
     },
+    nameStep("HEDGEHOG", { baseline: 192, height: 18 }),
   ],
 };

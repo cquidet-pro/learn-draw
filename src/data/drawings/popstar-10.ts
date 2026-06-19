@@ -1,4 +1,5 @@
 import type { Animal } from "../animals";
+import { nameStep } from "../handwriting";
 
 // An original cartoon pop star on a little stage (our own design). Harder
 // version — outline first, colored in last.
@@ -95,5 +96,6 @@ export const popstar10: Animal = {
         { d: "M 34,110 a 5,4 0 1,0 10,0 a 5,4 0 1,0 -10,0", color: "#3a3a55" },
       ],
     },
+    nameStep("POP STAR", { baseline: 193, height: 18 }),
   ],
 };

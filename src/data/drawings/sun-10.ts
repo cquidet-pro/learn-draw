@@ -1,4 +1,5 @@
 import type { Animal } from "../animals";
+import { nameStep } from "../handwriting";
 
 // A detailed kawaii sun in a little sky scene with a cloud and birds (level 10).
 const OUTLINE = "#4f3a2c";
@@ -54,5 +55,6 @@ export const sun10: Animal = {
         { d: "M 22,135 Q 10,135 12,123 Q 8,113 24,115 Q 30,105 44,113 Q 54,111 52,125 Q 58,135 44,135 Z", color: "#dbe4ec" },
       ],
     },
+    nameStep("SUN", { baseline: 192, height: 22 }),
   ],
 };

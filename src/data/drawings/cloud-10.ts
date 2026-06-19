@@ -1,4 +1,5 @@
 import type { Animal } from "../animals";
+import { nameStep } from "../handwriting";
 
 // A stormy kawaii scene: big cloud, heavy rain, lightning, puddle and an
 // umbrella (level 10). The cloud and umbrella are colored; rain stays blue.
@@ -60,5 +61,6 @@ export const cloud10: Animal = {
         { d: "M 130,150 Q 130,128 152,128 Q 174,128 174,150 Z", color: "#ef476f" },
       ],
     },
+    nameStep("CLOUD", { baseline: 197, height: 13 }),
   ],
 };
