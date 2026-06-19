@@ -34,7 +34,7 @@ export const star10: Animal = {
     {
       hint: "Add a crescent moon 🌙",
       color: OUTLINE,
-      strokes: ["M 158,52 A 26,26 0 1,0 158,104 A 20,20 0 1,1 158,52 Z"],
+      strokes: ["M 160,53 A 28,28 0 1,0 160,103 A 26,26 0 0,1 160,53 Z"],
     },
     {
       hint: "Add little stars in the sky! ⭐",
@@ -57,7 +57,7 @@ export const star10: Animal = {
         { d: "M 102,100 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0", color: "#ffb3c1" },
         { d: "M 78,92 a 3,3 0 1,0 6,0 a 3,3 0 1,0 -6,0", color: "#3a2a20" },
         { d: "M 96,92 a 3,3 0 1,0 6,0 a 3,3 0 1,0 -6,0", color: "#3a2a20" },
-        { d: "M 158,52 A 26,26 0 1,0 158,104 A 20,20 0 1,1 158,52 Z", color: "#ffe08a" },
+        { d: "M 160,53 A 28,28 0 1,0 160,103 A 26,26 0 0,1 160,53 Z", color: "#ffe08a" },
         { d: "M 150,140 l 3,8 l 8,1 l -6,5 l 2,8 l -7,-4 l -7,4 l 2,-8 l -6,-5 l 8,-1 z", color: "#ffd23f" },
         { d: "M 60,30 l 2,6 l 6,1 l -5,4 l 2,6 l -5,-3 l -5,3 l 2,-6 l -5,-4 l 6,-1 z", color: "#ffd23f" },
       ],

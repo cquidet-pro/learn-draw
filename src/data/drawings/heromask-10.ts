@@ -20,6 +20,13 @@ export const heromask10: Animal = {
       ],
     },
     {
+      hint: "Add cool swooshy hair! 💇",
+      color: OUTLINE,
+      strokes: [
+        "M 62,70 Q 54,40 100,27 Q 146,40 138,70 Q 130,50 118,48 Q 109,55 100,48 Q 91,55 82,48 Q 70,50 62,70 Z",
+      ],
+    },
+    {
       hint: "Add a big flowing cape!",
       color: OUTLINE,
       strokes: [
@@ -79,6 +86,10 @@ export const heromask10: Animal = {
         {
           d: "M 100,30 C 128,30 142,52 140,76 C 138,102 120,116 100,116 C 80,116 62,102 60,76 C 58,52 72,30 100,30 Z",
           color: "#ffd0a8",
+        },
+        {
+          d: "M 62,70 Q 54,40 100,27 Q 146,40 138,70 Q 130,50 118,48 Q 109,55 100,48 Q 91,55 82,48 Q 70,50 62,70 Z",
+          color: "#6b4a2b",
         },
         { d: "M 95,164 L 105,164 L 105,174 L 95,174 Z", color: "#ffd23f" },
         {

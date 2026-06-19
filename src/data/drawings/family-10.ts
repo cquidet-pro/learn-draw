@@ -64,7 +64,7 @@ export const family10: Animal = {
     {
       hint: "Draw a little house behind 🏠",
       color: "#8a5a2b",
-      strokes: ["M 150,70 L 150,108 L 190,108 L 190,70 Z", "M 144,70 L 170,48 L 196,70 Z"],
+      strokes: ["M 150,58 L 150,96 L 190,96 L 190,58 Z", "M 144,58 L 170,36 L 196,58 Z"],
     },
     {
       hint: "Finish with the sun and the ground! ☀️",
