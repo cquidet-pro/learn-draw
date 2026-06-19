@@ -39,8 +39,9 @@ const GLYPHS: Record<string, Glyph> = {
   Y: { wf: 0.62, s: [[["M", 0, 0], ["L", 0.5, 0.55], ["L", 1, 0]], [["M", 0.5, 0.55], ["L", 0.5, 1]]] },
 };
 
-const GAP = 0.16; // space between letters, as a fraction of cap height
-const SPACE = 0.4; // width of a blank space, as a fraction of cap height
+const GAP = 0.18; // default space between letters, as a fraction of cap height
+const SPACE = 0.45; // width of a blank space, as a fraction of cap height
+const STROKE = 3; // letters read better a little thinner than the 4px drawing
 
 const r = (n: number) => Math.round(n * 10) / 10;
 
@@ -69,6 +70,8 @@ interface NameOpts {
   height?: number;
   /** widest the word may be before it is scaled down (default 184) */
   maxWidth?: number;
+  /** extra space between letters, as a fraction of cap height (default 0.18) */
+  gap?: number;
   color?: string;
   hint?: string;
 }
@@ -80,14 +83,14 @@ interface NameOpts {
  */
 export function nameStep(word: string, opts: NameOpts = {}): DrawStep {
   const text = word.toUpperCase();
-  const { cx = 100, baseline = 192, height = 20, maxWidth = 184, color = "#118ab2", hint } = opts;
+  const { cx = 100, baseline = 192, height = 20, maxWidth = 184, gap = GAP, color = "#118ab2", hint } = opts;
   const chars = [...text];
 
   // Total width (at unit height) to centre the word and fit it to maxWidth.
   let widthFactor = 0;
   chars.forEach((c, i) => {
     widthFactor += c === " " ? SPACE : GLYPHS[c]?.wf ?? SPACE;
-    if (i < chars.length - 1) widthFactor += GAP;
+    if (i < chars.length - 1) widthFactor += gap;
   });
   const H = widthFactor * height > maxWidth ? maxWidth / widthFactor : height;
 
@@ -100,9 +103,9 @@ export function nameStep(word: string, opts: NameOpts = {}): DrawStep {
     const g = GLYPHS[c];
     const lw = (c === " " ? SPACE : g?.wf ?? SPACE) * H;
     if (g) strokes.push(...glyphStrokes(g, x, topY, lw, H));
-    x += lw + GAP * H;
+    x += lw + gap * H;
   }
 
   const spelt = chars.map((c) => (c === " " ? "·" : c)).join("-");
-  return { hint: hint ?? `Last of all, write the name: ${spelt}! ✏️`, color, strokes };
+  return { hint: hint ?? `Last of all, write the name: ${spelt}! ✏️`, color, strokes, strokeWidth: STROKE };
 }

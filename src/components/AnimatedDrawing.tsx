@@ -157,7 +157,7 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen, paused }:
               pathLength={1}
               fill="none"
               stroke={strokeColor}
-              strokeWidth={4}
+              strokeWidth={step.strokeWidth ?? 4}
               strokeLinecap="round"
               strokeLinejoin="round"
               className={className}
