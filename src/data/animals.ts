@@ -207,9 +207,17 @@ export function chooseNext(
   return choices[Math.floor(Math.random() * choices.length)];
 }
 
+/** Steps shown in the static card preview: everything up to and including the
+ *  "color it in" reveal step. Steps after it (e.g. writing the name) are left
+ *  out so the card doesn't show the name twice — once drawn, once as the label. */
+function previewSteps(animal: Animal): DrawStep[] {
+  const revealIndex = animal.steps.findIndex((s) => s.strokes.length === 0);
+  return revealIndex >= 0 ? animal.steps.slice(0, revealIndex + 1) : animal.steps;
+}
+
 /** Every stroke with its resolved color — used for the static card preview. */
 export function previewStrokes(animal: Animal): { d: string; color: string }[] {
-  return animal.steps.flatMap((step) =>
+  return previewSteps(animal).flatMap((step) =>
     step.strokes.map((d) => ({ d, color: step.color ?? animal.color })),
   );
 }
@@ -217,5 +225,5 @@ export function previewStrokes(animal: Animal): { d: string; color: string }[] {
 /** Every filled shape (for drawings that use them) — painted behind the outline
  *  strokes in the static card preview, so colored art shows up on the home card. */
 export function previewFills(animal: Animal): { d: string; color: string }[] {
-  return animal.steps.flatMap((step) => step.fills ?? []);
+  return previewSteps(animal).flatMap((step) => step.fills ?? []);
 }
