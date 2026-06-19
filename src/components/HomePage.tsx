@@ -3,6 +3,7 @@ import { drawingsForLevel } from "../data/animals";
 import type { Animal, Level } from "../data/animals";
 import { downloadColoringPdf } from "../lib/coloringPdf";
 import { AnimalCard } from "./AnimalCard";
+import { Brand } from "./Brand";
 import { LevelSelector } from "./LevelSelector";
 import { useVoiceControl, VoiceButton } from "../voice/VoiceProvider";
 import { SoundButton } from "../sound/SoundProvider";
@@ -148,7 +149,7 @@ export function HomePage({
 
   return (
     <div className="home">
-      <h1 className="title">🎨 Let's Learn to Draw!</h1>
+      <Brand />
       <p className="subtitle">Pick something to draw 👇</p>
 
       {/* Difficulty levels, with Famous Paintings sitting right after Harder
@@ -293,7 +294,10 @@ export function HomePage({
         <button className="footer-link" onClick={onOpenTerms}>
           📜 Rules
         </button>
-        <p className="footer-love">Made with ❤️ for happy little artists</p>
+        <p className="footer-love">
+          <strong className="footer-brand">Kidoo</strong> — made with ❤️ for
+          little artists, and built with them 🖍️
+        </p>
       </footer>
     </div>
   );
