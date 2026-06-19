@@ -626,9 +626,6 @@ kbd {
 
 /* ---------- Control bar (mic + scroll buttons) ---------- */
 .control-bar {
-  position: sticky;
-  top: 0;
-  z-index: 5;
   width: 100%;
   display: flex;
   flex-direction: column;
