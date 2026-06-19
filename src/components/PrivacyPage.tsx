@@ -57,7 +57,7 @@ export function PrivacyPage({ onHome }: Props) {
 
       <div className="info-note">
         <p>
-          <b>For grown-ups:</b> Learn to Draw is a static website with no backend,
+          <b>For grown-ups:</b> Kidoo is a static website with no backend,
           no cookies, no analytics and no third-party trackers. Progress and the
           parental controls (PIN, daily time limit, full-screen lock) are stored
           only in this browser's local storage and are never transmitted. The
