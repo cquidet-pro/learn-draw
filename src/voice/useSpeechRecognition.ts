@@ -46,7 +46,7 @@ function getCtor(): SpeechRecCtor | null {
  * pause), so it keeps listening until the user turns it off.
  */
 export function useSpeechRecognition(
-  onResult: (transcript: string, isFinal: boolean) => void,
+  onResult: (transcript: string, isFinal: boolean, resultIndex: number) => void,
 ) {
   // Keep the latest callback without re-creating the recognition instance.
   const onResultRef = useRef(onResult);
@@ -79,9 +79,10 @@ export function useSpeechRecognition(
       rec.interimResults = true;
       rec.lang = "en-US";
       rec.onresult = (e) => {
-        const last = e.results[e.results.length - 1];
+        const idx = e.results.length - 1;
+        const last = e.results[idx];
         if (last && last[0]) {
-          onResultRef.current(last[0].transcript, last.isFinal);
+          onResultRef.current(last[0].transcript, last.isFinal, idx);
         }
       };
       rec.onerror = (e) => {
@@ -93,14 +94,25 @@ export function useSpeechRecognition(
         // "no-speech"/"aborted" are transient — onend restarts us.
       };
       rec.onend = () => {
-        if (wantRef.current) {
-          try {
-            rec!.start();
-          } catch {
-            /* already started */
-          }
-        } else {
+        if (!wantRef.current) {
           setListening(false);
+          return;
+        }
+        // Browsers stop after a pause; restart at once to keep listening. If the
+        // immediate restart races (throws), retry shortly so we don't get stuck
+        // silently unresponsive.
+        try {
+          rec!.start();
+        } catch {
+          setTimeout(() => {
+            if (wantRef.current) {
+              try {
+                rec!.start();
+              } catch {
+                /* will try again on the next onend */
+              }
+            }
+          }, 200);
         }
       };
       recRef.current = rec;
