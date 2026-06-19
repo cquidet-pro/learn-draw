@@ -172,25 +172,40 @@ export function HomePage({
       <div className="section-divider" role="separator" aria-hidden="true" />
 
       <div className="control-bar">
-        <VoiceButton />
-        <SoundButton />
-        <ThemeButton />
-        <button className="facts-btn" onClick={onOpenTrophies}>
-          🏆 My Stickers
-        </button>
-        <button className="facts-btn" onClick={onOpenFacts}>
-          💡 Fun Facts
-        </button>
-        <button
-          className="facts-btn"
-          onClick={handlePrint}
-          disabled={printing || visible.length === 0}
-        >
-          {printing ? "⏳ Making PDF…" : "🖨️ Print to color"}
-        </button>
-        <button className="facts-btn" onClick={() => setShowTimeLimit(true)}>
-          ⏱️ Time limit
-        </button>
+        {/* Settings: voice, sound, theme and the grown-up time limit. */}
+        <div className="control-group" role="group" aria-label="Settings">
+          <span className="control-group-label">⚙️ Settings</span>
+          <div className="control-group-btns">
+            <VoiceButton />
+            <SoundButton />
+            <ThemeButton />
+            <button className="facts-btn" onClick={() => setShowTimeLimit(true)}>
+              ⏱️ Time limit
+            </button>
+          </div>
+        </div>
+
+        <div className="control-group-sep" aria-hidden="true" />
+
+        {/* Explore: stickers, facts and printable coloring pages. */}
+        <div className="control-group" role="group" aria-label="Explore">
+          <span className="control-group-label">✨ Explore</span>
+          <div className="control-group-btns">
+            <button className="facts-btn" onClick={onOpenTrophies}>
+              🏆 My Stickers
+            </button>
+            <button className="facts-btn" onClick={onOpenFacts}>
+              💡 Fun Facts
+            </button>
+            <button
+              className="facts-btn"
+              onClick={handlePrint}
+              disabled={printing || visible.length === 0}
+            >
+              {printing ? "⏳ Making PDF…" : "🖨️ Print to color"}
+            </button>
+          </div>
+        </div>
       </div>
 
       {showTimeLimit && <TimeLimitSettings onClose={() => setShowTimeLimit(false)} />}
