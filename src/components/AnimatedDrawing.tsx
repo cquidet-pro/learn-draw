@@ -119,10 +119,14 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen, paused }:
           let style: React.CSSProperties | undefined;
           let onAnimationEnd: (() => void) | undefined;
 
-          if (!isCurrent) {
-            className = "stroke-done"; // earlier step: faded
-          } else if (allSolid || reduce) {
-            className = "stroke-final"; // coloring / celebration / reduced motion
+          if (allSolid || reduce) {
+            // Final reveal (the "color it in" step / celebration) or reduced
+            // motion: show EVERY stroke solid and in full colour, including
+            // earlier steps. Otherwise a picture whose colour comes from its
+            // strokes (e.g. the paintings, which have no fills) stays faded.
+            className = "stroke-final";
+          } else if (!isCurrent) {
+            className = "stroke-done"; // earlier step (while drawing a later one): faded
           } else if (ki < seq) {
             className = "stroke-seq-drawn"; // already drawn this loop
           } else if (ki === seq) {
