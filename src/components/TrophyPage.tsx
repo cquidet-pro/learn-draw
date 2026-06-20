@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import type { Animal } from "../data/animals";
 import { drawingsForLevel } from "../data/animals";
 import { masterpieces } from "../data/masterpieces";
@@ -10,6 +10,8 @@ interface Props {
   onHome: () => void;
   /** Ids of drawings the child has finished. */
   completed: Set<string>;
+  /** Clear every earned sticker and start the shelf over. */
+  onReset: () => void;
   /** Start drawing one of the not-yet-done pictures. */
   onPick: (animal: Animal) => void;
 }
@@ -32,7 +34,9 @@ const GROUPS: { title: string; items: Animal[] }[] = [
   { title: "🖼️ Paintings", items: masterpieces },
 ];
 
-export function TrophyPage({ onHome, completed, onPick }: Props) {
+export function TrophyPage({ onHome, completed, onReset, onPick }: Props) {
+  const [confirming, setConfirming] = useState(false);
+
   const onCommand = useCallback(
     (transcript: string): boolean => {
       if (heardAny(transcript, ["home", "back", "menu"])) {
@@ -82,6 +86,40 @@ export function TrophyPage({ onHome, completed, onPick }: Props) {
         <p className="trophy-hint">
           Tap a faded one (or say its name) to draw it! ✏️
         </p>
+      )}
+
+      {allDone && (
+        <div className="trophy-reset">
+          {confirming ? (
+            <div className="trophy-reset-confirm" role="alertdialog" aria-live="polite">
+              <p>Clear all your stickers and start over?</p>
+              <div className="trophy-reset-actions">
+                <button
+                  className="trophy-reset-yes"
+                  onClick={() => {
+                    onReset();
+                    setConfirming(false);
+                  }}
+                >
+                  Yes, reset
+                </button>
+                <button
+                  className="trophy-reset-no"
+                  onClick={() => setConfirming(false)}
+                >
+                  Keep them
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              className="trophy-reset-btn"
+              onClick={() => setConfirming(true)}
+            >
+              🔄 Start over
+            </button>
+          )}
+        </div>
       )}
 
       {GROUPS.map((g) => {

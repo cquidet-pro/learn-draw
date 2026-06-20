@@ -105,6 +105,15 @@ export function App() {
     });
   }, []);
 
+  const resetCompleted = useCallback(() => {
+    setCompleted(new Set());
+    try {
+      localStorage.removeItem(COMPLETED_KEY);
+    } catch {
+      /* ignore storage errors */
+    }
+  }, []);
+
   const setLevel = useCallback((lvl: Level) => {
     setLevelState(lvl);
     try {
@@ -157,6 +166,7 @@ export function App() {
       <TrophyPage
         onHome={goBack}
         completed={completed}
+        onReset={resetCompleted}
         onPick={(animal) => push({ kind: "drawing", animal })}
       />
     );

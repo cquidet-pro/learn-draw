@@ -1695,6 +1695,66 @@ kbd {
   margin: 0.2rem 0 1.4rem;
 }
 
+.trophy-reset {
+  display: flex;
+  justify-content: center;
+  margin: -0.6rem 0 1.6rem;
+}
+
+.trophy-reset-btn,
+.trophy-reset-yes,
+.trophy-reset-no {
+  border: none;
+  border-radius: 999px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  padding: 0.6rem 1.3rem;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.12);
+}
+
+.trophy-reset-btn:active,
+.trophy-reset-yes:active,
+.trophy-reset-no:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
+}
+
+.trophy-reset-btn {
+  background: var(--surface);
+  border: 3px solid var(--accent);
+}
+
+.trophy-reset-confirm {
+  background: var(--surface);
+  border: 3px solid var(--accent);
+  border-radius: 22px;
+  padding: 1rem 1.4rem;
+  text-align: center;
+}
+
+.trophy-reset-confirm p {
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin: 0 0 0.8rem;
+}
+
+.trophy-reset-actions {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+}
+
+.trophy-reset-yes {
+  background: #ef476f;
+  color: #fff;
+}
+
+.trophy-reset-no {
+  background: var(--accent);
+}
+
 .trophy-group {
   width: min(100%, 900px);
   margin-bottom: 1.8rem;
