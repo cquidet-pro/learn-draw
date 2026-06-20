@@ -180,8 +180,15 @@ export function HomePage({
             <VoiceButton />
             <SoundButton />
             <ThemeButton />
-            <button className="facts-btn" onClick={() => setShowTimeLimit(true)}>
-              ⏱️ Time limit
+            <button
+              className="facts-btn grownup-btn"
+              onClick={() => setShowTimeLimit(true)}
+              aria-label="For grown-ups — daily time limit and screen lock"
+            >
+              <span className="grownup-icon" aria-hidden="true">
+                🧑‍🦰
+              </span>{" "}
+              For grown-ups
             </button>
           </div>
         </div>

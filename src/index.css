@@ -786,6 +786,13 @@ kbd {
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
 }
 
+/* The grown-up (parental) button: a slightly larger adult character so it
+   reads as the "for grown-ups" area. */
+.grownup-icon {
+  font-size: 1.35rem;
+  vertical-align: -0.15em;
+}
+
 /* ---------- Level selector ---------- */
 .level-row {
   display: flex;
