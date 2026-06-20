@@ -1,5 +1,5 @@
 /*
- * Service worker for Learn to Draw (Kidoo).
+ * Service worker for Learn to Draw.
  *
  * VERSION and PRECACHE are filled in at build time by the precache-sw plugin in
  * vite.config.ts (in dev they stay empty, so the app just runs network-only).

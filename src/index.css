@@ -73,7 +73,7 @@ body {
   opacity: 0.8;
 }
 
-/* ---------- Kidoo branding ---------- */
+/* ---------- Learn to Draw branding ---------- */
 .brand {
   display: flex;
   flex-direction: column;
@@ -110,6 +110,13 @@ body {
 }
 .brand-name:hover span {
   transform: translateY(-4px) rotate(-4deg);
+}
+
+/* Word gaps: stay inline (not inline-block) so the wordmark can wrap between
+   words on narrow screens. */
+.brand-name .brand-space {
+  display: inline;
+  margin: 0 0.08em;
 }
 
 /* A row of crayon stripes under the wordmark. */
@@ -525,6 +532,14 @@ body {
   opacity: 0.65;
   margin: 0;
   text-align: center;
+}
+
+/* Keyboard shortcuts are meaningless on touch devices (phones/tablets with no
+   physical keyboard), so hide the hint there — the ◀ ▶ buttons are enough. */
+@media (hover: none) and (pointer: coarse) {
+  .hint-keys {
+    display: none;
+  }
 }
 
 kbd {
