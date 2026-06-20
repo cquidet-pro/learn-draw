@@ -17,6 +17,7 @@ interface SpeechRecErrorEvent {
 interface SpeechRec {
   continuous: boolean;
   interimResults: boolean;
+  maxAlternatives: number;
   lang: string;
   start(): void;
   stop(): void;
@@ -77,6 +78,9 @@ export function useSpeechRecognition(
       // Interim results let us react the moment a word is recognized instead of
       // waiting for the browser to detect end-of-speech (which felt slow).
       rec.interimResults = true;
+      // We only ever read the top hypothesis ([0]); asking for a single
+      // alternative avoids the engine computing/ranking extras, shaving latency.
+      rec.maxAlternatives = 1;
       rec.lang = "en-US";
       rec.onresult = (e) => {
         const idx = e.results.length - 1;
