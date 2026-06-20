@@ -4,6 +4,9 @@ interface Props {
   animalName: string;
   /** Optional fun fact shown on finishing (used by Famous Paintings). */
   fact?: string;
+  /** Set when this drawing crossed a 5-drawing milestone — the new animal
+   *  friend to reveal right away, before offering the next drawing. */
+  reward?: { emoji: string; name: string; size: number };
   /** Set when the child just cleared a whole level — congratulate and announce
    *  the new level we're moving up to. */
   levelUp?: { from: string; to: string };
@@ -35,6 +38,7 @@ const BURSTS = [
 export function Celebration({
   animalName,
   fact,
+  reward,
   levelUp,
   nextName,
   nextEmoji,
@@ -81,7 +85,7 @@ export function Celebration({
           ✕
         </button>
         <div className="celebration-emoji" aria-hidden="true">
-          {levelUp ? "🏆🎉🚀" : "🎉🌟🎨"}
+          {reward ? "🎁✨🎉" : levelUp ? "🏆🎉🚀" : "🎉🌟🎨"}
         </div>
         {levelUp ? (
           <>
@@ -102,6 +106,22 @@ export function Celebration({
             </p>
           </>
         )}
+        {reward && (
+          <div className="celebration-reward" aria-live="polite">
+            <p className="celebration-reward-head">New friend unlocked! 🎉</p>
+            <span
+              className="celebration-reward-emoji"
+              aria-hidden="true"
+              style={{ fontSize: `${Math.max(reward.size, 3)}rem` }}
+            >
+              {reward.emoji}
+            </span>
+            <p className="celebration-reward-name">
+              You earned the <strong>{reward.name}</strong>!
+            </p>
+          </div>
+        )}
+
         {fact && <p className="celebration-fact">💡 {fact}</p>}
 
         <div className="celebration-buttons">

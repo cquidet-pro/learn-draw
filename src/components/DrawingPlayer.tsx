@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import type { Animal } from "../data/animals";
 import { chooseNext, chooseNextInLevels } from "../data/animals";
 import { isMasterpiece } from "../data/masterpieces";
+import { rewardJustUnlocked } from "../data/rewards";
 import { useDrawingPlayer } from "../hooks/useDrawingPlayer";
 import { useKeyboard } from "../hooks/useKeyboard";
 import { useWakeLock } from "../hooks/useWakeLock";
@@ -69,6 +70,14 @@ export function DrawingPlayer({
     }
     return chooseNextInLevels(animal, completed);
   }, [celebrating, pool, animal, completed]);
+
+  // If finishing this drawing landed on a 5-drawing milestone, surface the
+  // newly-earned animal friend right here in the celebration — no trip to the
+  // sticker shelf needed. `completed` already includes the drawing just done.
+  const reward = useMemo(
+    () => (celebrating ? rewardJustUnlocked(completed.size) : undefined),
+    [celebrating, completed],
+  );
 
   // Last step → first press shows the finished picture with stars (no pop-up);
   // a second press pops the celebration. Every transition is one deliberate
@@ -227,6 +236,7 @@ export function DrawingPlayer({
         <Celebration
           animalName={animal.name}
           fact={animal.fact}
+          reward={reward}
           levelUp={nextUp.levelUp}
           nextName={nextUp.animal.name}
           nextEmoji={nextUp.animal.emoji}
