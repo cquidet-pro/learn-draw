@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { Animal } from "../data/animals";
 
 interface Props {
@@ -16,6 +16,14 @@ interface Props {
 }
 
 const PENCIL = "#bdb6a8";
+
+// `duration` is the seconds to draw this many path units, so the pen moves at a
+// steady speed: a long outline takes longer than a tiny detail (a constant time
+// per stroke made big shapes like a car body whip by even on the slowest speed).
+const REF_LEN = 200;
+// Keep tiny strokes from being instant and huge ones from dragging forever.
+const MIN_FACTOR = 0.4;
+const MAX_FACTOR = 2.5;
 
 /**
  * Split a path `d` into its separate pen-down sub-paths so the animator can
@@ -76,6 +84,39 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen, paused }:
   const [seq, setSeq] = useState(0);
   const holdRef = useRef<number | undefined>(undefined);
 
+  // Measure each current segment's real length (via the browser) so we can make
+  // its draw time proportional to how far the pen travels.
+  const measureRef = useRef<SVGPathElement | null>(null);
+  const [segLengths, setSegLengths] = useState<number[]>([]);
+  useLayoutEffect(() => {
+    const p = measureRef.current;
+    if (!p) return;
+    const segs = current ? current.strokes.flatMap(splitSubpaths) : [];
+    setSegLengths(
+      segs.map((d) => {
+        p.setAttribute("d", d);
+        try {
+          const len = p.getTotalLength();
+          return Number.isFinite(len) && len > 0 ? len : REF_LEN;
+        } catch {
+          return REF_LEN;
+        }
+      }),
+    );
+    // currentSegments is derived from (animal.id, stepIndex); re-measure on those.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [animal.id, stepIndex]);
+
+  const segDuration = (ki: number): number => {
+    const len = segLengths[ki];
+    if (!len) return duration;
+    const scaled = duration * (len / REF_LEN);
+    return Math.min(
+      Math.max(scaled, duration * MIN_FACTOR),
+      duration * MAX_FACTOR,
+    );
+  };
+
   // Restart the sequence whenever the step (or drawing) changes.
   useEffect(() => {
     setSeq(0);
@@ -99,6 +140,9 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen, paused }:
       role="img"
       aria-label={`How to draw a ${animal.name}, step ${stepIndex + 1}`}
     >
+      {/* Invisible helper path used only to measure stroke lengths. */}
+      <path ref={measureRef} fill="none" stroke="none" aria-hidden="true" />
+
       {/* Pass 1: color fills, behind everything. */}
       {visible.map(({ step, si }) =>
         step.fills?.map((f, fi) => (
@@ -140,7 +184,7 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen, paused }:
           } else if (ki === seq) {
             className = "stroke-seq-active"; // the one being drawn now
             style = {
-              "--seg": `${duration}s`,
+              "--seg": `${segDuration(ki)}s`,
               animationPlayState: paused ? "paused" : "running",
             } as React.CSSProperties;
             onAnimationEnd = () => setSeq((s) => (s === ki ? s + 1 : s));
