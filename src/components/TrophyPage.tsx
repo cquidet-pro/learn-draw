@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import type { Animal } from "../data/animals";
 import { drawingsForLevel } from "../data/animals";
 import { masterpieces } from "../data/masterpieces";
+import { rewardTiers } from "../data/rewards";
 import { DrawingThumb } from "./DrawingThumb";
 import { useVoiceControl, VoiceButton } from "../voice/VoiceProvider";
 import { heardAny } from "../voice/match";
@@ -32,19 +33,6 @@ const GROUPS: { title: string; items: Animal[] }[] = [
   { title: "🌳 Medium", items: bySubject(drawingsForLevel(7)) },
   { title: "⭐ Harder", items: bySubject(drawingsForLevel(10)) },
   { title: "🖼️ Paintings", items: masterpieces },
-];
-
-// Milestone "animal friend" rewards: a new companion every 10 drawings, growing
-// from a tiny mouse all the way up to an enormous dinosaur. Listed smallest →
-// biggest so they visibly grow across the shelf.
-const REWARDS: { emoji: string; name: string }[] = [
-  { emoji: "🐭", name: "Mouse" },
-  { emoji: "🐱", name: "Cat" },
-  { emoji: "🐶", name: "Dog" },
-  { emoji: "🐴", name: "Pony" },
-  { emoji: "🐎", name: "Horse" },
-  { emoji: "🐳", name: "Whale" },
-  { emoji: "🦕", name: "Dinosaur" },
 ];
 
 export function TrophyPage({ onHome, completed, onReset, onPick }: Props) {
@@ -78,14 +66,7 @@ export function TrophyPage({ onHome, completed, onReset, onPick }: Props) {
   const totalAll = GROUPS.reduce((n, g) => n + g.items.length, 0);
   const allDone = totalAll > 0 && totalDone === totalAll;
 
-  // Each friend needs another 10 drawings; the last (biggest) one is capped at
-  // the whole collection so it's always earnable as the grand prize. Bigger
-  // animals are drawn bigger for the "small → huge" feel.
-  const rewards = REWARDS.map((r, i) => ({
-    ...r,
-    need: Math.min((i + 1) * 10, totalAll),
-    size: 1.7 + i * 0.32,
-  }));
+  const rewards = rewardTiers(totalAll);
   const rewardsEarned = rewards.filter((r) => totalDone >= r.need).length;
   const nextReward = rewards.find((r) => totalDone < r.need);
 
