@@ -500,25 +500,17 @@ body {
 /* Pause / play toggle, sitting at the start of the speed row. */
 .pause-btn {
   flex: 0 0 auto;
-  /* Match the ◀ ▶ navigation buttons. */
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  border: 4px solid var(--accent);
-  background: var(--surface);
+  /* Just the icon — no circle — to keep the page compact. */
+  border: none;
+  background: none;
+  padding: 0.1rem;
   font-size: 1.8rem;
   line-height: 1;
   cursor: pointer;
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.12);
-}
-
-.pause-btn.paused {
-  border-color: var(--accent-2);
 }
 
 .pause-btn:active:not(:disabled) {
   transform: translateY(2px);
-  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
 }
 
 .pause-btn:disabled {
@@ -2083,8 +2075,6 @@ button.sticker.locked:active {
     font-size: 1.6rem;
   }
   .pause-btn {
-    width: 58px;
-    height: 58px;
     font-size: 1.6rem;
   }
   .step-indicator {
