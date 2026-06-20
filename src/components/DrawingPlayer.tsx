@@ -151,6 +151,16 @@ export function DrawingPlayer({
 
   const step = animal.steps[player.stepIndex];
 
+  // The instruction describing the current action — shown in the controls,
+  // between the step nav and the pause button.
+  const hint = celebrating
+    ? ""
+    : finished
+      ? "Yay, all done! ⭐ Press ▶ for a surprise! 🎉"
+      : player.isLast && step.strokes.length === 0
+        ? "All done? Press Space! 🎉"
+        : step.hint;
+
   return (
     <div className="player">
       <header className="player-header">
@@ -169,16 +179,6 @@ export function DrawingPlayer({
         <VoiceButton />
         <SoundButton />
       </div>
-
-      <p className="hint">
-        {celebrating
-          ? ""
-          : finished
-            ? "Yay, all done! ⭐ Press ▶ for a surprise! 🎉"
-            : player.isLast && step.strokes.length === 0
-              ? "All done? Press Space! 🎉"
-              : step.hint}
-      </p>
 
       <div className="art-stage">
         {animal.image ? (
@@ -228,6 +228,7 @@ export function DrawingPlayer({
       </div>
 
       <Controls
+        hint={hint}
         stepIndex={player.stepIndex}
         stepCount={animal.steps.length}
         prevDisabled={player.isFirst && !finished && !celebrating}
