@@ -487,6 +487,12 @@ body {
   width: 100%;
 }
 
+/* The pause/play button sits on its own, centred under the step number. */
+.pause-row {
+  display: flex;
+  justify-content: center;
+}
+
 .speed-icon {
   font-size: 1.8rem;
 }
