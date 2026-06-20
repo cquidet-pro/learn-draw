@@ -1722,6 +1722,14 @@ kbd {
   transition: width 0.5s ease;
 }
 
+.trophy-hint {
+  text-align: center;
+  font-size: 1.05rem;
+  font-weight: 700;
+  opacity: 0.7;
+  margin: -0.3rem 0 0.2rem;
+}
+
 .sticker-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -1746,11 +1754,32 @@ kbd {
   border-color: #06d6a0;
 }
 
+/* Not-done stickers are buttons you can tap to start that drawing. */
+button.sticker {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
 .sticker.locked {
-  opacity: 0.55;
+  opacity: 0.6;
   border-style: dashed;
   border-color: #d9d2c2;
   box-shadow: none;
+  transition: opacity 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+}
+
+/* Invite a tap: the faded sticker brightens and lifts on hover/focus. */
+button.sticker.locked:hover,
+button.sticker.locked:focus-visible {
+  opacity: 1;
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  outline: none;
+}
+
+button.sticker.locked:active {
+  transform: translateY(0);
 }
 
 /* Locked stickers show the same drawing, just drained of colour. */

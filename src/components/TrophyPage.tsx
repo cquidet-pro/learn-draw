@@ -10,6 +10,8 @@ interface Props {
   onHome: () => void;
   /** Ids of drawings the child has finished. */
   completed: Set<string>;
+  /** Start drawing one of the not-yet-done pictures. */
+  onPick: (animal: Animal) => void;
 }
 
 // The sticker shelf is grouped the same way the child browses drawings.
@@ -20,16 +22,26 @@ const GROUPS: { title: string; items: Animal[] }[] = [
   { title: "🖼️ Paintings", items: masterpieces },
 ];
 
-export function TrophyPage({ onHome, completed }: Props) {
+export function TrophyPage({ onHome, completed, onPick }: Props) {
   const onCommand = useCallback(
     (transcript: string): boolean => {
       if (heardAny(transcript, ["home", "back", "menu"])) {
         onHome();
         return true;
       }
+      // Saying a drawing's name starts it — but only for ones not done yet.
+      for (const g of GROUPS) {
+        for (const a of g.items) {
+          if (completed.has(a.id)) continue;
+          if (heardAny(transcript, [a.name.toLowerCase()])) {
+            onPick(a);
+            return true;
+          }
+        }
+      }
       return false;
     },
-    [onHome],
+    [onHome, onPick, completed],
   );
   useVoiceControl(onCommand);
 
@@ -56,6 +68,11 @@ export function TrophyPage({ onHome, completed }: Props) {
         You've earned <strong>{totalDone}</strong> of {totalAll} stickers!{" "}
         {allDone ? "🎉 You drew them all!" : "Keep drawing to collect them! ✨"}
       </p>
+      {!allDone && (
+        <p className="trophy-hint">
+          Tap a faded one (or say its name) to draw it! ✏️
+        </p>
+      )}
 
       {GROUPS.map((g) => {
         const done = doneIn(g.items);
@@ -80,24 +97,31 @@ export function TrophyPage({ onHome, completed }: Props) {
             <div className="sticker-grid">
               {g.items.map((a) => {
                 const earned = completed.has(a.id);
-                return (
-                  <div
-                    className={earned ? "sticker earned" : "sticker locked"}
-                    key={a.id}
-                    title={
-                      earned ? `${a.name} — done!` : `${a.name} — not drawn yet`
-                    }
-                  >
+                const inner = (
+                  <>
                     <DrawingThumb animal={a} className="sticker-art" />
                     <span className="sticker-name">
                       {a.emoji} {a.name}
                     </span>
-                    {earned && (
-                      <span className="sticker-check" aria-hidden="true">
-                        ✓
-                      </span>
-                    )}
+                  </>
+                );
+                // Done ones are just shown; not-done ones are tappable to draw.
+                return earned ? (
+                  <div className="sticker earned" key={a.id} title={`${a.name} — done!`}>
+                    {inner}
+                    <span className="sticker-check" aria-hidden="true">
+                      ✓
+                    </span>
                   </div>
+                ) : (
+                  <button
+                    className="sticker locked"
+                    key={a.id}
+                    onClick={() => onPick(a)}
+                    aria-label={`Draw a ${a.name} — not done yet`}
+                  >
+                    {inner}
+                  </button>
                 );
               })}
             </div>
