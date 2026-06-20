@@ -3,6 +3,7 @@ import type { Animal, Level } from "./data/animals";
 import { drawingsForLevel } from "./data/animals";
 import { masterpieces, isMasterpiece } from "./data/masterpieces";
 import { HomePage } from "./components/HomePage";
+import { OfflineGuard } from "./components/OfflineGuard";
 import { DrawingPlayer } from "./components/DrawingPlayer";
 import { FactsPage } from "./components/FactsPage";
 import { PaintingsPage } from "./components/PaintingsPage";
@@ -179,7 +180,10 @@ export function App() {
   return (
     <TimeLimitProvider>
       <SoundProvider>
-        <VoiceProvider>{screen}</VoiceProvider>
+        <VoiceProvider>
+          {screen}
+          <OfflineGuard />
+        </VoiceProvider>
       </SoundProvider>
     </TimeLimitProvider>
   );
