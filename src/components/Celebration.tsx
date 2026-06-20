@@ -4,6 +4,9 @@ interface Props {
   animalName: string;
   /** Optional fun fact shown on finishing (used by Famous Paintings). */
   fact?: string;
+  /** Set when the child just cleared a whole level — congratulate and announce
+   *  the new level we're moving up to. */
+  levelUp?: { from: string; to: string };
   /** Name/emoji of the drawing we'll auto-advance to. */
   nextName: string;
   nextEmoji: string;
@@ -32,6 +35,7 @@ const BURSTS = [
 export function Celebration({
   animalName,
   fact,
+  levelUp,
   nextName,
   nextEmoji,
   onAutoNext,
@@ -77,12 +81,27 @@ export function Celebration({
           ✕
         </button>
         <div className="celebration-emoji" aria-hidden="true">
-          🎉🌟🎨
+          {levelUp ? "🏆🎉🚀" : "🎉🌟🎨"}
         </div>
-        <h2>You did it!</h2>
-        <p>
-          You drew a <strong>{animalName}</strong>! 🥳
-        </p>
+        {levelUp ? (
+          <>
+            <h2>{levelUp.from} mode complete! 🏆</h2>
+            <p>
+              You drew a <strong>{animalName}</strong> — and finished every{" "}
+              <strong>{levelUp.from}</strong> drawing! 🥳
+            </p>
+            <p className="celebration-levelup">
+              Ready for <strong>{levelUp.to}</strong> mode? Let's go! 🚀
+            </p>
+          </>
+        ) : (
+          <>
+            <h2>You did it!</h2>
+            <p>
+              You drew a <strong>{animalName}</strong>! 🥳
+            </p>
+          </>
+        )}
         {fact && <p className="celebration-fact">💡 {fact}</p>}
 
         <div className="celebration-buttons">

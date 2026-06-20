@@ -34,6 +34,19 @@ const GROUPS: { title: string; items: Animal[] }[] = [
   { title: "🖼️ Paintings", items: masterpieces },
 ];
 
+// Milestone "animal friend" rewards: a new companion every 10 drawings, growing
+// from a tiny mouse all the way up to an enormous dinosaur. Listed smallest →
+// biggest so they visibly grow across the shelf.
+const REWARDS: { emoji: string; name: string }[] = [
+  { emoji: "🐭", name: "Mouse" },
+  { emoji: "🐱", name: "Cat" },
+  { emoji: "🐶", name: "Dog" },
+  { emoji: "🐴", name: "Pony" },
+  { emoji: "🐎", name: "Horse" },
+  { emoji: "🐳", name: "Whale" },
+  { emoji: "🦕", name: "Dinosaur" },
+];
+
 export function TrophyPage({ onHome, completed, onReset, onPick }: Props) {
   const [confirming, setConfirming] = useState(false);
 
@@ -64,6 +77,17 @@ export function TrophyPage({ onHome, completed, onReset, onPick }: Props) {
   const totalDone = GROUPS.reduce((n, g) => n + doneIn(g.items), 0);
   const totalAll = GROUPS.reduce((n, g) => n + g.items.length, 0);
   const allDone = totalAll > 0 && totalDone === totalAll;
+
+  // Each friend needs another 10 drawings; the last (biggest) one is capped at
+  // the whole collection so it's always earnable as the grand prize. Bigger
+  // animals are drawn bigger for the "small → huge" feel.
+  const rewards = REWARDS.map((r, i) => ({
+    ...r,
+    need: Math.min((i + 1) * 10, totalAll),
+    size: 1.7 + i * 0.32,
+  }));
+  const rewardsEarned = rewards.filter((r) => totalDone >= r.need).length;
+  const nextReward = rewards.find((r) => totalDone < r.need);
 
   return (
     <div className="facts-page trophy-page">
@@ -121,6 +145,49 @@ export function TrophyPage({ onHome, completed, onReset, onPick }: Props) {
           )}
         </div>
       )}
+
+      <section className="trophy-group reward-group">
+        <div className="trophy-group-head">
+          <h2>🎁 Animal Friends</h2>
+          <span className="trophy-count">
+            {rewardsEarned} / {rewards.length} 🏅
+          </span>
+        </div>
+        <p className="reward-blurb">
+          {nextReward
+            ? `A new animal friend every 10 drawings — ${
+                nextReward.need - totalDone
+              } more to unlock the ${nextReward.name}! ${nextReward.emoji}`
+            : "Wow! You collected every animal friend! 🦕🎉"}
+        </p>
+        <div className="reward-grid">
+          {rewards.map((r) => {
+            const earned = totalDone >= r.need;
+            return (
+              <div
+                className={earned ? "reward earned" : "reward locked"}
+                key={r.name}
+                title={
+                  earned
+                    ? `${r.name} — earned at ${r.need} drawings!`
+                    : `${r.name} — draw ${r.need} to unlock`
+                }
+              >
+                <span
+                  className="reward-emoji"
+                  aria-hidden="true"
+                  style={{ fontSize: `${r.size}rem` }}
+                >
+                  {earned ? r.emoji : "❓"}
+                </span>
+                <span className="reward-name">
+                  {earned ? r.name : `${r.need} drawings`}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </section>
 
       {GROUPS.map((g) => {
         const done = doneIn(g.items);

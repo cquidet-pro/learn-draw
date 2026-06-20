@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import type { Animal } from "../data/animals";
-import { chooseNext } from "../data/animals";
+import { chooseNext, chooseNextInLevels } from "../data/animals";
+import { isMasterpiece } from "../data/masterpieces";
 import { useDrawingPlayer } from "../hooks/useDrawingPlayer";
 import { useKeyboard } from "../hooks/useKeyboard";
 import { useWakeLock } from "../hooks/useWakeLock";
@@ -59,10 +60,15 @@ export function DrawingPlayer({
   const [celebrating, setCelebrating] = useState(false);
 
   // Decided once when the celebration appears, so the countdown target is stable.
-  const nextTarget = useMemo(
-    () => (celebrating ? chooseNext(pool, animal.id, completed) : null),
-    [celebrating, pool, animal.id, completed],
-  );
+  // Paintings cycle among themselves; the leveled drawings stay within their
+  // level until it's cleared, then graduate to the next level.
+  const nextUp = useMemo(() => {
+    if (!celebrating) return null;
+    if (isMasterpiece(animal.id)) {
+      return { animal: chooseNext(pool, animal.id, completed) };
+    }
+    return chooseNextInLevels(animal, completed);
+  }, [celebrating, pool, animal, completed]);
 
   // Last step → first press shows the finished picture with stars (no pop-up);
   // a second press pops the celebration. Every transition is one deliberate
@@ -217,13 +223,14 @@ export function DrawingPlayer({
         onTogglePause={player.togglePause}
       />
 
-      {celebrating && nextTarget && (
+      {celebrating && nextUp && (
         <Celebration
           animalName={animal.name}
           fact={animal.fact}
-          nextName={nextTarget.name}
-          nextEmoji={nextTarget.emoji}
-          onAutoNext={() => onGoTo(nextTarget)}
+          levelUp={nextUp.levelUp}
+          nextName={nextUp.animal.name}
+          nextEmoji={nextUp.animal.emoji}
+          onAutoNext={() => onGoTo(nextUp.animal)}
           onAgain={onHome}
           onWatchAgain={() => {
             setCelebrating(false);
