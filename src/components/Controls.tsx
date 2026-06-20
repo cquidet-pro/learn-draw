@@ -1,4 +1,6 @@
 interface Props {
+  /** Instruction describing the current step, shown between the nav and pause. */
+  hint: string;
   stepIndex: number;
   stepCount: number;
   prevDisabled: boolean;
@@ -21,6 +23,7 @@ const toDuration = (pct: number) => SLOW - (pct / 100) * (SLOW - FAST);
 const toPct = (duration: number) => ((SLOW - duration) / (SLOW - FAST)) * 100;
 
 export function Controls({
+  hint,
   stepIndex,
   stepCount,
   prevDisabled,
@@ -58,6 +61,8 @@ export function Controls({
           ▶
         </button>
       </div>
+
+      <p className="hint">{hint}</p>
 
       <div className="pause-row">
         <button
