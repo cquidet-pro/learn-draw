@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import type { Animal } from "../data/animals";
 import { drawingsForLevel } from "../data/animals";
 import { masterpieces } from "../data/masterpieces";
+import { DrawingThumb } from "./DrawingThumb";
 import { useVoiceControl, VoiceButton } from "../voice/VoiceProvider";
 import { heardAny } from "../voice/match";
 
@@ -87,10 +88,10 @@ export function TrophyPage({ onHome, completed }: Props) {
                       earned ? `${a.name} — done!` : `${a.name} — not drawn yet`
                     }
                   >
-                    <span className="sticker-emoji" aria-hidden="true">
-                      {a.emoji}
+                    <DrawingThumb animal={a} className="sticker-art" />
+                    <span className="sticker-name">
+                      {a.emoji} {a.name}
                     </span>
-                    <span className="sticker-name">{a.name}</span>
                     {earned && (
                       <span className="sticker-check" aria-hidden="true">
                         ✓
