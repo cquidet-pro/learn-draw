@@ -14,11 +14,21 @@ interface Props {
   onPick: (animal: Animal) => void;
 }
 
+// Show the same subjects in the same order across Easy/Medium/Harder so the
+// shelves line up (the underlying per-level arrays aren't in the same order).
+const SUBJECT_ORDER = drawingsForLevel(5).map((a) => a.name);
+const bySubject = (items: Animal[]): Animal[] =>
+  [...items].sort((a, b) => {
+    const ia = SUBJECT_ORDER.indexOf(a.name);
+    const ib = SUBJECT_ORDER.indexOf(b.name);
+    return (ia === -1 ? Infinity : ia) - (ib === -1 ? Infinity : ib);
+  });
+
 // The sticker shelf is grouped the same way the child browses drawings.
 const GROUPS: { title: string; items: Animal[] }[] = [
-  { title: "🌱 Easy", items: drawingsForLevel(5) },
-  { title: "🌳 Medium", items: drawingsForLevel(7) },
-  { title: "⭐ Harder", items: drawingsForLevel(10) },
+  { title: "🌱 Easy", items: bySubject(drawingsForLevel(5)) },
+  { title: "🌳 Medium", items: bySubject(drawingsForLevel(7)) },
+  { title: "⭐ Harder", items: bySubject(drawingsForLevel(10)) },
   { title: "🖼️ Paintings", items: masterpieces },
 ];
 
