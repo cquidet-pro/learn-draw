@@ -152,7 +152,13 @@ export function App() {
   } else if (current.kind === "terms") {
     screen = <TermsPage onHome={goBack} />;
   } else if (current.kind === "trophies") {
-    screen = <TrophyPage onHome={goBack} completed={completed} />;
+    screen = (
+      <TrophyPage
+        onHome={goBack}
+        completed={completed}
+        onPick={(animal) => push({ kind: "drawing", animal })}
+      />
+    );
   } else {
     screen = (
       <HomePage
