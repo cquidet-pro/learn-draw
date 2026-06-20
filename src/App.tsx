@@ -104,6 +104,15 @@ export function App() {
     });
   }, []);
 
+  const resetCompleted = useCallback(() => {
+    setCompleted(new Set());
+    try {
+      localStorage.removeItem(COMPLETED_KEY);
+    } catch {
+      /* ignore storage errors */
+    }
+  }, []);
+
   const setLevel = useCallback((lvl: Level) => {
     setLevelState(lvl);
     try {
@@ -152,7 +161,9 @@ export function App() {
   } else if (current.kind === "terms") {
     screen = <TermsPage onHome={goBack} />;
   } else if (current.kind === "trophies") {
-    screen = <TrophyPage onHome={goBack} completed={completed} />;
+    screen = (
+      <TrophyPage onHome={goBack} completed={completed} onReset={resetCompleted} />
+    );
   } else {
     screen = (
       <HomePage
