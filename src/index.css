@@ -728,6 +728,15 @@ kbd {
   background: var(--bg);
 }
 
+/* On the drawing page the bar only holds the mic + sound toggles, so keep them
+   side by side rather than stacked — saves a lot of vertical space. */
+.player .control-bar {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
 /* Two labelled sections, stacked: Settings and Explore. */
 .control-group {
   display: flex;
@@ -1775,4 +1784,52 @@ kbd {
   font-size: 1.1rem;
   font-weight: 900;
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
+}
+
+/* ---------- Compact drawing page for short screens (e.g. 13" laptops) ---------- */
+/* Squeeze the header, hint, controls and scale the canvas to the viewport
+   height so the whole drawing page fits without scrolling. */
+@media (max-height: 920px) {
+  .player {
+    padding: 0.4rem 1rem 0.6rem;
+  }
+  .player-header h1 {
+    font-size: clamp(1.1rem, 3vw, 1.6rem);
+    margin: 0.1rem 0;
+  }
+  .player .control-bar {
+    padding: 0.3rem;
+    margin-bottom: 0.25rem;
+    gap: 0.5rem;
+  }
+  .hint {
+    font-size: clamp(1.05rem, 3vw, 1.5rem);
+    margin: 0.25rem 0;
+    min-height: 1.6em;
+  }
+  /* Canvas shrinks to share the height with everything else. */
+  .drawing {
+    width: min(80vw, 420px, 50vh);
+  }
+  .art-compare .drawing,
+  .original-art {
+    width: min(46vw, 300px, 42vh);
+  }
+  .controls {
+    margin-top: 0.5rem;
+    gap: 0.5rem;
+  }
+  .big-btn {
+    width: 58px;
+    height: 58px;
+    font-size: 1.6rem;
+  }
+  .pause-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 1.3rem;
+  }
+  .step-indicator {
+    font-size: 1.2rem;
+  }
 }
