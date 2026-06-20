@@ -23,7 +23,7 @@ interface Props {
   onBack: () => void;
 }
 
-const COUNTDOWN = 10;
+const COUNTDOWN = 15;
 
 // Firework bursts at varied positions, colors, and timings.
 const BURSTS = [
@@ -49,15 +49,20 @@ export function Celebration({
 }: Props) {
   const [secs, setSecs] = useState(COUNTDOWN);
 
+  // When a new animal friend is unlocked, let the child enjoy it — no countdown,
+  // no auto-advance; they tap "Next" themselves when ready.
+  const autoAdvance = !reward;
+
   // Tick down once a second; when it hits zero, auto-advance to the next drawing.
   useEffect(() => {
+    if (!autoAdvance) return;
     if (secs <= 0) {
       onAutoNext();
       return;
     }
     const t = setTimeout(() => setSecs((s) => s - 1), 1000);
     return () => clearTimeout(t);
-  }, [secs, onAutoNext]);
+  }, [autoAdvance, secs, onAutoNext]);
 
   return (
     <div className="celebration" role="dialog" aria-live="assertive">
@@ -129,9 +134,11 @@ export function Celebration({
             <span>
               Next: {nextEmoji} {nextName}
             </span>
-            <span className="next-count" aria-live="polite">
-              starting in {secs}s
-            </span>
+            {autoAdvance && (
+              <span className="next-count" aria-live="polite">
+                starting in {secs}s
+              </span>
+            )}
           </button>
           <button className="ghost-btn" onClick={onAgain}>
             🎨 Pick another
