@@ -218,10 +218,18 @@ function previewSteps(animal: Animal): DrawStep[] {
   return revealIndex >= 0 ? animal.steps.slice(0, revealIndex + 1) : animal.steps;
 }
 
-/** Every stroke with its resolved color — used for the static card preview. */
-export function previewStrokes(animal: Animal): { d: string; color: string }[] {
+/** Every stroke with its resolved color and width — used for the static card
+ *  preview, so finely-outlined drawings (e.g. the family) don't get a thick
+ *  default line that swallows small details on the card. */
+export function previewStrokes(
+  animal: Animal,
+): { d: string; color: string; strokeWidth: number }[] {
   return previewSteps(animal).flatMap((step) =>
-    step.strokes.map((d) => ({ d, color: step.color ?? animal.color })),
+    step.strokes.map((d) => ({
+      d,
+      color: step.color ?? animal.color,
+      strokeWidth: step.strokeWidth ?? 4,
+    })),
   );
 }
 

@@ -11,6 +11,7 @@ import { ThemeButton } from "../theme/ThemeButton";
 import { applyTheme } from "../theme/theme";
 import { heardAny } from "../voice/match";
 import { TimeLimitSettings } from "../parental/TimeLimitSettings";
+import { useTimeLimit } from "../parental/TimeLimitProvider";
 
 /** Smoothly scroll the page up (-1) or down (+1) by most of a screenful. */
 function scrollPage(dir: 1 | -1) {
@@ -67,6 +68,8 @@ export function HomePage({
   const visible = drawingsForLevel(level);
   const [printing, setPrinting] = useState(false);
   const [showTimeLimit, setShowTimeLimit] = useState(false);
+  // "Fewer distractions": hide the footer and the Print-to-color button.
+  const { fewScreen } = useTimeLimit();
 
   const handlePrint = useCallback(async () => {
     if (printing || visible.length === 0) return;
@@ -180,8 +183,15 @@ export function HomePage({
             <VoiceButton />
             <SoundButton />
             <ThemeButton />
-            <button className="facts-btn" onClick={() => setShowTimeLimit(true)}>
-              ⏱️ Time limit
+            <button
+              className="facts-btn grownup-btn"
+              onClick={() => setShowTimeLimit(true)}
+              aria-label="For grown-ups — daily time limit and screen lock"
+            >
+              <span className="grownup-icon" aria-hidden="true">
+                🧑‍🦰
+              </span>{" "}
+              For grown-ups
             </button>
           </div>
         </div>
@@ -198,13 +208,15 @@ export function HomePage({
             <button className="facts-btn" onClick={onOpenFacts}>
               💡 Fun Facts
             </button>
-            <button
-              className="facts-btn"
-              onClick={handlePrint}
-              disabled={printing || visible.length === 0}
-            >
-              {printing ? "⏳ Making PDF…" : "🖨️ Print to color"}
-            </button>
+            {!fewScreen && (
+              <button
+                className="facts-btn"
+                onClick={handlePrint}
+                disabled={printing || visible.length === 0}
+              >
+                {printing ? "⏳ Making PDF…" : "🖨️ Print to color"}
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -248,6 +260,7 @@ export function HomePage({
         </div>
       )}
 
+      {!fewScreen && (
       <footer className="home-footer">
         {/* App store badges — not clickable yet; the apps aren't published. */}
         <div className="store-badges" aria-label="Mobile apps coming soon">
@@ -294,11 +307,25 @@ export function HomePage({
         <button className="footer-link" onClick={onOpenTerms}>
           📜 Rules
         </button>
+
+        {/* Optional support button (for grown-ups) — opens Stripe's hosted
+            checkout in a new tab. No keys or backend involved. */}
+        <div className="coffee-row">
+          <a
+            className="coffee-btn"
+            href="https://buy.stripe.com/5kQ7sE4pQdjc2JGfrG8Zq00"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            ☕ Buy me a coffee
+          </a>
+        </div>
         <p className="footer-love">
           <strong className="footer-brand">Kidoo</strong> — made with ❤️ for
           little artists, and built with them 🖍️
         </p>
       </footer>
+      )}
     </div>
   );
 }

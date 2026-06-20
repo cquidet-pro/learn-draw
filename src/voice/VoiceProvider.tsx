@@ -41,30 +41,60 @@ export function useVoiceControl(onCommand: (transcript: string) => boolean) {
 export function VoiceProvider({ children }: { children: ReactNode }) {
   const handlerRef = useRef<((t: string) => boolean) | null>(null);
   const [lastHeard, setLastHeard] = useState<string | null>(null);
-  // We act on interim (live) results for speed, but a command must fire only
-  // once per spoken phrase. After one fires we "disarm" and ignore the rest of
-  // that utterance — including its later final transcript — re-arming only once
-  // the utterance has finalized.
-  const armedRef = useRef(true);
 
-  const onResult = useCallback((transcript: string, isFinal: boolean) => {
-    const text = transcript.trim();
-    if (text) setLastHeard(text);
+  // We act on interim (live) results for speed. A single recognition "result"
+  // grows word-by-word as you keep talking (e.g. "next" → "next back"), so to
+  // support several commands in one breath we only ever look at the *new* words
+  // since we last acted, and remember how far we've processed. This avoids both
+  // re-firing the same word and dropping a quick "next next back back".
+  const resultIdxRef = useRef(-1); // which recognition result we're tracking
+  const processedRef = useRef(0); // how many words of it we've already handled
+  const prevFinalRef = useRef(true); // did the previous result end an utterance?
 
-    if (!armedRef.current) {
-      // Waiting out the handled utterance; re-arm when it finalizes.
-      if (isFinal) armedRef.current = true;
-      return;
-    }
-    if (!text) return;
+  const onResult = useCallback(
+    (transcript: string, isFinal: boolean, resultIndex: number) => {
+      const text = transcript.trim();
+      if (text) setLastHeard(text);
 
-    const handled = handlerRef.current?.(text.toLowerCase());
-    // If we acted on an interim guess, mute the rest of this utterance.
-    if (handled && !isFinal) armedRef.current = false;
-  }, []);
+      const words = text.toLowerCase().split(/\s+/).filter(Boolean);
+
+      // Start fresh on a new utterance: either a new recognition result, or the
+      // previous one finalized. Checking the final flag too means a word is
+      // never dropped when the recognizer silently restarts (its result index
+      // resets to 0, which would otherwise look like the same ongoing phrase).
+      if (resultIndex !== resultIdxRef.current || prevFinalRef.current) {
+        processedRef.current = 0;
+      }
+      resultIdxRef.current = resultIndex;
+      prevFinalRef.current = isFinal;
+
+      // The recognizer sometimes revises a phrase shorter; don't skip words.
+      if (words.length < processedRef.current) processedRef.current = words.length;
+
+      // Only consider words we haven't acted on yet, so several commands in one
+      // breath ("next next back back") each fire, in order.
+      if (words.length > processedRef.current) {
+        const fresh = words.slice(processedRef.current).join(" ");
+        const handled = handlerRef.current?.(fresh) ?? false;
+        // Consume the new words once handled (so we don't repeat them), or once
+        // the utterance is final (so leftover chatter doesn't linger).
+        if (handled || isFinal) processedRef.current = words.length;
+      }
+    },
+    [],
+  );
 
   const { supported, listening, error, start, stop } =
     useSpeechRecognition(onResult);
+
+  // Begin each listening session from a clean slate.
+  useEffect(() => {
+    if (listening) {
+      resultIdxRef.current = -1;
+      processedRef.current = 0;
+      prevFinalRef.current = true;
+    }
+  }, [listening]);
 
   const toggle = useCallback(() => {
     if (listening) stop();

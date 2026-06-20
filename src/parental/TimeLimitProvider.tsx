@@ -20,6 +20,7 @@ const PIN_KEY = "learn-draw:pin";
 const LIMIT_KEY = "learn-draw:limitMin";
 const USAGE_KEY = "learn-draw:usage";
 const FS_KEY = "learn-draw:fsLock";
+const FEW_KEY = "learn-draw:fewScreen";
 
 // Cross-browser fullscreen helpers.
 type FsDoc = Document & { webkitFullscreenElement?: Element; webkitExitFullscreen?: () => void };
@@ -111,6 +112,13 @@ interface TimeLimitValue {
   fsSupported: boolean;
   setFsLock: (on: boolean) => void;
   enterFullscreen: () => void;
+  /**
+   * "Fewer distractions": hide the footer links (Privacy, Say hello, Buy me a
+   * coffee…) and the Print-to-color button so the child sees only the drawings.
+   * Effective value — already folds in the auto-on default below.
+   */
+  fewScreen: boolean;
+  setFewScreen: (on: boolean) => void;
 }
 
 const TimeLimitContext = createContext<TimeLimitValue | null>(null);
@@ -274,10 +282,28 @@ export function TimeLimitProvider({ children }: { children: ReactNode }) {
 
   const enterFullscreen = useCallback(() => requestFullscreen(), []);
 
+  // "Fewer distractions". Stored as a tri-state: a grown-up's explicit choice
+  // (true/false) wins; when they've never touched it (null), it follows the
+  // focus modes — on by default whenever a time limit or the full-screen lock
+  // is active, off otherwise.
+  const [fewPref, setFewPref] = useState<boolean | null>(() => {
+    const raw = localStorage.getItem(FEW_KEY);
+    return raw === "1" ? true : raw === "0" ? false : null;
+  });
+  const setFewScreen = useCallback((on: boolean) => {
+    setFewPref(on);
+    try {
+      localStorage.setItem(FEW_KEY, on ? "1" : "0");
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   const remainingSec = limitMin > 0 ? Math.max(0, limitMin * 60 - usedSec) : Infinity;
   const locked = limitMin > 0 && usedSec >= limitMin * 60;
   // Only enforce fullscreen where the browser supports it (graceful degrade).
   const fsBlocked = fsLock && fsSupported && !isFullscreen;
+  const fewScreen = fewPref ?? (fsLock || limitMin > 0);
 
   const value: TimeLimitValue = {
     hasPin: pin != null,
@@ -294,6 +320,8 @@ export function TimeLimitProvider({ children }: { children: ReactNode }) {
     fsSupported,
     setFsLock,
     enterFullscreen,
+    fewScreen,
+    setFewScreen,
   };
 
   return (

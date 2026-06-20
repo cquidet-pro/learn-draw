@@ -1,19 +1,34 @@
 /*
- * Minimal, update-safe service worker for Learn to Draw.
+ * Service worker for Learn to Draw (Kidoo).
  *
- * Strategy: network-first. We always try the network so a freshly deployed
- * version is picked up immediately; the cache is only a fallback for offline
- * use. This avoids the classic "stale PWA" problem on a frequently-updated
- * static site. Only same-origin GET requests are cached.
+ * VERSION and PRECACHE are filled in at build time by the precache-sw plugin in
+ * vite.config.ts (in dev they stay empty, so the app just runs network-only).
+ *
+ * Strategy:
+ *  - Precache the whole build on install, so the app works fully offline after
+ *    the first visit — including pages/features not opened yet.
+ *  - Navigations are network-first (so a fresh deploy loads immediately), with
+ *    the cached app shell as the offline fallback.
+ *  - Other assets are cache-first (they're content-hashed, so safe to serve from
+ *    cache), falling back to the network.
+ *  - Cross-origin requests (e.g. Stripe, a form host) are left untouched.
  */
-const CACHE = "learn-draw-v1";
+const VERSION = "dev"; // replaced at build time
+const PRECACHE = []; // replaced at build time
+const CACHE = `learn-draw-${VERSION}`;
+const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", (event) => {
-  // Activate this worker as soon as it's installed.
   self.skipWaiting();
-  // Warm the cache with the app shell (best-effort).
   event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(["./", "./index.html"]).catch(() => {})),
+    caches.open(CACHE).then((cache) =>
+      // Best-effort per file so one 404 can't fail the whole install.
+      Promise.all(
+        [...new Set([...SHELL, ...PRECACHE])].map((u) =>
+          cache.add(u).catch(() => {}),
+        ),
+      ),
+    ),
   );
 });
 
@@ -21,7 +36,9 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     (async () => {
       const keys = await caches.keys();
-      await Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)));
+      await Promise.all(
+        keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)),
+      );
       await self.clients.claim();
     })(),
   );
@@ -31,27 +48,41 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET") return;
   const url = new URL(request.url);
-  if (url.origin !== self.location.origin) return; // don't touch cross-origin
+  if (url.origin !== self.location.origin) return; // leave cross-origin alone
 
+  // Navigations: network-first, fall back to the cached shell when offline.
+  if (request.mode === "navigate") {
+    event.respondWith(
+      (async () => {
+        try {
+          return await fetch(request);
+        } catch {
+          return (
+            (await caches.match(request)) ||
+            (await caches.match("./index.html")) ||
+            (await caches.match("./")) ||
+            Response.error()
+          );
+        }
+      })(),
+    );
+    return;
+  }
+
+  // Everything else: cache-first (hashed assets), then network.
   event.respondWith(
     (async () => {
+      const cached = await caches.match(request);
+      if (cached) return cached;
       try {
         const response = await fetch(request);
-        // Cache successful, basic responses for offline fallback.
         if (response && response.ok && response.type === "basic") {
           const copy = response.clone();
-          caches.open(CACHE).then((cache) => cache.put(request, copy));
+          caches.open(CACHE).then((c) => c.put(request, copy));
         }
         return response;
       } catch {
-        const cached = await caches.match(request);
-        if (cached) return cached;
-        // For navigations, fall back to the cached app shell.
-        if (request.mode === "navigate") {
-          const shell = await caches.match("./index.html");
-          if (shell) return shell;
-        }
-        throw new Error("offline and not cached");
+        return Response.error();
       }
     })(),
   );
