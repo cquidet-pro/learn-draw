@@ -6,18 +6,27 @@ export interface Reward {
   name: string;
 }
 
-// Milestone "animal friend" rewards: a new companion every 10 drawings, growing
+// Milestone "animal friend" rewards: a new companion every 5 drawings, growing
 // from a tiny mouse all the way up to an enormous dinosaur. Listed smallest →
 // biggest so they visibly grow.
 export const REWARDS: Reward[] = [
   { emoji: "🐭", name: "Mouse" },
+  { emoji: "🐹", name: "Hamster" },
+  { emoji: "🐰", name: "Bunny" },
   { emoji: "🐱", name: "Cat" },
+  { emoji: "🦊", name: "Fox" },
   { emoji: "🐶", name: "Dog" },
+  { emoji: "🐷", name: "Pig" },
   { emoji: "🐴", name: "Pony" },
+  { emoji: "🐮", name: "Cow" },
   { emoji: "🐎", name: "Horse" },
+  { emoji: "🐘", name: "Elephant" },
   { emoji: "🐳", name: "Whale" },
   { emoji: "🦕", name: "Dinosaur" },
 ];
+
+// How many drawings between each new animal friend.
+export const REWARD_EVERY = 5;
 
 // Every drawing the child can complete (all levels + the famous paintings).
 export const TOTAL_DRAWINGS = animals.length + masterpieces.length;
@@ -34,8 +43,8 @@ export interface RewardTier extends Reward {
 export function rewardTiers(totalAll: number = TOTAL_DRAWINGS): RewardTier[] {
   return REWARDS.map((r, i) => ({
     ...r,
-    need: Math.min((i + 1) * 10, totalAll),
-    size: 1.7 + i * 0.32,
+    need: Math.min((i + 1) * REWARD_EVERY, totalAll),
+    size: 1.6 + i * 0.18,
   }));
 }
 

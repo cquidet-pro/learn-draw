@@ -71,7 +71,7 @@ export function DrawingPlayer({
     return chooseNextInLevels(animal, completed);
   }, [celebrating, pool, animal, completed]);
 
-  // If finishing this drawing landed on a 10-drawing milestone, surface the
+  // If finishing this drawing landed on a 5-drawing milestone, surface the
   // newly-earned animal friend right here in the celebration — no trip to the
   // sticker shelf needed. `completed` already includes the drawing just done.
   const reward = useMemo(

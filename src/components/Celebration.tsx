@@ -4,7 +4,7 @@ interface Props {
   animalName: string;
   /** Optional fun fact shown on finishing (used by Famous Paintings). */
   fact?: string;
-  /** Set when this drawing crossed a 10-drawing milestone — the new animal
+  /** Set when this drawing crossed a 5-drawing milestone — the new animal
    *  friend to reveal right away, before offering the next drawing. */
   reward?: { emoji: string; name: string; size: number };
   /** Set when the child just cleared a whole level — congratulate and announce

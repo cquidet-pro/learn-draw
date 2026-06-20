@@ -136,7 +136,7 @@ export function TrophyPage({ onHome, completed, onReset, onPick }: Props) {
         </div>
         <p className="reward-blurb">
           {nextReward
-            ? `A new animal friend every 10 drawings — ${
+            ? `A new animal friend every 5 drawings — ${
                 nextReward.need - totalDone
               } more to unlock the ${nextReward.name}! ${nextReward.emoji}`
             : "Wow! You collected every animal friend! 🦕🎉"}
