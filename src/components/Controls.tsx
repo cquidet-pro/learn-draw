@@ -12,9 +12,10 @@ interface Props {
   onTogglePause: () => void;
 }
 
-// Speed slider maps a 0..100 position to a per-stroke duration. Left = slow
-// turtle (8s), right = fast rabbit (1s). We invert so dragging right speeds up.
-const SLOW = 8;
+// Speed slider maps a 0..100 position to how fast the pen moves (seconds to draw
+// a reference length; the actual time per stroke scales with its length). Left =
+// slow turtle, right = fast rabbit. We invert so dragging right speeds up.
+const SLOW = 9;
 const FAST = 1;
 const toDuration = (pct: number) => SLOW - (pct / 100) * (SLOW - FAST);
 const toPct = (duration: number) => ((SLOW - duration) / (SLOW - FAST)) * 100;
