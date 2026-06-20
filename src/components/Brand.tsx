@@ -1,14 +1,10 @@
-// The Kidoo brand: a friendly crayon mascot + a colourful, crayon-coloured
-// wordmark. Built for little artists — and with them. Used on the home header.
+// The Learn to Draw brand: a friendly crayon mascot + a colourful, crayon-
+// coloured wordmark. Built for little artists — and with them. Used on the home
+// header.
 
-// Each letter gets its own crayon colour, like a pack of crayons.
-const LETTERS: [string, string][] = [
-  ["K", "#e63946"],
-  ["i", "#f4a300"],
-  ["d", "#06d6a0"],
-  ["o", "#118ab2"],
-  ["o", "#9b5de5"],
-];
+// Crayon palette, cycled across the wordmark's letters like a pack of crayons.
+const PALETTE = ["#e63946", "#f4a300", "#06d6a0", "#118ab2", "#9b5de5"];
+const WORDMARK = "Learn to Draw";
 
 function CrayonMascot() {
   return (
@@ -16,7 +12,7 @@ function CrayonMascot() {
       className="brand-mascot"
       viewBox="0 0 60 76"
       role="img"
-      aria-label="Kidoo the crayon"
+      aria-label="Learn to Draw crayon"
     >
       {/* tip */}
       <path
@@ -43,16 +39,29 @@ function CrayonMascot() {
 }
 
 export function Brand() {
+  // Colour each letter, cycling the crayon palette but only advancing on real
+  // letters so spaces between words don't shift the colours.
+  let colorIndex = 0;
   return (
     <header className="brand">
       <div className="brand-row">
         <CrayonMascot />
-        <h1 className="brand-name" aria-label="Kidoo">
-          {LETTERS.map(([ch, color], i) => (
-            <span key={i} style={{ color }} aria-hidden="true">
-              {ch}
-            </span>
-          ))}
+        <h1 className="brand-name" aria-label={WORDMARK}>
+          {[...WORDMARK].map((ch, i) =>
+            ch === " " ? (
+              <span key={i} className="brand-space" aria-hidden="true">
+                {" "}
+              </span>
+            ) : (
+              <span
+                key={i}
+                style={{ color: PALETTE[colorIndex++ % PALETTE.length] }}
+                aria-hidden="true"
+              >
+                {ch}
+              </span>
+            ),
+          )}
         </h1>
       </div>
       <span className="brand-stripes" aria-hidden="true" />
