@@ -1096,6 +1096,11 @@ kbd {
   font-size: 0.9rem;
 }
 
+.offline-toast {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .voice-btn.on {
     animation: none;
