@@ -11,6 +11,7 @@ import { ThemeButton } from "../theme/ThemeButton";
 import { applyTheme } from "../theme/theme";
 import { heardAny } from "../voice/match";
 import { TimeLimitSettings } from "../parental/TimeLimitSettings";
+import { useTimeLimit } from "../parental/TimeLimitProvider";
 
 /** Smoothly scroll the page up (-1) or down (+1) by most of a screenful. */
 function scrollPage(dir: 1 | -1) {
@@ -67,6 +68,8 @@ export function HomePage({
   const visible = drawingsForLevel(level);
   const [printing, setPrinting] = useState(false);
   const [showTimeLimit, setShowTimeLimit] = useState(false);
+  // "Fewer distractions": hide the footer and the Print-to-color button.
+  const { fewScreen } = useTimeLimit();
 
   const handlePrint = useCallback(async () => {
     if (printing || visible.length === 0) return;
@@ -205,13 +208,15 @@ export function HomePage({
             <button className="facts-btn" onClick={onOpenFacts}>
               💡 Fun Facts
             </button>
-            <button
-              className="facts-btn"
-              onClick={handlePrint}
-              disabled={printing || visible.length === 0}
-            >
-              {printing ? "⏳ Making PDF…" : "🖨️ Print to color"}
-            </button>
+            {!fewScreen && (
+              <button
+                className="facts-btn"
+                onClick={handlePrint}
+                disabled={printing || visible.length === 0}
+              >
+                {printing ? "⏳ Making PDF…" : "🖨️ Print to color"}
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -255,6 +260,7 @@ export function HomePage({
         </div>
       )}
 
+      {!fewScreen && (
       <footer className="home-footer">
         {/* App store badges — not clickable yet; the apps aren't published. */}
         <div className="store-badges" aria-label="Mobile apps coming soon">
@@ -319,6 +325,7 @@ export function HomePage({
           little artists, and built with them 🖍️
         </p>
       </footer>
+      )}
     </div>
   );
 }
