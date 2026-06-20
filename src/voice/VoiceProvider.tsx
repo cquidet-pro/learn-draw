@@ -3,6 +3,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type ReactNode,
@@ -12,7 +13,6 @@ import { useSpeechRecognition } from "./useSpeechRecognition";
 interface VoiceContextValue {
   supported: boolean;
   listening: boolean;
-  lastHeard: string | null;
   error: string | null;
   toggle: () => void;
   /** Register the current screen's command handler. Returns an unregister fn.
@@ -21,6 +21,10 @@ interface VoiceContextValue {
 }
 
 const VoiceContext = createContext<VoiceContextValue | null>(null);
+// The live transcript lives in its own context so updating it (many times per
+// second while listening) only re-renders the little display bubble — not every
+// screen that registers a command handler via `useVoice`.
+const VoiceHeardContext = createContext<string | null>(null);
 
 function useVoice(): VoiceContextValue {
   const ctx = useContext(VoiceContext);
@@ -54,8 +58,6 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
   const onResult = useCallback(
     (transcript: string, isFinal: boolean, resultIndex: number) => {
       const text = transcript.trim();
-      if (text) setLastHeard(text);
-
       const words = text.toLowerCase().split(/\s+/).filter(Boolean);
 
       // Start fresh on a new utterance: either a new recognition result, or the
@@ -80,6 +82,10 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         // the utterance is final (so leftover chatter doesn't linger).
         if (handled || isFinal) processedRef.current = words.length;
       }
+
+      // Update the on-screen "heard" bubble last, so command dispatch above is
+      // never delayed by React work — and this only re-renders the bubble.
+      if (text) setLastHeard(text);
     },
     [],
   );
@@ -108,12 +114,19 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // Stable identity except when these actually change (rarely), so screens that
+  // consume it via `useVoiceControl` don't re-render as the transcript streams.
+  const value = useMemo(
+    () => ({ supported, listening, error, toggle, register }),
+    [supported, listening, error, toggle, register],
+  );
+
   return (
-    <VoiceContext.Provider
-      value={{ supported, listening, lastHeard, error, toggle, register }}
-    >
-      {children}
-      {error && <div className="voice-toast voice-toast-error">{error}</div>}
+    <VoiceContext.Provider value={value}>
+      <VoiceHeardContext.Provider value={lastHeard}>
+        {children}
+        {error && <div className="voice-toast voice-toast-error">{error}</div>}
+      </VoiceHeardContext.Provider>
     </VoiceContext.Provider>
   );
 }
@@ -121,7 +134,8 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
 /** The mic on/off toggle. While listening, a little legend bubble appears
  *  right next to it showing what you can say. Place it anywhere in the layout. */
 export function VoiceButton() {
-  const { supported, listening, lastHeard, toggle } = useVoice();
+  const { supported, listening, toggle } = useVoice();
+  const lastHeard = useContext(VoiceHeardContext);
 
   if (!supported) {
     return (
