@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import type { Animal } from "../data/animals";
 import { chooseNext, chooseNextInLevels } from "../data/animals";
 import { isMasterpiece } from "../data/masterpieces";
@@ -71,11 +71,20 @@ export function DrawingPlayer({
     return chooseNextInLevels(animal, completed);
   }, [celebrating, pool, animal, completed]);
 
-  // If finishing this drawing landed on a 5-drawing milestone, surface the
-  // newly-earned animal friend right here in the celebration — no trip to the
+  // Whether this drawing was already finished when we opened it. Captured once
+  // at mount (the player remounts per drawing via its key), so replaying an
+  // already-earned sticker doesn't re-trigger the milestone reward.
+  const wasDoneBefore = useRef(completed.has(animal.id));
+
+  // If *newly* finishing this drawing landed on a 5-drawing milestone, surface
+  // the earned animal friend right here in the celebration — no trip to the
   // sticker shelf needed. `completed` already includes the drawing just done.
+  // Skipped on replays, so it only fires the moment a milestone is crossed.
   const reward = useMemo(
-    () => (celebrating ? rewardJustUnlocked(completed.size) : undefined),
+    () =>
+      celebrating && !wasDoneBefore.current
+        ? rewardJustUnlocked(completed.size)
+        : undefined,
     [celebrating, completed],
   );
 
