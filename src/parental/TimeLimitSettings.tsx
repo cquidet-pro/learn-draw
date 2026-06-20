@@ -30,6 +30,8 @@ export function TimeLimitSettings({ onClose }: Props) {
     fsLock,
     fsSupported,
     setFsLock,
+    fewScreen,
+    setFewScreen,
   } = useTimeLimit();
 
   // "verify" → enter existing code to open; "settings" → the panel; "create" →
@@ -156,6 +158,21 @@ export function TimeLimitSettings({ onClose }: Props) {
         {!fsSupported && (
           <p className="tl-note">Full screen isn't supported on this device.</p>
         )}
+
+        <div className="tl-fs-row">
+          <span>🙈 Fewer distractions</span>
+          <button
+            className={fewScreen ? "tl-toggle on" : "tl-toggle"}
+            onClick={() => setFewScreen(!fewScreen)}
+            aria-pressed={fewScreen}
+          >
+            {fewScreen ? "On" : "Off"}
+          </button>
+        </div>
+        <p className="tl-note">
+          Hides the footer links and “Print to color”. On automatically while a
+          time limit or full screen is set.
+        </p>
 
         <div className="tl-fs-row">
           <span>🔒 Lock settings with a code</span>
