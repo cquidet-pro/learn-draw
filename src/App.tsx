@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Animal, Level } from "./data/animals";
-import { drawingsForLevel } from "./data/animals";
+import { drawingsForLevel, drawingLevel } from "./data/animals";
 import { masterpieces, isMasterpiece } from "./data/masterpieces";
 import { HomePage } from "./components/HomePage";
 import { OfflineGuard } from "./components/OfflineGuard";
@@ -126,9 +126,12 @@ export function App() {
   let screen;
   if (current.kind === "drawing") {
     const animal = current.animal;
-    // Auto-advance stays within the collection the drawing came from.
+    // Auto-advance stays within the collection the drawing came from — its own
+    // level (so it follows the child up a level), or the masterpieces.
     const inPaintings = isMasterpiece(animal.id);
-    const pool = inPaintings ? masterpieces : drawingsForLevel(level);
+    const pool = inPaintings
+      ? masterpieces
+      : drawingsForLevel(drawingLevel(animal));
     // The Back button returns to whichever screen we came from, so label it
     // to match (the paintings gallery, or home).
     const cameFromPaintings = previous?.kind === "paintings";

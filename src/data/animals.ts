@@ -210,6 +210,57 @@ export function chooseNext(
   return choices[Math.floor(Math.random() * choices.length)];
 }
 
+/** Friendly difficulty names, matching the level selector. */
+export const LEVEL_LABEL: Record<Level, string> = {
+  5: "Easy",
+  7: "Medium",
+  10: "Harder",
+};
+
+/** The level a child graduates to after clearing this one (top level has none). */
+const NEXT_LEVEL: Partial<Record<Level, Level>> = { 5: 7, 7: 10 };
+
+export interface NextUp {
+  /** The drawing to auto-advance to. */
+  animal: Animal;
+  /** Set only when the child just cleared an entire level and is moving up —
+   *  carries the friendly labels so we can congratulate them. */
+  levelUp?: { from: string; to: string };
+}
+
+/**
+ * Auto-advance for the regular (leveled) drawings. Stay within the current
+ * level, always offering one the child hasn't finished yet; only once every
+ * drawing in the level is done do we move up to the next level (with a
+ * congratulations). At the top level we simply revisit within the level.
+ */
+export function chooseNextInLevels(
+  current: Animal,
+  completed: Set<string>,
+): NextUp {
+  const level = drawingLevel(current);
+  const here = drawingsForLevel(level);
+  const undone = here.filter((a) => a.id !== current.id && !completed.has(a.id));
+  if (undone.length > 0) {
+    return { animal: undone[Math.floor(Math.random() * undone.length)] };
+  }
+
+  // Level cleared — graduate to the next one if there is a harder level.
+  const up = NEXT_LEVEL[level];
+  if (up) {
+    const upPool = drawingsForLevel(up);
+    const upUndone = upPool.filter((a) => !completed.has(a.id));
+    const choices = upUndone.length > 0 ? upUndone : upPool;
+    return {
+      animal: choices[Math.floor(Math.random() * choices.length)],
+      levelUp: { from: LEVEL_LABEL[level], to: LEVEL_LABEL[up] },
+    };
+  }
+
+  // Highest level fully done — keep them company with another from this level.
+  return { animal: chooseNext(here, current.id, completed) };
+}
+
 /** Steps shown in the static card preview: everything up to and including the
  *  "color it in" reveal step. Steps after it (e.g. writing the name) are left
  *  out so the card doesn't show the name twice — once drawn, once as the label. */
