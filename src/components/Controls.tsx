@@ -59,7 +59,7 @@ export function Controls({
         </button>
       </div>
 
-      <div className="speed-row">
+      <div className="pause-row">
         <button
           className={paused ? "pause-btn paused" : "pause-btn"}
           onClick={onTogglePause}
@@ -69,6 +69,9 @@ export function Controls({
         >
           {paused ? "▶️" : "⏸️"}
         </button>
+      </div>
+
+      <div className="speed-row">
         <span className="speed-icon" aria-hidden="true">
           🐢
         </span>
