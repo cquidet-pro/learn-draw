@@ -534,6 +534,14 @@ body {
   text-align: center;
 }
 
+/* Keyboard shortcuts are meaningless on touch devices (phones/tablets with no
+   physical keyboard), so hide the hint there — the ◀ ▶ buttons are enough. */
+@media (hover: none) and (pointer: coarse) {
+  .hint-keys {
+    display: none;
+  }
+}
+
 kbd {
   background: var(--surface);
   border: 2px solid var(--ink);
