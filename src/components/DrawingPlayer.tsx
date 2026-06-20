@@ -3,6 +3,7 @@ import type { Animal } from "../data/animals";
 import { chooseNext } from "../data/animals";
 import { useDrawingPlayer } from "../hooks/useDrawingPlayer";
 import { useKeyboard } from "../hooks/useKeyboard";
+import { useWakeLock } from "../hooks/useWakeLock";
 import { AnimatedDrawing } from "./AnimatedDrawing";
 import { Controls } from "./Controls";
 import { Celebration } from "./Celebration";
@@ -90,6 +91,10 @@ export function DrawingPlayer({
   }, [celebrating, finished, player]);
 
   useKeyboard({ onNext: handleNext, onPrev: handlePrev, onHome });
+
+  // Keep the screen awake while watching a drawing animate (like a video app),
+  // so the laptop doesn't dim or sleep during hands-free viewing.
+  useWakeLock(true);
 
   // Voice commands. Check "back" before "next" so "go back" isn't read as "go".
   const onCommand = useCallback(
