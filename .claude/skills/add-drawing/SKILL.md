@@ -105,6 +105,14 @@ point inside 0–200 or it vanishes.**
     first). **Within** a step the regions fade in **one at a time**, bottom-to-top
     then left-to-right (e.g. nose → left eye → right eye; left cheek → right
     cheek). You don't order anything — it's measured from the path bounds.
+  - **Colours fill AROUND not-yet-coloured regions.** Any region whose colour
+    step hasn't been reached yet (a later colour, or a not-yet-reached region of
+    the current step) is shown as a paper hole, so a base colour never bleeds
+    *under* the features painted later — the big head fills around the ears, eyes
+    and nose, which then fill on their own turn. So you can safely author a base
+    as one big overlapping shape (e.g. a full head circle) with the features as
+    separate fills on top; the engine reserves each as paper until its turn. The
+    final picture is unchanged; only the in-progress steps colour around.
   - **White is paper, never a colour step.** The child draws on a white sheet,
     so you never colour white on top of another colour — you colour *around* it.
     Any near-white fill (≤16 from `#ffffff`) is treated as paper: an overlay

@@ -126,6 +126,17 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen, paused }:
   const colorFills = coloringNow && current?.fills ? current.fills : [];
   const paintedCount = colorFills.filter((f) => !f.paper).length;
   const animatingFills = paintedCount > 0 && !reduce;
+
+  // Regions that belong to LATER colour steps are shown as paper holes during
+  // the current colour step, so the current colour fills AROUND them (you never
+  // colour under a region that will be coloured later — on a white sheet you
+  // leave it blank and fill it on its turn). Not-yet-reached regions of the
+  // current step do the same via the .fill-seq-pending class.
+  const futureFills = coloringNow
+    ? animal.steps.flatMap((s, i) =>
+        i > stepIndex && s.strokes.length === 0 && s.fills ? s.fills : [],
+      )
+    : [];
   const [fillOrder, setFillOrder] = useState<number[]>([]);
   useLayoutEffect(() => {
     const p = measureRef.current;
@@ -256,6 +267,12 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen, paused }:
           );
         }),
       )}
+
+      {/* Regions that will be coloured in a later step, shown as paper holes now
+          so the current colour fills around them (never under them). */}
+      {futureFills.map((f, i) => (
+        <path key={`future-${i}`} d={f.d} stroke="none" className="fill-paper" />
+      ))}
 
       {/* Pass 2: outline strokes, on top of the fills. */}
       {visible.map(({ step, si }) => {
