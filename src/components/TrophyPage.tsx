@@ -3,6 +3,7 @@ import type { Animal } from "../data/animals";
 import { drawingsForLevel } from "../data/animals";
 import { masterpieces } from "../data/masterpieces";
 import { rewardTiers } from "../data/rewards";
+import { FRIEND_DRAWINGS } from "../data/friends";
 import { DrawingThumb } from "./DrawingThumb";
 import { useVoiceControl, VoiceButton } from "../voice/VoiceProvider";
 import { heardAny } from "../voice/match";
@@ -141,19 +142,16 @@ export function TrophyPage({ onHome, completed, onReset, onPick }: Props) {
               } more to unlock the ${nextReward.name}! ${nextReward.emoji}`
             : "Wow! You collected every animal friend! 🦕🎉"}
         </p>
+        {rewardsEarned > 0 && (
+          <p className="reward-blurb reward-draw-hint">
+            Tap a friend to draw it! ✏️
+          </p>
+        )}
         <div className="reward-grid">
           {rewards.map((r) => {
             const earned = totalDone >= r.need;
-            return (
-              <div
-                className={earned ? "reward earned" : "reward locked"}
-                key={r.name}
-                title={
-                  earned
-                    ? `${r.name} — earned at ${r.need} drawings!`
-                    : `${r.name} — draw ${r.need} to unlock`
-                }
-              >
+            const inner = (
+              <>
                 <span
                   className="reward-emoji"
                   aria-hidden="true"
@@ -164,6 +162,27 @@ export function TrophyPage({ onHome, completed, onReset, onPick }: Props) {
                 <span className="reward-name">
                   {earned ? r.name : `${r.need} drawings`}
                 </span>
+              </>
+            );
+            // Earned friends are tappable to draw them; locked ones are teasers.
+            const drawing = FRIEND_DRAWINGS[r.name];
+            return earned && drawing ? (
+              <button
+                className="reward earned"
+                key={r.name}
+                onClick={() => onPick(drawing)}
+                aria-label={`Draw the ${r.name}`}
+                title={`Draw the ${r.name}! ✏️`}
+              >
+                {inner}
+              </button>
+            ) : (
+              <div
+                className="reward locked"
+                key={r.name}
+                title={`${r.name} — draw ${r.need} to unlock`}
+              >
+                {inner}
               </div>
             );
           })}
