@@ -79,7 +79,7 @@ export interface DrawStep {
    * outline — that uses only `strokes` — so filled drawings should also include
    * outline strokes for every shape worth tracing/coloring.
    */
-  fills?: { d: string; color: string }[];
+  fills?: { d: string; color: string; paper?: boolean }[];
   /** Optional stroke width for this step's strokes (default 4). Thinner reads
    *  better for small lettering, e.g. the "write the name" finale. */
   strokeWidth?: number;

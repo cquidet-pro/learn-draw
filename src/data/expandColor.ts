@@ -9,6 +9,16 @@ import type { Animal, DrawStep } from "./animals";
 // features stacked on top. Ordering needs real geometry, so we measure each
 // fill's bounding box with an offscreen SVG (browser only; falls back to the
 // authored order when there's no DOM).
+//
+// White is "paper". A child draws on a white sheet, so you never colour white on
+// top of another colour — you colour AROUND it and leave the paper showing. So
+// white fills never become their own colour step: an overlay white (e.g. the
+// Swiss cross over red, a dog's eye sparkle over the dark eye) is shown as a
+// paper-coloured "hole" on top of the colour beneath it, revealed with that
+// colour's step so the child colours around it; a background white (e.g. a
+// flag's white field) is simply dropped — the canvas already is the paper.
+
+type Fill = { d: string; color: string; paper?: boolean };
 
 function measureBottoms(ds: string[]): number[] {
   if (typeof document === "undefined") return ds.map(() => 0);
@@ -42,6 +52,9 @@ const NEXT_COLOR_HINT = "Now the next colour! 🖍️";
 // small so genuinely different colours stay separate.
 const COLOR_MERGE = 36;
 
+// A fill this close to white counts as "paper" (left blank, not coloured).
+const PAPER_DIST = 16;
+
 function parseHex(c: string): [number, number, number] | null {
   const m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(c.trim());
   if (!m) return null;
@@ -63,11 +76,13 @@ function colorDist(a: string, b: string): number {
   return Math.hypot(pa[0] - pb[0], pa[1] - pb[1], pa[2] - pb[2]);
 }
 
+const isPaper = (c: string) => colorDist(c, "#ffffff") <= PAPER_DIST;
+
 /**
- * Return a copy of `animal` where every "color it in" step (no strokes, 2+
- * colours of `fills`) is expanded into one step per colour, bottom-to-top. A
- * step with a single colour, or no fills, is left untouched. Memoise the result
- * per drawing — it touches the DOM to measure.
+ * Return a copy of `animal` where every "color it in" step (no strokes, with
+ * `fills`) is expanded into one step per colour, bottom-to-top, with white
+ * treated as paper (see file header). Steps with a single colour and no white
+ * are left untouched. Memoise the result per drawing — it touches the DOM.
  */
 export function expandColorSteps(animal: Animal): Animal {
   let changed = false;
@@ -75,43 +90,80 @@ export function expandColorSteps(animal: Animal): Animal {
 
   for (const step of animal.steps) {
     const fills = step.fills;
-    if (step.strokes.length === 0 && fills && fills.length > 0) {
-      // Greedily cluster fills by colour: a fill joins the first cluster whose
-      // representative colour is within COLOR_MERGE, else it starts a new one.
-      // Each fill keeps its own colour; only the *grouping into steps* merges.
-      const clusters: { rep: string; fills: { d: string; color: string }[] }[] = [];
-      for (const f of fills) {
-        const c = clusters.find((cl) => colorDist(cl.rep, f.color) <= COLOR_MERGE);
-        if (c) c.fills.push(f);
-        else clusters.push({ rep: f.color, fills: [f] });
-      }
-
-      if (clusters.length <= 1) {
-        steps.push(step);
-        continue;
-      }
-
-      changed = true;
-      // Lowest on-screen point per fill, to sort the clusters bottom-to-top.
-      const bottoms = measureBottoms(fills.map((f) => f.d));
-      const bottomOf = new Map<{ d: string; color: string }, number>();
-      fills.forEach((f, i) => bottomOf.set(f, bottoms[i]));
-      const clusterBottom = (cl: (typeof clusters)[number]) =>
-        Math.max(...cl.fills.map((f) => bottomOf.get(f) ?? 0));
-      // Stable sort keeps authored order among equal-bottom clusters.
-      clusters.sort((a, b) => clusterBottom(b) - clusterBottom(a));
-
-      clusters.forEach((cl, gi) => {
-        steps.push({
-          hint: gi === 0 ? step.hint : NEXT_COLOR_HINT,
-          color: step.color,
-          strokes: [],
-          fills: cl.fills,
-        });
-      });
-    } else {
+    if (!(step.strokes.length === 0 && fills && fills.length > 0)) {
       steps.push(step);
+      continue;
     }
+
+    // Separate the real colours from the "paper" (white) regions.
+    const painted = fills
+      .map((f, i) => ({ f, i }))
+      .filter((x) => !isPaper(x.f.color));
+    const papers = fills
+      .map((f, i) => ({ f, i }))
+      .filter((x) => isPaper(x.f.color));
+
+    // Nothing to colour (all paper) — drop the step; the canvas is the paper.
+    if (painted.length === 0) {
+      changed = true;
+      continue;
+    }
+
+    // Cluster the painted fills by colour (near-identical shades share a step).
+    const clusters: { rep: string; items: { f: Fill; i: number }[] }[] = [];
+    for (const x of painted) {
+      const c = clusters.find((cl) => colorDist(cl.rep, x.f.color) <= COLOR_MERGE);
+      if (c) c.items.push(x);
+      else clusters.push({ rep: x.f.color, items: [x] });
+    }
+
+    // A single colour and no paper to convert — leave the step exactly as-is.
+    if (clusters.length === 1 && papers.length === 0) {
+      steps.push(step);
+      continue;
+    }
+
+    changed = true;
+
+    // Order the colour clusters bottom-to-top by their lowest-on-screen region.
+    const bottoms = measureBottoms(fills.map((f) => f.d));
+    const clusterBottom = (cl: (typeof clusters)[number]) =>
+      Math.max(...cl.items.map((x) => bottoms[x.i]));
+    clusters.sort((a, b) => clusterBottom(b) - clusterBottom(a));
+
+    // Build each colour step's fill list, and remember which step a painted
+    // fill (by its original index) ended up in.
+    const stepFills: Fill[][] = clusters.map((cl) =>
+      cl.items.map((x) => ({ d: x.f.d, color: x.f.color })),
+    );
+    const stepOfIndex = new Map<number, number>();
+    clusters.forEach((cl, si) => cl.items.forEach((x) => stepOfIndex.set(x.i, si)));
+
+    // Attach each paper region to the step of the colour directly beneath it
+    // (the nearest earlier painted fill), drawn ON TOP as a paper-coloured hole
+    // so that colour fills around it. A paper region under no colour is dropped.
+    for (const pf of papers) {
+      let bestIdx = -1;
+      let bestStep = -1;
+      for (const [idx, si] of stepOfIndex) {
+        if (idx < pf.i && idx > bestIdx) {
+          bestIdx = idx;
+          bestStep = si;
+        }
+      }
+      if (bestStep >= 0) {
+        stepFills[bestStep].push({ d: pf.f.d, color: pf.f.color, paper: true });
+      }
+    }
+
+    stepFills.forEach((fl, si) => {
+      steps.push({
+        hint: si === 0 ? step.hint : NEXT_COLOR_HINT,
+        color: step.color,
+        strokes: [],
+        fills: fl,
+      });
+    });
   }
 
   return changed ? { ...animal, steps } : animal;

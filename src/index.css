@@ -397,6 +397,14 @@ body {
   opacity: 1;
 }
 
+/* "Paper" regions (white on a white sheet): not coloured, just the canvas
+   showing through. Painted in the canvas colour so the surrounding colour
+   appears to fill around them. CSS `fill` overrides the path's fill attribute. */
+.fill-paper {
+  fill: var(--canvas);
+  opacity: 1;
+}
+
 /* Within a single "color it in" step, the matching regions (e.g. two cheeks,
    nose + eyes) fill one at a time: already-filled stay solid, the active one
    fades in over --fill-dur, and not-yet-reached ones are hidden. */

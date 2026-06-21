@@ -120,9 +120,12 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen, paused }:
   // Each colour is its own "color it in" step (see expandColorSteps). Within a
   // step the matching regions fill ONE AT A TIME — bottom-to-top, then
   // left-to-right — so e.g. the two cheeks fill one then the other, and the
-  // nose + eyes step paints nose, one eye, the other eye.
+  // nose + eyes step paints nose, one eye, the other eye. "Paper" (white) fills
+  // are NOT coloured — they show as paper-coloured holes — so they're excluded
+  // from the sequence.
   const colorFills = coloringNow && current?.fills ? current.fills : [];
-  const animatingFills = colorFills.length > 0 && !reduce;
+  const paintedCount = colorFills.filter((f) => !f.paper).length;
+  const animatingFills = paintedCount > 0 && !reduce;
   const [fillOrder, setFillOrder] = useState<number[]>([]);
   useLayoutEffect(() => {
     const p = measureRef.current;
@@ -140,7 +143,8 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen, paused }:
         return { bottom: 0, cx: 0 };
       }
     });
-    const order = fills.map((_, i) => i);
+    // Only the real (non-paper) regions get sequenced.
+    const order = fills.map((_, i) => i).filter((i) => !fills[i].paper);
     // Lowest region first (bottom-to-top); ties go left-to-right.
     order.sort((a, b) => geo[b].bottom - geo[a].bottom || geo[a].cx - geo[b].cx);
     setFillOrder(order);
@@ -189,6 +193,20 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen, paused }:
           in one at a time (see fillOrder); earlier steps' fills stay solid. */}
       {visible.map(({ step, si }) =>
         step.fills?.map((f, fi) => {
+          // Paper (white) regions are never coloured — they render as a paper-
+          // coloured hole (matches the canvas), always solid, so the colour
+          // beneath fills around them.
+          if (f.paper) {
+            return (
+              <path
+                key={`fill-${si}-${fi}`}
+                d={f.d}
+                stroke="none"
+                className="fill-paper"
+              />
+            );
+          }
+
           // Frozen (finished/celebration) shows every fill solid with NO fade:
           // using fill-current here re-ran the fade-in on all fills at once, so
           // pressing next on the last colour step flashed every colour away for
@@ -206,7 +224,7 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen, paused }:
           if (
             animatingFills &&
             si === stepIndex &&
-            fillOrder.length === colorFills.length
+            fillOrder.length === paintedCount
           ) {
             const pos = fillOrder.indexOf(fi);
             if (pos < fillSeq) {
