@@ -170,6 +170,16 @@ export function HomePage({
           </span>
           <span className="level-label">Paintings</span>
         </button>
+        <button
+          className="level-btn trophies-pick"
+          onClick={onOpenTrophies}
+          aria-label="My stickers"
+        >
+          <span className="level-icon" aria-hidden="true">
+            🏆
+          </span>
+          <span className="level-label">My Stickers</span>
+        </button>
       </div>
 
       {/* Visual divider between the "what to draw" picker above and the tool
@@ -203,9 +213,6 @@ export function HomePage({
         <div className="control-group" role="group" aria-label="Explore">
           <span className="control-group-label">✨ Explore</span>
           <div className="control-group-btns">
-            <button className="facts-btn" onClick={onOpenTrophies}>
-              🏆 My Stickers
-            </button>
             <button className="facts-btn" onClick={onOpenFacts}>
               💡 Fun Facts
             </button>
