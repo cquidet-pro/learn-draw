@@ -168,7 +168,10 @@ export function HomePage({
           <span className="level-icon" aria-hidden="true">
             🖼️
           </span>
-          <span className="level-label">Paintings</span>
+          <span className="level-label">
+            <span className="lbl-long">Paintings</span>
+            <span className="lbl-short" aria-hidden="true">Art</span>
+          </span>
         </button>
         <button
           className="level-btn trophies-pick"
@@ -178,7 +181,23 @@ export function HomePage({
           <span className="level-icon" aria-hidden="true">
             🏆
           </span>
-          <span className="level-label">My Stickers</span>
+          <span className="level-label">
+            <span className="lbl-long">My Stickers</span>
+            <span className="lbl-short" aria-hidden="true">Stickers</span>
+          </span>
+        </button>
+        <button
+          className="level-btn facts-pick"
+          onClick={onOpenFacts}
+          aria-label="Fun facts"
+        >
+          <span className="level-icon" aria-hidden="true">
+            💡
+          </span>
+          <span className="level-label">
+            <span className="lbl-long">Fun Facts</span>
+            <span className="lbl-short" aria-hidden="true">Facts</span>
+          </span>
         </button>
       </div>
 
@@ -213,9 +232,6 @@ export function HomePage({
         <div className="control-group" role="group" aria-label="Explore">
           <span className="control-group-label">✨ Explore</span>
           <div className="control-group-btns">
-            <button className="facts-btn" onClick={onOpenFacts}>
-              💡 Fun Facts
-            </button>
             {!fewScreen && (
               <button
                 className="facts-btn"
