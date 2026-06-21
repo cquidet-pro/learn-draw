@@ -131,17 +131,18 @@ export function expandColorSteps(animal: Animal): Animal {
       Math.max(...cl.items.map((x) => bottoms[x.i]));
     clusters.sort((a, b) => clusterBottom(b) - clusterBottom(a));
 
-    // Build each colour step's fill list, and remember which step a painted
-    // fill (by its original index) ended up in.
-    const stepFills: Fill[][] = clusters.map((cl) =>
-      cl.items.map((x) => ({ d: x.f.d, color: x.f.color })),
-    );
+    // Build each colour step's items, tracking each fill's ORIGINAL index so we
+    // can restore authored stacking order within the step.
+    const stepItems: { d: string; color: string; i: number; paper: boolean }[][] =
+      clusters.map((cl) =>
+        cl.items.map((x) => ({ d: x.f.d, color: x.f.color, i: x.i, paper: false })),
+      );
     const stepOfIndex = new Map<number, number>();
     clusters.forEach((cl, si) => cl.items.forEach((x) => stepOfIndex.set(x.i, si)));
 
     // Attach each paper region to the step of the colour directly beneath it
-    // (the nearest earlier painted fill), drawn ON TOP as a paper-coloured hole
-    // so that colour fills around it. A paper region under no colour is dropped.
+    // (the nearest earlier painted fill), so that colour fills around it. A paper
+    // region under no colour is dropped (the canvas already is the paper).
     for (const pf of papers) {
       let bestIdx = -1;
       let bestStep = -1;
@@ -152,16 +153,21 @@ export function expandColorSteps(animal: Animal): Animal {
         }
       }
       if (bestStep >= 0) {
-        stepFills[bestStep].push({ d: pf.f.d, color: pf.f.color, paper: true });
+        stepItems[bestStep].push({ d: pf.f.d, color: pf.f.color, i: pf.i, paper: true });
       }
     }
 
-    stepFills.forEach((fl, si) => {
+    stepItems.forEach((items, si) => {
+      // Restore authored order WITHIN the step so stacking is preserved — e.g. a
+      // white band stays under the maple leaf, the white cross under the red one.
+      items.sort((a, b) => a.i - b.i);
       steps.push({
         hint: si === 0 ? step.hint : NEXT_COLOR_HINT,
         color: step.color,
         strokes: [],
-        fills: fl,
+        fills: items.map((it) =>
+          it.paper ? { d: it.d, color: it.color, paper: true } : { d: it.d, color: it.color },
+        ),
       });
     });
   }
