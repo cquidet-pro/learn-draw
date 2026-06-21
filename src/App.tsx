@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Animal, Level } from "./data/animals";
 import { drawingsForLevel, drawingLevel } from "./data/animals";
 import { masterpieces, isMasterpiece } from "./data/masterpieces";
-import { isFriendOnly, friendPool } from "./data/friends";
+import { isFriendOnly, earnedFriendPool } from "./data/friends";
 import { flags, isFlag } from "./data/flags";
 import { HomePage } from "./components/HomePage";
 import { OfflineGuard } from "./components/OfflineGuard";
@@ -133,22 +133,22 @@ export function App() {
   let screen;
   if (current.kind === "drawing") {
     const animal = current.animal;
-    // Auto-advance stays within the collection the drawing came from — its own
-    // level (so it follows the child up a level), or the masterpieces.
-    const inPaintings = isMasterpiece(animal.id);
-    const inFlags = isFlag(animal.id);
-    const pool = inPaintings
-      ? masterpieces
-      : inFlags
-        ? flags
-        : isFriendOnly(animal.id)
-          ? friendPool
-          : drawingsForLevel(drawingLevel(animal));
     // The Back button returns to whichever screen we came from, so label it
     // to match (the paintings/flags gallery, the sticker shelf, or home).
     const cameFromPaintings = previous?.kind === "paintings";
     const cameFromFlags = previous?.kind === "flags";
     const cameFromTrophies = previous?.kind === "trophies";
+    // Auto-advance stays within the collection the drawing came from. Drawing
+    // from the sticker shelf (or a friend-only sticker) cycles among the
+    // stickers the child has actually EARNED — never one still locked.
+    const inStickers = cameFromTrophies || isFriendOnly(animal.id);
+    const pool = inStickers
+      ? earnedFriendPool(completed.size)
+      : isMasterpiece(animal.id)
+        ? masterpieces
+        : isFlag(animal.id)
+          ? flags
+          : drawingsForLevel(drawingLevel(animal));
     const homeLabel = cameFromPaintings
       ? "🖼️ Paintings"
       : cameFromFlags
@@ -172,6 +172,7 @@ export function App() {
         onHome={goBack}
         homeLabel={homeLabel}
         homeAria={homeAria}
+        stickerMode={inStickers}
         onComplete={() => markCompleted(animal.id)}
         onGoTo={(next) => replace({ kind: "drawing", animal: next })}
       />

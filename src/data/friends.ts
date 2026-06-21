@@ -1,4 +1,5 @@
 import type { Animal } from "./animals";
+import { rewardTiers } from "./rewards";
 import { cat } from "./drawings/cat";
 import { dog } from "./drawings/dog";
 import { horse } from "./drawings/horse";
@@ -69,3 +70,15 @@ export function isFriendOnly(id: string): boolean {
 
 /** Auto-advance pool for friend-only drawings: cycle among the friends. */
 export const friendPool: Animal[] = FRIEND_ONLY;
+
+/**
+ * The sticker drawings the child has actually EARNED, given how many drawings
+ * they've finished. Used as the auto-advance pool when drawing from the sticker
+ * shelf, so the "next" suggestion is never a sticker that isn't unlocked yet.
+ */
+export function earnedFriendPool(completedCount: number): Animal[] {
+  return rewardTiers()
+    .filter((r) => completedCount >= r.need)
+    .map((r) => FRIEND_DRAWINGS[r.name])
+    .filter((a): a is Animal => Boolean(a));
+}
