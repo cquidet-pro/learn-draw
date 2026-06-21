@@ -145,14 +145,24 @@ export function App() {
           ? friendPool
           : drawingsForLevel(drawingLevel(animal));
     // The Back button returns to whichever screen we came from, so label it
-    // to match (the paintings/flags gallery, or home).
+    // to match (the paintings/flags gallery, the sticker shelf, or home).
     const cameFromPaintings = previous?.kind === "paintings";
     const cameFromFlags = previous?.kind === "flags";
+    const cameFromTrophies = previous?.kind === "trophies";
     const homeLabel = cameFromPaintings
       ? "🖼️ Paintings"
       : cameFromFlags
         ? "🏳️ Flags"
-        : "🏠 Home";
+        : cameFromTrophies
+          ? "🏆 Stickers"
+          : "🏠 Home";
+    const homeAria = cameFromPaintings
+      ? "Back to paintings"
+      : cameFromFlags
+        ? "Back to flags"
+        : cameFromTrophies
+          ? "Back to my stickers"
+          : "Back to home";
     screen = (
       <DrawingPlayer
         key={animal.id}
@@ -161,7 +171,7 @@ export function App() {
         completed={completed}
         onHome={goBack}
         homeLabel={homeLabel}
-        homeAria={cameFromPaintings ? "Back to paintings" : cameFromFlags ? "Back to flags" : "Back to home"}
+        homeAria={homeAria}
         onComplete={() => markCompleted(animal.id)}
         onGoTo={(next) => replace({ kind: "drawing", animal: next })}
       />
