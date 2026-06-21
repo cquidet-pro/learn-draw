@@ -36,6 +36,33 @@ function measureBottoms(ds: string[]): number[] {
 /** Hint shown on each colour step after the first. */
 const NEXT_COLOR_HINT = "Now the next colour! 🖍️";
 
+// Two fills whose colours are within this RGB distance are treated as "the same
+// colour" and share a step — so near-identical shades (e.g. a dog's dark eyes
+// #3a2a20 and dark nose #42301f) colour together instead of as two steps. Kept
+// small so genuinely different colours stay separate.
+const COLOR_MERGE = 36;
+
+function parseHex(c: string): [number, number, number] | null {
+  const m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(c.trim());
+  if (!m) return null;
+  let h = m[1];
+  if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+  return [
+    parseInt(h.slice(0, 2), 16),
+    parseInt(h.slice(2, 4), 16),
+    parseInt(h.slice(4, 6), 16),
+  ];
+}
+
+/** RGB euclidean distance; Infinity if either colour isn't a parseable hex. */
+function colorDist(a: string, b: string): number {
+  if (a === b) return 0;
+  const pa = parseHex(a);
+  const pb = parseHex(b);
+  if (!pa || !pb) return Infinity;
+  return Math.hypot(pa[0] - pb[0], pa[1] - pb[1], pa[2] - pb[2]);
+}
+
 /**
  * Return a copy of `animal` where every "color it in" step (no strokes, 2+
  * colours of `fills`) is expanded into one step per colour, bottom-to-top. A
@@ -49,43 +76,37 @@ export function expandColorSteps(animal: Animal): Animal {
   for (const step of animal.steps) {
     const fills = step.fills;
     if (step.strokes.length === 0 && fills && fills.length > 0) {
-      // Group fills by colour, remembering the order colours first appear.
-      const order: string[] = [];
-      const byColor = new Map<string, { d: string; color: string }[]>();
+      // Greedily cluster fills by colour: a fill joins the first cluster whose
+      // representative colour is within COLOR_MERGE, else it starts a new one.
+      // Each fill keeps its own colour; only the *grouping into steps* merges.
+      const clusters: { rep: string; fills: { d: string; color: string }[] }[] = [];
       for (const f of fills) {
-        const arr = byColor.get(f.color);
-        if (arr) arr.push(f);
-        else {
-          byColor.set(f.color, [f]);
-          order.push(f.color);
-        }
+        const c = clusters.find((cl) => colorDist(cl.rep, f.color) <= COLOR_MERGE);
+        if (c) c.fills.push(f);
+        else clusters.push({ rep: f.color, fills: [f] });
       }
 
-      if (byColor.size <= 1) {
+      if (clusters.length <= 1) {
         steps.push(step);
         continue;
       }
 
       changed = true;
-      // Lowest on-screen point per colour, to sort the groups bottom-to-top.
+      // Lowest on-screen point per fill, to sort the clusters bottom-to-top.
       const bottoms = measureBottoms(fills.map((f) => f.d));
-      const colorBottom = new Map<string, number>();
-      fills.forEach((f, i) => {
-        const prev = colorBottom.get(f.color);
-        if (prev === undefined || bottoms[i] > prev) colorBottom.set(f.color, bottoms[i]);
-      });
-      const colors = [...order].sort(
-        (a, b) =>
-          (colorBottom.get(b) ?? 0) - (colorBottom.get(a) ?? 0) ||
-          order.indexOf(a) - order.indexOf(b),
-      );
+      const bottomOf = new Map<{ d: string; color: string }, number>();
+      fills.forEach((f, i) => bottomOf.set(f, bottoms[i]));
+      const clusterBottom = (cl: (typeof clusters)[number]) =>
+        Math.max(...cl.fills.map((f) => bottomOf.get(f) ?? 0));
+      // Stable sort keeps authored order among equal-bottom clusters.
+      clusters.sort((a, b) => clusterBottom(b) - clusterBottom(a));
 
-      colors.forEach((color, gi) => {
+      clusters.forEach((cl, gi) => {
         steps.push({
           hint: gi === 0 ? step.hint : NEXT_COLOR_HINT,
           color: step.color,
           strokes: [],
-          fills: byColor.get(color),
+          fills: cl.fills,
         });
       });
     } else {
