@@ -920,10 +920,39 @@ kbd {
 /* ---------- Level selector ---------- */
 .level-row {
   display: flex;
+  flex-direction: column;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
+}
+
+/* The "collections" row (Paintings / My Stickers / Fun Facts) under the
+   difficulty buttons — its own line so the picker reads as two tidy rows. */
+.pick-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+/* On phones, make each row three equal-width buttons so the picker stays two
+   tidy rows (difficulties on top, collections below) with full labels. */
+@media (max-width: 640px) {
+  .level-row {
+    width: 100%;
+  }
+  .level-selector,
+  .pick-row {
+    width: 100%;
+    gap: 0.4rem;
+  }
+  .level-row .level-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0.45rem 0.2rem;
+  }
 }
 
 /* Soft divider separating the "what to draw" picker from the tool buttons.
@@ -978,48 +1007,6 @@ kbd {
   border-color: #118ab2;
 }
 
-/* On phones, keep the whole picker (Easy/Medium/Harder + Paintings/Stickers/
-   Facts) on a single row by letting every button shrink to share the width. */
-@media (max-width: 640px) {
-  .level-row {
-    flex-wrap: nowrap;
-    gap: 0.18rem;
-    width: 100%;
-  }
-  /* Unwrap the difficulty group so all six buttons are equal-width siblings. */
-  .level-row .level-selector {
-    display: contents;
-  }
-  .level-row .level-btn {
-    flex: 1 1 0;
-    min-width: 0;
-    padding: 0.35rem 0.05rem;
-    border-width: 3px;
-    overflow: hidden;
-  }
-  /* `.level-row` prefixes raise specificity above the base .level-btn rules. */
-  .level-row .level-btn .level-icon {
-    font-size: 1.25rem;
-  }
-  .level-row .level-btn .level-label {
-    font-size: 0.54rem;
-    line-height: 1.05;
-    white-space: normal;
-  }
-}
-
-/* Compact pick labels (Art / Stickers / Facts) only on the tight phone row. */
-.lbl-short {
-  display: none;
-}
-@media (max-width: 640px) {
-  .lbl-long {
-    display: none;
-  }
-  .lbl-short {
-    display: inline;
-  }
-}
 
 .level-btn {
   display: flex;
