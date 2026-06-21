@@ -117,9 +117,49 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen, paused }:
     );
   };
 
-  // Restart the sequence whenever the step (or drawing) changes.
+  // The "color it in" step paints its fills ONE AT A TIME (a single crayon),
+  // rather than flooding the whole picture at once — too fast for a child to
+  // follow. Reveal order is bottom-to-top: the fill whose lowest point sits
+  // lowest on screen colours first, so the big body/background fills before the
+  // little features stacked on top of it.
+  const colorFills = coloringNow && current?.fills ? current.fills : [];
+  const animatingFills = colorFills.length > 0 && !reduce;
+  const [fillOrder, setFillOrder] = useState<number[]>([]);
+  useLayoutEffect(() => {
+    const p = measureRef.current;
+    const fills = coloringNow && current?.fills ? current.fills : [];
+    if (!p || fills.length === 0) {
+      setFillOrder([]);
+      return;
+    }
+    const bottoms = fills.map((f) => {
+      p.setAttribute("d", f.d);
+      try {
+        const b = p.getBBox();
+        return b.y + b.height;
+      } catch {
+        return 0;
+      }
+    });
+    // Lowest-on-screen (largest y) first → a bottom-to-top sweep. Ties keep
+    // their authored order (a stable index tiebreak).
+    const order = fills.map((_, i) => i);
+    order.sort((a, b) => bottoms[b] - bottoms[a] || a - b);
+    setFillOrder(order);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [animal.id, stepIndex]);
+
+  // How many fills have been painted (0..count); the one at `fillSeq` is fading
+  // in now. Each crayon's fade scales with the speed slider. Unlike the looping
+  // stroke steps, colouring runs once and then holds the finished picture — it's
+  // the finale, and replaying it would make the colours flash away and rebuild.
+  const [fillSeq, setFillSeq] = useState(0);
+  const fillDuration = Math.min(Math.max(duration * 0.3, 0.4), 1.1);
+
+  // Restart both sequences whenever the step (or drawing) changes.
   useEffect(() => {
     setSeq(0);
+    setFillSeq(0);
   }, [stepIndex, animal.id]);
 
   // Once every stroke is drawn, hold briefly then loop back to the first.
@@ -143,17 +183,46 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen, paused }:
       {/* Invisible helper path used only to measure stroke lengths. */}
       <path ref={measureRef} fill="none" stroke="none" aria-hidden="true" />
 
-      {/* Pass 1: color fills, behind everything. */}
+      {/* Pass 1: color fills, behind everything. The current "color it in" step
+          reveals its fills one at a time (bottom-to-top); other steps' fills
+          (and the frozen celebration) show solid. */}
       {visible.map(({ step, si }) =>
-        step.fills?.map((f, fi) => (
-          <path
-            key={`fill-${si}-${fi}`}
-            d={f.d}
-            fill={f.color}
-            stroke="none"
-            className={si === stepIndex || frozen ? "fill-current" : "fill-done"}
-          />
-        )),
+        step.fills?.map((f, fi) => {
+          let className = si === stepIndex || frozen ? "fill-current" : "fill-done";
+          let style: React.CSSProperties | undefined;
+          let onAnimationEnd: (() => void) | undefined;
+          let key = `fill-${si}-${fi}`;
+
+          if (animatingFills && si === stepIndex) {
+            const pos = fillOrder.indexOf(fi);
+            if (pos < fillSeq) {
+              className = "fill-seq-done";
+            } else if (pos === fillSeq) {
+              className = "fill-seq-active";
+              style = {
+                "--fill-dur": `${fillDuration}s`,
+                animationPlayState: paused ? "paused" : "running",
+              } as React.CSSProperties;
+              onAnimationEnd = () => setFillSeq((s) => (s === pos ? s + 1 : s));
+              // Remount when it (re)becomes active so the fade restarts each loop.
+              key = `fill-${si}-${fi}-a${fillSeq}`;
+            } else {
+              className = "fill-seq-pending";
+            }
+          }
+
+          return (
+            <path
+              key={key}
+              d={f.d}
+              fill={f.color}
+              stroke="none"
+              className={className}
+              style={style}
+              onAnimationEnd={onAnimationEnd}
+            />
+          );
+        }),
       )}
 
       {/* Pass 2: outline strokes, on top of the fills. */}
