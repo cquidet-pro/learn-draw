@@ -1,7 +1,8 @@
 import type { Animal } from "../animals";
 
-// A friendly kawaii horse face: a dark outline drawn step by step, then colored
-// in at the end (flat fills sit behind the outlines).
+// A friendly kawaii horse head seen from the SIDE (profile) — the iconic horse
+// shape: long nose, one eye, pointy ears and a flowing mane down the neck. Dark
+// outline drawn step by step, then colored in (flat fills sit behind the lines).
 const OUTLINE = "#4f3a2c";
 
 export const horse: Animal = {
@@ -12,35 +13,36 @@ export const horse: Animal = {
   color: OUTLINE,
   steps: [
     {
-      hint: "Start with a long round head! 🟫",
-      color: OUTLINE,
-      strokes: ["M 56,102 a 44,54 0 1,0 88,0 a 44,54 0 1,0 -88,0"],
-    },
-    {
-      hint: "Add two pointy ears 🔺",
-      color: OUTLINE,
-      strokes: ["M 70,54 L 62,26 L 86,48 Z", "M 130,54 L 138,26 L 114,48 Z"],
-    },
-    {
-      hint: "Add a floppy forelock 💇",
-      color: OUTLINE,
-      strokes: ["M 92,50 Q 96,66 100,54 Q 104,66 108,50"],
-    },
-    {
-      hint: "Now draw two big eyes 👀",
+      hint: "Draw a long horse head and neck from the side 🟫",
       color: OUTLINE,
       strokes: [
-        "M 74,92 a 8,8 0 1,0 16,0 a 8,8 0 1,0 -16,0",
-        "M 110,92 a 8,8 0 1,0 16,0 a 8,8 0 1,0 -16,0",
+        "M 122,50 Q 108,58 84,88 Q 60,112 48,132 Q 48,146 66,151 Q 86,153 98,131 Q 103,153 114,189 L 150,189 Q 156,128 138,62 Q 133,52 122,50 Z",
       ],
     },
     {
-      hint: "Add two nostrils and a smile 👃",
+      hint: "Add two pointy ears on top 🔺",
+      color: OUTLINE,
+      strokes: ["M 118,52 L 112,28 L 130,46 Z", "M 132,50 L 146,30 L 137,48 Z"],
+    },
+    {
+      hint: "Draw the flowing mane down the neck 💇",
+      color: OUTLINE,
+      strokes: ["M 128,56 Q 148,94 141,134 Q 149,164 143,188"],
+    },
+    {
+      hint: "Add one big eye and a nostril 👀",
       color: OUTLINE,
       strokes: [
-        "M 82,126 a 5,7 0 1,0 10,0 a 5,7 0 1,0 -10,0",
-        "M 108,126 a 5,7 0 1,0 10,0 a 5,7 0 1,0 -10,0",
-        "M 84,146 Q 100,154 116,146",
+        "M 99,84 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0",
+        "M 56,121 a 4,5 0 1,0 8,0 a 4,5 0 1,0 -8,0",
+      ],
+    },
+    {
+      hint: "Add a smiley mouth and a forelock 😄",
+      color: OUTLINE,
+      strokes: [
+        "M 50,140 Q 60,147 72,143",
+        "M 121,53 Q 116,64 125,71",
       ],
     },
     {
@@ -48,19 +50,20 @@ export const horse: Animal = {
       color: OUTLINE,
       strokes: [],
       fills: [
-        { d: "M 56,102 a 44,54 0 1,0 88,0 a 44,54 0 1,0 -88,0", color: "#c89b6c" },
-        { d: "M 70,54 L 62,26 L 86,48 Z", color: "#c89b6c" },
-        { d: "M 130,54 L 138,26 L 114,48 Z", color: "#c89b6c" },
-        { d: "M 72,49 L 67,33 L 82,46 Z", color: "#e7a6b0" },
-        { d: "M 128,49 L 133,33 L 118,46 Z", color: "#e7a6b0" },
-        { d: "M 74,134 a 26,22 0 1,0 52,0 a 26,22 0 1,0 -52,0", color: "#e8c39a" },
-        { d: "M 92,50 Q 96,66 100,54 Q 104,66 108,50 Z", color: "#8a5a34" },
-        { d: "M 74,92 a 8,8 0 1,0 16,0 a 8,8 0 1,0 -16,0", color: "#3a2a20" },
-        { d: "M 110,92 a 8,8 0 1,0 16,0 a 8,8 0 1,0 -16,0", color: "#3a2a20" },
-        { d: "M 78,88 a 3,3 0 1,0 6,0 a 3,3 0 1,0 -6,0", color: "#ffffff" },
-        { d: "M 114,88 a 3,3 0 1,0 6,0 a 3,3 0 1,0 -6,0", color: "#ffffff" },
-        { d: "M 82,126 a 5,7 0 1,0 10,0 a 5,7 0 1,0 -10,0", color: "#6b4a32" },
-        { d: "M 108,126 a 5,7 0 1,0 10,0 a 5,7 0 1,0 -10,0", color: "#6b4a32" },
+        {
+          d: "M 122,50 Q 108,58 84,88 Q 60,112 48,132 Q 48,146 66,151 Q 86,153 98,131 Q 103,153 114,189 L 150,189 Q 156,128 138,62 Q 133,52 122,50 Z",
+          color: "#c89b6c",
+        },
+        { d: "M 118,52 L 112,28 L 130,46 Z", color: "#c89b6c" },
+        { d: "M 132,50 L 146,30 L 137,48 Z", color: "#c89b6c" },
+        { d: "M 120,50 L 116,34 L 128,46 Z", color: "#e7a6b0" },
+        { d: "M 134,48 L 142,34 L 137,46 Z", color: "#e7a6b0" },
+        {
+          d: "M 128,56 Q 148,94 141,134 Q 149,164 143,188 L 153,188 Q 159,150 152,116 Q 156,86 142,58 Z",
+          color: "#8a5a34",
+        },
+        { d: "M 99,84 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0", color: "#3a2a20" },
+        { d: "M 56,121 a 4,5 0 1,0 8,0 a 4,5 0 1,0 -8,0", color: "#5a3a28" },
       ],
     },
   ],
