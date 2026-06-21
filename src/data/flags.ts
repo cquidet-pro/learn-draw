@@ -455,10 +455,11 @@ const southKorea = (() => {
       : [rectPath(x, y, x + w, y + 4)];
   const tg = (x: number, y: number, pattern: boolean[]) =>
     pattern.flatMap((b, i) => bar(x, y + i * 7, 26, b));
+  // Four trigrams (bottom→top lines; true = broken): geon ☰, gam ☵, ri ☲, gon ☷.
   const trigrams = [
     ...tg(28, 56, [false, false, false]),
-    ...tg(146, 56, [false, true, false]),
-    ...tg(28, 122, [false, true, true]),
+    ...tg(146, 56, [true, false, true]),
+    ...tg(28, 122, [false, true, false]),
     ...tg(146, 122, [true, true, true]),
   ];
   return flag(
@@ -471,36 +472,13 @@ const southKorea = (() => {
       { hint: "Add little bars in the corners", color: OUTLINE, strokes: trigrams },
       colorStep([
         { d: RECT, color: "#ffffff" },
-        { d: `M ${n(cx - r)},${cy} a ${r},${r} 0 1,1 ${2 * r},0 a ${r / 2},${r / 2} 0 1,1 ${-r},0 a ${r / 2},${r / 2} 0 1,0 ${-r},0`, color: "#CD2E3A" },
-        { d: `M ${n(cx + r)},${cy} a ${r},${r} 0 1,1 ${-2 * r},0 a ${r / 2},${r / 2} 0 1,1 ${r},0 a ${r / 2},${r / 2} 0 1,0 ${r},0`, color: "#0047A0" },
+        // Taegeuk: red on top, blue on bottom, split by a horizontal S-curve.
+        { d: `M ${cx},${n(cy + r)} a ${r},${r} 0 1,1 0,${-2 * r} a ${r / 2},${r / 2} 0 1,1 0,${r} a ${r / 2},${r / 2} 0 1,0 0,${r}`, color: "#CD2E3A" },
+        { d: `M ${cx},${n(cy - r)} a ${r},${r} 0 1,1 0,${2 * r} a ${r / 2},${r / 2} 0 1,1 0,${-r} a ${r / 2},${r / 2} 0 1,0 0,${-r}`, color: "#0047A0" },
         ...trigrams.map((d) => ({ d, color: "#222222" })),
       ]),
     ],
     "South Korea's flag has a red-and-blue circle.",
-  );
-})();
-
-const saudiArabia = (() => {
-  // Green field with a white sword (no script — kept respectful and simple).
-  const sword =
-    "M 40,118 L 150,118 L 150,113 L 160,116 L 150,119 L 150,114 L 40,114 Z";
-  const handle = "M 36,109 L 44,109 L 44,123 L 36,123 Z";
-  const band = `M 44,86 L 156,86`;
-  return flag(
-    "flag-saudi-arabia",
-    "Saudi Arabia",
-    "🇸🇦",
-    [
-      frame(),
-      { hint: "Draw a sword across 🗡️", color: OUTLINE, strokes: [sword, handle] },
-      { hint: "Add a line above it", color: OUTLINE, strokes: [band] },
-      colorStep([
-        { d: RECT, color: "#006C35" },
-        { d: sword, color: "#ffffff" },
-        { d: handle, color: "#ffffff" },
-      ]),
-    ],
-    "Saudi Arabia's flag is green with a sword.",
   );
 })();
 
@@ -689,7 +667,6 @@ const DEMONYMS: Record<string, string> = {
   Belgium: "Belgian",
   Qatar: "Qatari",
   "South Korea": "South Korean",
-  "Saudi Arabia": "Saudi Arabian",
   India: "Indian",
   Portugal: "Portuguese",
   Brazil: "Brazilian",
@@ -742,7 +719,6 @@ export const flags: Animal[] = [
   striped("flag-belgium", "Belgium", "🇧🇪", "v", [{ color: "#000000" }, { color: "#FAE042" }, { color: "#ED2939" }], "Belgium's flag is black, yellow and red."),
   qatar,
   southKorea,
-  saudiArabia,
   india,
   portugal,
   brazil,
