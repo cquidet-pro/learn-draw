@@ -2,6 +2,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import type { Animal } from "../data/animals";
 import { chooseNext, chooseNextInLevels } from "../data/animals";
 import { isMasterpiece } from "../data/masterpieces";
+import { isFriendOnly } from "../data/friends";
 import { rewardJustUnlocked } from "../data/rewards";
 import { useDrawingPlayer } from "../hooks/useDrawingPlayer";
 import { useKeyboard } from "../hooks/useKeyboard";
@@ -65,7 +66,9 @@ export function DrawingPlayer({
   // level until it's cleared, then graduate to the next level.
   const nextUp = useMemo(() => {
     if (!celebrating) return null;
-    if (isMasterpiece(animal.id)) {
+    // Paintings and reward "friends" cycle within their own pool; the leveled
+    // drawings graduate level by level.
+    if (isMasterpiece(animal.id) || isFriendOnly(animal.id)) {
       return { animal: chooseNext(pool, animal.id, completed) };
     }
     return chooseNextInLevels(animal, completed);
@@ -82,10 +85,10 @@ export function DrawingPlayer({
   // Skipped on replays, so it only fires the moment a milestone is crossed.
   const reward = useMemo(
     () =>
-      celebrating && !wasDoneBefore.current
+      celebrating && !wasDoneBefore.current && !isFriendOnly(animal.id)
         ? rewardJustUnlocked(completed.size)
         : undefined,
-    [celebrating, completed],
+    [celebrating, completed, animal.id],
   );
 
   // Last step → first press shows the finished picture with stars (no pop-up);

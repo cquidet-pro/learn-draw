@@ -1972,6 +1972,30 @@ kbd {
   box-shadow: 0 4px 0 rgba(0, 0, 0, 0.08);
 }
 
+/* Earned friends are buttons you can tap to draw them. */
+button.reward {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+button.reward.earned:hover,
+button.reward.earned:focus-visible {
+  transform: translateY(-3px);
+  box-shadow: 0 7px 0 rgba(0, 0, 0, 0.1);
+  outline: none;
+}
+button.reward.earned:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.08);
+}
+
+.reward-draw-hint {
+  margin-top: -0.3rem !important;
+  color: #06d6a0;
+  font-weight: 800;
+}
+
 .reward.locked {
   opacity: 0.6;
   border-style: dashed;

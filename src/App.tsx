@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Animal, Level } from "./data/animals";
 import { drawingsForLevel, drawingLevel } from "./data/animals";
 import { masterpieces, isMasterpiece } from "./data/masterpieces";
+import { isFriendOnly, friendPool } from "./data/friends";
 import { HomePage } from "./components/HomePage";
 import { OfflineGuard } from "./components/OfflineGuard";
 import { DrawingPlayer } from "./components/DrawingPlayer";
@@ -93,6 +94,9 @@ export function App() {
   }, []);
 
   const markCompleted = useCallback((id: string) => {
+    // Reward-only "friend" drawings are just for fun — they don't count toward
+    // level progress or the reward milestones.
+    if (isFriendOnly(id)) return;
     setCompleted((prev) => {
       if (prev.has(id)) return prev;
       const next = new Set(prev).add(id);
@@ -131,7 +135,9 @@ export function App() {
     const inPaintings = isMasterpiece(animal.id);
     const pool = inPaintings
       ? masterpieces
-      : drawingsForLevel(drawingLevel(animal));
+      : isFriendOnly(animal.id)
+        ? friendPool
+        : drawingsForLevel(drawingLevel(animal));
     // The Back button returns to whichever screen we came from, so label it
     // to match (the paintings gallery, or home).
     const cameFromPaintings = previous?.kind === "paintings";
