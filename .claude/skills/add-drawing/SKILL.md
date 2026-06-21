@@ -94,12 +94,16 @@ point inside 0–200 or it vanishes.**
     becomes its own navigable step (the step counter grows, e.g. the Dog goes
     6→10). The child fills one crayon's worth, then presses on. The first colour
     keeps your step's `hint`; the rest show "Now the next colour! 🖍️".
-  - **Near-identical colours merge into one step.** Fills are clustered by RGB
-    distance (≤ 36), so visually-the-same shades share a step (e.g. the Dog's dark
-    eyes `#3a2a20` and dark nose `#42301f` colour together) while each region
-    keeps its own exact shade. To force two regions into the **same** step give
-    them the same/very close colour; to keep them **separate** make the colours
-    differ by clearly more than ~36 in RGB.
+  - **Similar colours merge AND flatten to one shade.** Fills that read as the
+    same colour are grouped into one step and painted a single flat colour (the
+    group's largest region wins), so subtle shading doesn't add steps or look
+    muddy. "Same colour" = near-identical (RGB ≤ 36) **or** same colour family
+    (hue within 25°) and not too far apart (RGB < 80). So two greens or two pinks
+    become one; but a different hue (pink cheek on a tan face) or a far shade
+    (brown ear on a tan head, RGB ~100) stays its own colour. Tune the constants
+    (`RGB_SAME`, `HUE_SAME`, `RGB_FAMILY`) in `src/data/expandColor.ts`. Don't
+    rely on subtle same-family shade differences to read as distinct — they'll be
+    flattened; use a clearly different hue or a big lightness gap instead.
   - **Order is automatic, by geometry.** Colour steps run **bottom-to-top** (each
     group by its lowest on-screen region, so the big body/background colours
     first). **Within** a step the regions fade in **one at a time**, bottom-to-top
