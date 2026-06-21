@@ -864,6 +864,13 @@ kbd {
   gap: 0.6rem;
 }
 
+/* While listening, the "Listening…" legend bubble drops below the mic button
+   and would otherwise float over the animation just beneath the bar. Reserve
+   room for it so the drawing is pushed down clear of the bubble. */
+.player .control-bar:has(.voice-btn.on) {
+  margin-bottom: 5.5rem;
+}
+
 /* Two labelled sections, stacked: Settings and Explore. */
 .control-group {
   display: flex;
@@ -2170,6 +2177,10 @@ button.sticker.locked:active {
     padding: 0.3rem;
     margin-bottom: 0.25rem;
     gap: 0.5rem;
+  }
+  /* Keep room for the listening bubble even in the compact layout. */
+  .player .control-bar:has(.voice-btn.on) {
+    margin-bottom: 5rem;
   }
   .hint {
     font-size: clamp(1.05rem, 3vw, 1.5rem);
