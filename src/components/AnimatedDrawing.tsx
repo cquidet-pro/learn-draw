@@ -152,11 +152,17 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen, paused }:
   const [fillSeq, setFillSeq] = useState(0);
   const fillDuration = Math.min(Math.max(duration * 0.3, 0.4), 1);
 
-  // Restart both sequences whenever the step (or drawing) changes.
-  useEffect(() => {
-    setSeq(0);
-    setFillSeq(0);
-  }, [stepIndex, animal.id]);
+  // Reset both sequences the instant the step (or drawing) changes — during
+  // render, NOT in an effect. An effect runs after paint, so the new step would
+  // briefly paint one frame using the previous step's progress (e.g. showing it
+  // already fully coloured) before resetting — that was the colouring flash.
+  const stepKey = `${animal.id}#${stepIndex}`;
+  const stepKeyRef = useRef(stepKey);
+  if (stepKeyRef.current !== stepKey) {
+    stepKeyRef.current = stepKey;
+    if (seq !== 0) setSeq(0);
+    if (fillSeq !== 0) setFillSeq(0);
+  }
 
   // Once every stroke is drawn, hold briefly then loop back to the first.
   useEffect(() => {
