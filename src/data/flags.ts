@@ -32,11 +32,31 @@ function flag(
   steps: DrawStep[],
   fact?: string,
 ): Animal {
-  return { id, name, emoji, viewBox: "0 0 200 200", color: OUTLINE, fact, steps };
+  // Flags are flat colour regions, so the guide outlines should be thin and
+  // crisp (not the bold 4px default) — closer to a real flag, less heavy.
+  const thin = steps.map((s) => (s.strokeWidth == null ? { ...s, strokeWidth: 1.5 } : s));
+  return { id, name, emoji, viewBox: "0 0 200 200", color: OUTLINE, fact, steps: thin };
 }
 
 const rectPath = (x0: number, y0: number, x1: number, y1: number) =>
   `M ${n(x0)},${n(y0)} L ${n(x1)},${n(y0)} L ${n(x1)},${n(y1)} L ${n(x0)},${n(y1)} Z`;
+
+// A single plus/cross-shaped outline (the union of a vertical and a horizontal
+// bar). Drawing the cross as one path avoids the black-outlined square that two
+// overlapping rectangles leave where the bars cross. The vertical bar spans
+// x∈[vx0,vx1] over y∈[yTop,yBot]; the horizontal bar spans y∈[hy0,hy1] over
+// x∈[xLeft,xRight].
+const plusOutline = (
+  vx0: number,
+  vx1: number,
+  yTop: number,
+  yBot: number,
+  xLeft: number,
+  xRight: number,
+  hy0: number,
+  hy1: number,
+) =>
+  `M ${n(vx0)},${n(yTop)} L ${n(vx1)},${n(yTop)} L ${n(vx1)},${n(hy0)} L ${n(xRight)},${n(hy0)} L ${n(xRight)},${n(hy1)} L ${n(vx1)},${n(hy1)} L ${n(vx1)},${n(yBot)} L ${n(vx0)},${n(yBot)} L ${n(vx0)},${n(hy1)} L ${n(xLeft)},${n(hy1)} L ${n(xLeft)},${n(hy0)} L ${n(vx0)},${n(hy0)} Z`;
 
 // A five-pointed star.
 function star(cx: number, cy: number, r: number, rotDeg = -90): string {
@@ -126,6 +146,9 @@ function nordic(
     hy1 = cy + cw / 2;
   const vbar = rectPath(vx0, T, vx1, B);
   const hbar = rectPath(L, hy0, R, hy1);
+  // One plus-shaped outline so the bars don't leave a boxed-in square where
+  // they cross.
+  const crossOutline = plusOutline(vx0, vx1, T, B, L, R, hy0, hy1);
   const fills = [
     { d: RECT, color: field },
     { d: vbar, color: cross },
@@ -145,7 +168,7 @@ function nordic(
       {
         hint: "Add a cross — a tall line and a wide line ➕",
         color: OUTLINE,
-        strokes: [vbar, hbar],
+        strokes: [crossOutline],
       },
       colorStep(fills),
     ],
@@ -169,13 +192,14 @@ const switzerland = (() => {
     len = 44;
   const vbar = rectPath(cx - t, cy - len, cx + t, cy + len);
   const hbar = rectPath(cx - len, cy - t, cx + len, cy + t);
+  const cross = plusOutline(cx - t, cx + t, cy - len, cy + len, cx - len, cx + len, cy - t, cy + t);
   return flag(
     "flag-switzerland",
     "Switzerland",
     "🇨🇭",
     [
       frame(sq),
-      { hint: "Add a fat white cross in the middle ➕", color: OUTLINE, strokes: [vbar, hbar] },
+      { hint: "Add a fat white cross in the middle ➕", color: OUTLINE, strokes: [cross] },
       colorStep([
         { d: sq, color: "#D52B1E" },
         { d: vbar, color: "#ffffff" },
@@ -602,6 +626,8 @@ const greece = (() => {
     rectPath(ccx - arm, T, ccx + arm, cantonB),
     rectPath(L, ccy - arm, cantonR, ccy + arm),
   ];
+  // Single plus outline for the canton cross — no boxed-in square at the centre.
+  const crossOutline = plusOutline(ccx - arm, ccx + arm, T, cantonB, L, cantonR, ccy - arm, ccy + arm);
   const lines: string[] = [];
   for (let i = 1; i < 9; i++) lines.push(`M ${L},${n(T + i * sh)} L ${R},${n(T + i * sh)}`);
   return flag(
@@ -611,7 +637,7 @@ const greece = (() => {
     [
       frame(),
       { hint: "Add lots of stripes across", color: OUTLINE, strokes: lines },
-      { hint: "Add a cross in the corner ➕", color: OUTLINE, strokes: [canton, ...cross] },
+      { hint: "Add a cross in the corner ➕", color: OUTLINE, strokes: [canton, crossOutline] },
       colorStep([
         ...stripes,
         { d: canton, color: "#0D5EAF" },
