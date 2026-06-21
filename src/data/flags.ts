@@ -3,8 +3,8 @@ import { nameStep } from "./handwriting";
 
 // "Flags of the World" — each flag is drawn in our style: dark outline strokes
 // (the frame + the divisions/shapes) animate first, then a final step colours
-// every region in. Flags live in a 3:2 box centred in the 200×200 canvas; a few
-// (Switzerland, Qatar) use their own proportions. Complex national emblems are
+// every region in. Every flag lives in the same 3:2 box centred in the 200×200
+// canvas (even ones a different shape in real life). Complex national emblems are
 // simplified into clean, kid-friendly shapes.
 
 const OUTLINE = "#3a3a55";
@@ -181,15 +181,11 @@ function nordic(
 // ---------------------------------------------------------------------------
 
 const switzerland = (() => {
-  const sL = 34,
-    sR = 166,
-    sT = 34,
-    sB = 166;
-  const sq = rectPath(sL, sT, sR, sB);
+  // Drawn in the same 3:2 box as every other flag (the real one is square).
   const cx = 100,
     cy = 100,
     t = 16,
-    len = 44;
+    len = 40;
   const vbar = rectPath(cx - t, cy - len, cx + t, cy + len);
   const hbar = rectPath(cx - len, cy - t, cx + len, cy + t);
   const cross = plusOutline(cx - t, cx + t, cy - len, cy + len, cx - len, cx + len, cy - t, cy + t);
@@ -198,15 +194,15 @@ const switzerland = (() => {
     "Switzerland",
     "🇨🇭",
     [
-      frame(sq),
+      frame(),
       { hint: "Add a fat white cross in the middle ➕", color: OUTLINE, strokes: [cross] },
       colorStep([
-        { d: sq, color: "#D52B1E" },
+        { d: RECT, color: "#D52B1E" },
         { d: vbar, color: "#ffffff" },
         { d: hbar, color: "#ffffff" },
       ]),
     ],
-    "Switzerland's flag is a perfect square!",
+    "In real life, Switzerland's flag is a perfect square!",
   );
 })();
 
@@ -653,8 +649,14 @@ const greece = (() => {
   ];
   // Single plus outline for the canton cross — no boxed-in square at the centre.
   const crossOutline = plusOutline(ccx - arm, ccx + arm, T, cantonB, L, cantonR, ccy - arm, ccy + arm);
+  // Stripe dividers. The top five stripes are hidden behind the canton, so only
+  // draw those from the canton's right edge — otherwise they'd cross the white
+  // cross as stray black lines. Lower stripes span the full width.
   const lines: string[] = [];
-  for (let i = 1; i < 9; i++) lines.push(`M ${L},${n(T + i * sh)} L ${R},${n(T + i * sh)}`);
+  for (let i = 1; i < 9; i++) {
+    const y = n(T + i * sh);
+    lines.push(`M ${i < 5 ? n(cantonR) : L},${y} L ${R},${y}`);
+  }
   return flag(
     "flag-greece",
     "Greece",
@@ -758,9 +760,9 @@ export const flags: Animal[] = [
   unitedKingdom,
   usa,
   australia,
+  newZealand,
   canada,
   singapore,
-  newZealand,
   striped("flag-france", "France", "🇫🇷", "v", [{ color: "#0055A4" }, { color: "#ffffff" }, { color: "#EF4135" }], "France's flag is called the Tricolore."),
   japan,
   china,
