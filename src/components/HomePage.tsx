@@ -12,6 +12,7 @@ import { applyTheme } from "../theme/theme";
 import { heardAny } from "../voice/match";
 import { TimeLimitSettings } from "../parental/TimeLimitSettings";
 import { useTimeLimit } from "../parental/TimeLimitProvider";
+import gearIcon from "../assets/gear.png";
 
 /** Smoothly scroll the page up (-1) or down (+1) by most of a screenful. */
 function scrollPage(dir: 1 | -1) {
@@ -228,31 +229,13 @@ export function HomePage({
               onClick={() => setShowTimeLimit(true)}
               aria-label="For grown-ups — daily time limit and screen lock"
             >
-              <span className="grownup-icon" aria-hidden="true">
-                🧑‍🦰
-              </span>{" "}
+              <img className="grownup-icon" src={gearIcon} alt="" aria-hidden="true" />{" "}
               For grown-ups
             </button>
           </div>
         </div>
 
         <div className="control-group-sep" aria-hidden="true" />
-
-        {/* Explore: stickers, facts and printable coloring pages. */}
-        <div className="control-group" role="group" aria-label="Explore">
-          <span className="control-group-label">✨ Explore</span>
-          <div className="control-group-btns">
-            {!fewScreen && (
-              <button
-                className="facts-btn"
-                onClick={handlePrint}
-                disabled={printing || visible.length === 0}
-              >
-                {printing ? "⏳ Making PDF…" : "🖨️ Print to color"}
-              </button>
-            )}
-          </div>
-        </div>
       </div>
 
       {showTimeLimit && <TimeLimitSettings onClose={() => setShowTimeLimit(false)} />}

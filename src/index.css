@@ -883,7 +883,7 @@ kbd {
   flex-direction: column;
   align-items: center;
   gap: 0.7rem;
-  padding: 0.7rem 1rem;
+  padding: 0.15rem 1rem 0.7rem;
   margin-bottom: 0.5rem;
   background: var(--bg);
 }
@@ -953,11 +953,12 @@ kbd {
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
 }
 
-/* The grown-up (parental) button: a slightly larger adult character so it
-   reads as the "for grown-ups" area. */
+/* The grown-up (parental) button uses a small gear image. */
 .grownup-icon {
-  font-size: 1.35rem;
-  vertical-align: -0.15em;
+  width: 1.35em;
+  height: 1.35em;
+  vertical-align: -0.3em;
+  object-fit: contain;
 }
 
 /* ---------- Level selector ---------- */
@@ -1004,7 +1005,7 @@ kbd {
   position: relative;
   width: min(85%, 720px);
   height: 2px;
-  margin: 0.7rem 0 1.1rem;
+  margin: 0.7rem 0 0.2rem;
   border-radius: 2px;
   background: linear-gradient(
     to right,
