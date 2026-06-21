@@ -27,6 +27,9 @@ interface Props {
    *  return to the paintings gallery, so it's labelled for that destination. */
   homeLabel?: string;
   homeAria?: string;
+  /** When drawing from the sticker shelf, auto-advance cycles within `pool`
+   *  (the earned stickers) rather than graduating through the levels. */
+  stickerMode?: boolean;
   /** Called when the child finishes the drawing (the celebration fires). */
   onComplete: () => void;
   /** Navigate to another drawing (used by the celebration's auto-advance). */
@@ -53,6 +56,7 @@ export function DrawingPlayer({
   onHome,
   homeLabel = "🏠 Home",
   homeAria = "Back to home",
+  stickerMode = false,
   onComplete,
   onGoTo,
 }: Props) {
@@ -71,13 +75,18 @@ export function DrawingPlayer({
   // level until it's cleared, then graduate to the next level.
   const nextUp = useMemo(() => {
     if (!celebrating) return null;
-    // Paintings and reward "friends" cycle within their own pool; the leveled
-    // drawings graduate level by level.
-    if (isMasterpiece(animal.id) || isFlag(animal.id) || isFriendOnly(animal.id)) {
+    // Stickers, paintings, flags and reward "friends" cycle within their own
+    // pool; the leveled drawings graduate level by level.
+    if (
+      stickerMode ||
+      isMasterpiece(animal.id) ||
+      isFlag(animal.id) ||
+      isFriendOnly(animal.id)
+    ) {
       return { animal: chooseNext(pool, animal.id, completed) };
     }
     return chooseNextInLevels(animal, completed);
-  }, [celebrating, pool, animal, completed]);
+  }, [celebrating, pool, animal, completed, stickerMode]);
 
   // Whether this drawing was already finished when we opened it. Captured once
   // at mount (the player remounts per drawing via its key), so replaying an
