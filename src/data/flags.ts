@@ -599,14 +599,17 @@ const greece = (() => {
   const sh = H / 9;
   for (let i = 0; i < 9; i++)
     stripes.push({ d: rectPath(L, T + i * sh, R, T + (i + 1) * sh), color: i % 2 === 0 ? "#0D5EAF" : "#ffffff" });
-  const cantonR = L + 5 * (W / 13);
+  // Canton is a 5×5 square (5 stripe-widths each way), like the real flag.
+  const cantonR = L + 5 * sh;
   const cantonB = T + 5 * sh;
   const canton = rectPath(L, T, cantonR, cantonB);
   const ccx = (L + cantonR) / 2,
     ccy = (T + cantonB) / 2;
+  // A bold cross one stripe-width thick, reaching all the way to the canton edges.
+  const arm = sh / 2;
   const cross = [
-    rectPath(ccx - 5, T + 4, ccx + 5, cantonB - 4),
-    rectPath(L + 4, ccy - 5, cantonR - 4, ccy + 5),
+    rectPath(ccx - arm, T, ccx + arm, cantonB),
+    rectPath(L, ccy - arm, cantonR, ccy + arm),
   ];
   const lines: string[] = [];
   for (let i = 1; i < 9; i++) lines.push(`M ${L},${n(T + i * sh)} L ${R},${n(T + i * sh)}`);
