@@ -44,6 +44,9 @@ export function PinPad({ onComplete, error }: Props) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.altKey || e.ctrlKey || e.metaKey) return;
+      // Ignore auto-repeat: holding a key a moment too long would otherwise
+      // insert several digits from one press and complete the code early.
+      if (e.repeat) return;
       let digit: string | null = null;
       if (/^[0-9]$/.test(e.key)) {
         digit = e.key; // top-row digits, or numpad with Num Lock on
