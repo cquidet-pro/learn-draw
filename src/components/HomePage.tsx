@@ -48,6 +48,7 @@ interface Props {
   onLevelChange: (level: Level) => void;
   onOpenFacts: () => void;
   onOpenPaintings: () => void;
+  onOpenFlags: () => void;
   onOpenTrophies: () => void;
   onOpenPrivacy: () => void;
   onOpenContact: () => void;
@@ -61,6 +62,7 @@ export function HomePage({
   onLevelChange,
   onOpenFacts,
   onOpenPaintings,
+  onOpenFlags,
   onOpenTrophies,
   onOpenPrivacy,
   onOpenContact,
@@ -98,6 +100,10 @@ export function HomePage({
       }
       if (heardAny(transcript, ["paintings", "painting", "art", "famous"])) {
         onOpenPaintings();
+        return true;
+      }
+      if (heardAny(transcript, ["flags", "flag"])) {
+        onOpenFlags();
         return true;
       }
       if (heardAny(transcript, ["stickers", "sticker", "trophies", "trophy", "badges"])) {
@@ -141,6 +147,7 @@ export function HomePage({
       onPick,
       onOpenFacts,
       onOpenPaintings,
+      onOpenFlags,
       onOpenTrophies,
       onOpenPrivacy,
       onOpenContact,
@@ -180,6 +187,16 @@ export function HomePage({
               🏆
             </span>
             <span className="level-label">My Stickers</span>
+          </button>
+          <button
+            className="level-btn flags-pick"
+            onClick={onOpenFlags}
+            aria-label="Flags of the world"
+          >
+            <span className="level-icon" aria-hidden="true">
+              🏳️
+            </span>
+            <span className="level-label">Flags</span>
           </button>
           <button
             className="level-btn facts-pick"

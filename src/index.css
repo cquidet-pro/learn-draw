@@ -35,6 +35,9 @@
 [data-theme="dark"] .facts-pick {
   background: #25303a;
 }
+[data-theme="dark"] .flags-pick {
+  background: #233329;
+}
 [data-theme="dark"] .voice-legend-pop {
   background: #262636;
   color: var(--ink);
@@ -1005,6 +1008,11 @@ kbd {
 .facts-pick {
   background: #e8f7ff;
   border-color: #118ab2;
+}
+
+.flags-pick {
+  background: #eafbf0;
+  border-color: #06d6a0;
 }
 
 
