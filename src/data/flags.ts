@@ -649,12 +649,54 @@ const uae = (() => {
   );
 })();
 
+// The adjective form of each country, so the player heading reads
+// "How to draw a French flag" rather than "How to draw a France". Anything not
+// listed falls back to "<Country> flag" (e.g. "New Zealand flag").
+const DEMONYMS: Record<string, string> = {
+  Switzerland: "Swiss",
+  Denmark: "Danish",
+  Sweden: "Swedish",
+  Germany: "German",
+  Netherlands: "Dutch",
+  Norway: "Norwegian",
+  "United Kingdom": "British",
+  "United States": "American",
+  Australia: "Australian",
+  Canada: "Canadian",
+  Singapore: "Singaporean",
+  France: "French",
+  Japan: "Japanese",
+  China: "Chinese",
+  Italy: "Italian",
+  "United Arab Emirates": "Emirati",
+  Spain: "Spanish",
+  Finland: "Finnish",
+  Austria: "Austrian",
+  Belgium: "Belgian",
+  Qatar: "Qatari",
+  "South Korea": "South Korean",
+  "Saudi Arabia": "Saudi Arabian",
+  India: "Indian",
+  Portugal: "Portuguese",
+  Brazil: "Brazilian",
+  Greece: "Greek",
+  Ireland: "Irish",
+};
+
+/** Heading subject for a flag, e.g. "French flag" or "New Zealand flag". */
+function flagTitle(name: string): string {
+  return `${DEMONYMS[name] ?? name} flag`;
+}
+
 // Like the hard-mode drawings, every flag finishes with a "write the name"
 // step — the country's name drawn one pen-stroke at a time, below the flag
 // (which sits in the 40→160 band, leaving room beneath for the lettering).
+// We also give each flag a `title` so the player heading reads "How to draw a
+// French flag"; the card and the name-writing step still use the country name.
 function withName(a: Animal): Animal {
   return {
     ...a,
+    title: flagTitle(a.name),
     steps: [...a.steps, nameStep(a.name, { baseline: 195, height: 18 })],
   };
 }

@@ -94,6 +94,12 @@ export interface Animal {
   name: string;
   /** Emoji shown on the home card. */
   emoji: string;
+  /**
+   * Optional heading override for the player. When set, the title reads
+   * "How to draw a <title>" (with the right a/an) instead of using `name`.
+   * Flags use it so "France" shows as "How to draw a French flag".
+   */
+  title?: string;
   /** SVG viewBox, e.g. "0 0 200 200". */
   viewBox: string;
   /** Base stroke color (per-step `color` can override it). */

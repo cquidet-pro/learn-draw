@@ -49,6 +49,16 @@ const FINISH_STARS: { char: string; style: React.CSSProperties }[] = [
   { char: "⭐", style: { top: "42%", left: "-5%" } },
 ];
 
+// The big heading above the canvas. Paintings show their own name ("Starry
+// Night"); flags (and anything with a `title`) read "How to draw a French
+// flag" with the right a/an; everything else is "How to draw a <name>".
+function drawingTitle(animal: Animal): string {
+  if (animal.artist) return `${animal.emoji} ${animal.name}`;
+  const subject = animal.title ?? animal.name;
+  const article = /^[aeiou]/i.test(subject) ? "an" : "a";
+  return `${animal.emoji} How to draw ${article} ${subject}`;
+}
+
 export function DrawingPlayer({
   animal,
   pool,
@@ -187,11 +197,7 @@ export function DrawingPlayer({
         <button className="home-btn" onClick={onHome} aria-label={homeAria}>
           {homeLabel}
         </button>
-        <h1>
-          {animal.artist
-            ? `${animal.emoji} ${animal.name}`
-            : `${animal.emoji} How to draw a ${animal.name}`}
-        </h1>
+        <h1>{drawingTitle(animal)}</h1>
         {animal.artist && <span className="artist-line">by {animal.artist}</span>}
       </header>
 
