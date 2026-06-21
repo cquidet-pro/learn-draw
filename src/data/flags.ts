@@ -269,9 +269,18 @@ const usa = (() => {
   const stripeFills = [];
   for (let i = 0; i < 13; i++)
     stripeFills.push({ d: rectPath(L, T + i * stripeH, R, T + (i + 1) * stripeH), color: i % 2 === 0 ? "#B22234" : "#ffffff" });
+  // 50 stars: 9 rows, alternating 6 and 5 stars (offset), inside the canton.
   const stars: string[] = [];
-  for (let r = 0; r < 4; r++)
-    for (let c = 0; c < 5; c++) stars.push(star(L + 9 + c * 13, T + 8 + r * 13, 3.4));
+  const cw = cantonR - L,
+    chh = cantonB - T;
+  for (let row = 0; row < 9; row++) {
+    const even = row % 2 === 0;
+    const count = even ? 6 : 5;
+    for (let i = 0; i < count; i++) {
+      const col = even ? i * 2 : i * 2 + 1; // 0..10 across 11 slots
+      stars.push(star(L + (cw * (col + 1)) / 12, T + (chh * (row + 1)) / 10, 2.1));
+    }
+  }
   return flag(
     "flag-united-states",
     "United States",
@@ -338,8 +347,10 @@ const unitedKingdom = (() => {
     "🇬🇧",
     [
       frame(),
-      { hint: "Add crosses from corner to corner ✖️", color: OUTLINE, strokes: [`M ${L},${T} L ${R},${B}`, `M ${R},${T} L ${L},${B}`] },
-      { hint: "Add a straight cross too ➕", color: OUTLINE, strokes: [`M 100,${T} L 100,${B}`, `M ${L},100 L ${R},100`] },
+      // Guide lines drawn in the flag's own red (not dark) so they vanish into
+      // the red saltire/cross instead of leaving stray black lines.
+      { hint: "Add crosses from corner to corner ✖️", color: "#C8102E", strokes: [`M ${L},${T} L ${R},${B}`, `M ${R},${T} L ${L},${B}`] },
+      { hint: "Add a straight cross too ➕", color: "#C8102E", strokes: [`M 100,${T} L 100,${B}`, `M ${L},100 L ${R},100`] },
       colorStep(uj.fills),
     ],
     "The Union Jack joins three crosses together.",
