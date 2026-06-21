@@ -519,9 +519,11 @@ const southKorea = (() => {
       { hint: "Add little bars in the corners", color: OUTLINE, strokes: trigrams },
       colorStep([
         { d: RECT, color: "#ffffff" },
-        // Taegeuk: red on top, blue on bottom, split by a horizontal S-curve.
-        { d: `M ${cx},${n(cy + r)} a ${r},${r} 0 1,1 0,${-2 * r} a ${r / 2},${r / 2} 0 1,1 0,${r} a ${r / 2},${r / 2} 0 1,0 0,${r}`, color: "#CD2E3A" },
-        { d: `M ${cx},${n(cy - r)} a ${r},${r} 0 1,1 0,${2 * r} a ${r / 2},${r / 2} 0 1,1 0,${-r} a ${r / 2},${r / 2} 0 1,0 0,${-r}`, color: "#0047A0" },
+        // Taegeuk: a blue disc with the red (yang) half painted on top. The
+        // dividing S is horizontal — red dips down on the left, blue rises up
+        // on the right — as on the real flag.
+        { d: taegeuk, color: "#0047A0" },
+        { d: `M ${n(cx - r)},${cy} A ${r},${r} 0 0,1 ${n(cx + r)},${cy} A ${r / 2},${r / 2} 0 0,0 ${cx},${cy} A ${r / 2},${r / 2} 0 0,1 ${n(cx - r)},${cy} Z`, color: "#CD2E3A" },
         ...trigrams.map((d) => ({ d, color: "#222222" })),
       ]),
     ],
