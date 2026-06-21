@@ -85,6 +85,21 @@ point inside 0–200 or it vanishes.**
   into multiple steps, or use `fills`.
 - `fills` are painted behind the outlines, so a final "Now color it all in! 🖍️"
   step (with `strokes: []` and a `fills` list) tints without hiding the lines.
+- **How the colouring animates (automatic).** The "color it in" step does NOT
+  flood every fill at once — `AnimatedDrawing` reveals it **one colour at a
+  time**, like a child using one crayon everywhere before swapping. All fills
+  that share the same `color` light up together as a single beat, and the colour
+  groups go **bottom-to-top** (each group ordered by its lowest on-screen point,
+  so the big body/background colours first and small features stacked on top come
+  later). It runs once and holds the finished picture (no loop). Each beat's pace
+  follows the speed slider. Authoring implications:
+  - You don't wire any of this up — just provide the `fills`. But reuse the
+    **exact same `color` string** for regions meant to fill together (e.g. both
+    eyes, both ears), so they share a beat instead of becoming separate steps.
+  - **Document order still controls stacking** (later fills paint on top),
+    independent of the reveal order — author base/background fills first, details
+    after, exactly as before. Reveal timing never changes the final picture.
+  - Reduced-motion and the celebration show every fill solid at once (unchanged).
 - `colorReveal: true` keeps strokes pencil-grey until the coloring step — only
   for drawings whose colour comes from stroke colour (e.g. the stick-figure
   Family, the Rainbow). The animator reveals colour from the coloring step
