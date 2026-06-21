@@ -105,6 +105,15 @@ point inside 0–200 or it vanishes.**
     first). **Within** a step the regions fade in **one at a time**, bottom-to-top
     then left-to-right (e.g. nose → left eye → right eye; left cheek → right
     cheek). You don't order anything — it's measured from the path bounds.
+  - **White is paper, never a colour step.** The child draws on a white sheet,
+    so you never colour white on top of another colour — you colour *around* it.
+    Any near-white fill (≤16 from `#ffffff`) is treated as paper: an overlay
+    white (the Swiss cross over red, an eye sparkle over the dark eye) becomes a
+    paper-coloured hole drawn on top of the colour beneath it (revealed with that
+    colour's step, so the colour fills around it), and a background white (a
+    flag's white field) is dropped — the canvas already is the paper. **Still
+    author the white fills** as normal `#ffffff` fills in stacking order; the
+    engine converts them. Don't invent a "colour it white" step.
   - **Document order still controls stacking** (later fills paint on top),
     independent of reveal order — author base/background fills first, details
     after. Reveal order never changes the final picture.
