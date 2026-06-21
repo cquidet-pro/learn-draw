@@ -471,22 +471,47 @@ const singapore = (() => {
 const southKorea = (() => {
   const cx = 100,
     cy = 100,
-    r = 26;
+    r = 30;
   // taegeuk: red top half, blue bottom, split by an S of two half-circles
   const taegeuk = circle(cx, cy, r);
-  // trigrams as little bar groups in the corners
-  const bar = (x: number, y: number, w: number, broken: boolean) =>
-    broken
-      ? [rectPath(x, y, x + w * 0.42, y + 4), rectPath(x + w * 0.58, y, x + w, y + 4)]
-      : [rectPath(x, y, x + w, y + 4)];
-  const tg = (x: number, y: number, pattern: boolean[]) =>
-    pattern.flatMap((b, i) => bar(x, y + i * 7, 26, b));
-  // Four trigrams (bottom→top lines; true = broken): geon ☰, gam ☵, ri ☲, gon ☷.
+  // Trigrams sit on the diagonals, each tilted 45° so its bars point at the
+  // centre (as on the real flag). A trigram is three stacked bars (broken =
+  // split with a centre gap) centred on (tcx,tcy), then rotated by `deg`.
+  const bw = 27,
+    bh = 4.5,
+    gap = 7;
+  const rot = (px: number, py: number, ox: number, oy: number, deg: number) => {
+    const a = (deg * Math.PI) / 180,
+      c = Math.cos(a),
+      s = Math.sin(a);
+    const dx = px - ox,
+      dy = py - oy;
+    return [ox + dx * c - dy * s, oy + dx * s + dy * c] as const;
+  };
+  const rrect = (x0: number, y0: number, x1: number, y1: number, ox: number, oy: number, deg: number) =>
+    "M " +
+    ([[x0, y0], [x1, y0], [x1, y1], [x0, y1]] as const)
+      .map(([x, y]) => rot(x, y, ox, oy, deg))
+      .map(([x, y]) => `${n(x)},${n(y)}`)
+      .join(" L ") +
+    " Z";
+  const trigram = (tcx: number, tcy: number, deg: number, pattern: boolean[]) =>
+    pattern.flatMap((broken, i) => {
+      const x0 = tcx - bw / 2;
+      const y0 = tcy - gap + i * gap - bh / 2; // middle line centred on tcy
+      return broken
+        ? [
+            rrect(x0, y0, x0 + bw * 0.42, y0 + bh, tcx, tcy, deg),
+            rrect(x0 + bw * 0.58, y0, x0 + bw, y0 + bh, tcx, tcy, deg),
+          ]
+        : [rrect(x0, y0, x0 + bw, y0 + bh, tcx, tcy, deg)];
+    });
+  // geon ☰ (TL), gam ☵ (TR), ri ☲ (BL), gon ☷ (BR); true = broken line.
   const trigrams = [
-    ...tg(28, 56, [false, false, false]),
-    ...tg(146, 56, [true, false, true]),
-    ...tg(28, 122, [false, true, false]),
-    ...tg(146, 122, [true, true, true]),
+    ...trigram(52, 68, -45, [false, false, false]),
+    ...trigram(148, 68, 45, [true, false, true]),
+    ...trigram(52, 132, 45, [false, true, false]),
+    ...trigram(148, 132, -45, [true, true, true]),
   ];
   return flag(
     "flag-south-korea",
