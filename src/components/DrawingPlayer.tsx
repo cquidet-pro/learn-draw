@@ -4,6 +4,7 @@ import { chooseNext, chooseNextInLevels } from "../data/animals";
 import { isMasterpiece } from "../data/masterpieces";
 import { isFlag } from "../data/flags";
 import { isFriendOnly } from "../data/friends";
+import { expandColorSteps } from "../data/expandColor";
 import { rewardJustUnlocked } from "../data/rewards";
 import { useDrawingPlayer } from "../hooks/useDrawingPlayer";
 import { useKeyboard } from "../hooks/useKeyboard";
@@ -56,7 +57,10 @@ export function DrawingPlayer({
   onGoTo,
 }: Props) {
   const playSound = usePlaySound();
-  const player = useDrawingPlayer(animal.steps.length);
+  // Expand the single "color it in" step into one step per colour, so colouring
+  // is paced one crayon at a time (memoised — it measures geometry via the DOM).
+  const drawAnimal = useMemo(() => expandColorSteps(animal), [animal]);
+  const player = useDrawingPlayer(drawAnimal.steps.length);
   // After the last step, the picture first "finishes" (shown static with stars
   // around it); pressing next once more pops the celebration.
   const [finished, setFinished] = useState(false);
@@ -150,7 +154,7 @@ export function DrawingPlayer({
   );
   useVoiceControl(onCommand);
 
-  const step = animal.steps[player.stepIndex];
+  const step = drawAnimal.steps[player.stepIndex];
 
   // The instruction describing the current action — shown in the controls,
   // between the step nav and the pause button.
@@ -192,7 +196,7 @@ export function DrawingPlayer({
           <div className="art-compare">
             <figure className="art-pane">
               <AnimatedDrawing
-                animal={animal}
+                animal={drawAnimal}
                 stepIndex={player.stepIndex}
                 duration={player.duration}
                 frozen={finished || celebrating}
@@ -211,7 +215,7 @@ export function DrawingPlayer({
           </div>
         ) : (
           <AnimatedDrawing
-            animal={animal}
+            animal={drawAnimal}
             stepIndex={player.stepIndex}
             duration={player.duration}
             frozen={finished || celebrating}
@@ -238,7 +242,7 @@ export function DrawingPlayer({
 
       <Controls
         stepIndex={player.stepIndex}
-        stepCount={animal.steps.length}
+        stepCount={drawAnimal.steps.length}
         prevDisabled={player.isFirst && !finished && !celebrating}
         nextDisabled={celebrating}
         duration={player.duration}

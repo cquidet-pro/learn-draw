@@ -117,70 +117,12 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen, paused }:
     );
   };
 
-  // The "color it in" step paints ONE COLOUR at a time, like a child reaching
-  // for one crayon and using it everywhere before swapping. All regions sharing
-  // a colour fill together as a single step; the colour groups go bottom-to-top
-  // (the group whose lowest region sits lowest on screen colours first), so the
-  // big body/background fills before the little features stacked on top.
-  const colorFills = coloringNow && current?.fills ? current.fills : [];
-  const animatingFills = colorFills.length > 0 && !reduce;
-  // For each fill index, which colour-group turn it belongs to; plus the group
-  // count and one "leader" fill per group used to advance the sequence once.
-  const [fillPlan, setFillPlan] = useState<{
-    pos: number[];
-    count: number;
-    leaders: number[];
-  }>({ pos: [], count: 0, leaders: [] });
-  useLayoutEffect(() => {
-    const p = measureRef.current;
-    const fills = coloringNow && current?.fills ? current.fills : [];
-    if (!p || fills.length === 0) {
-      setFillPlan({ pos: [], count: 0, leaders: [] });
-      return;
-    }
-    const bottoms = fills.map((f) => {
-      p.setAttribute("d", f.d);
-      try {
-        const b = p.getBBox();
-        return b.y + b.height;
-      } catch {
-        return 0;
-      }
-    });
-    // Group fill indices by colour (first-seen order within a colour preserved).
-    const byColor = new Map<string, number[]>();
-    fills.forEach((f, i) => {
-      const arr = byColor.get(f.color);
-      if (arr) arr.push(i);
-      else byColor.set(f.color, [i]);
-    });
-    // Order the colour groups bottom-to-top by their lowest-on-screen region.
-    const groups = [...byColor.values()];
-    const groupBottom = (g: number[]) => Math.max(...g.map((i) => bottoms[i]));
-    groups.sort((a, b) => groupBottom(b) - groupBottom(a) || a[0] - b[0]);
-    const pos = new Array(fills.length).fill(0);
-    const leaders: number[] = [];
-    groups.forEach((g, gi) => {
-      leaders.push(Math.min(...g));
-      g.forEach((i) => {
-        pos[i] = gi;
-      });
-    });
-    setFillPlan({ pos, count: groups.length, leaders });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [animal.id, stepIndex]);
+  // Each colour is its own "color it in" step now (see expandColorSteps), so the
+  // current step's fills just fade in together; earlier steps' fills stay solid.
 
-  // Which colour group is being painted now (0..count). Each group's fade scales
-  // with the speed slider. Unlike the looping stroke steps, colouring runs once
-  // and holds the finished picture — it's the finale, and replaying it would
-  // make the colours flash away and rebuild.
-  const [groupSeq, setGroupSeq] = useState(0);
-  const fillDuration = Math.min(Math.max(duration * 0.3, 0.4), 1.1);
-
-  // Restart both sequences whenever the step (or drawing) changes.
+  // Restart the stroke sequence whenever the step (or drawing) changes.
   useEffect(() => {
     setSeq(0);
-    setGroupSeq(0);
   }, [stepIndex, animal.id]);
 
   // Once every stroke is drawn, hold briefly then loop back to the first.
@@ -204,49 +146,18 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen, paused }:
       {/* Invisible helper path used only to measure stroke lengths. */}
       <path ref={measureRef} fill="none" stroke="none" aria-hidden="true" />
 
-      {/* Pass 1: color fills, behind everything. The current "color it in" step
-          reveals its fills one at a time (bottom-to-top); other steps' fills
-          (and the frozen celebration) show solid. */}
+      {/* Pass 1: color fills, behind everything. The current step's fills fade
+          in together (one colour per step); earlier steps' fills stay solid. */}
       {visible.map(({ step, si }) =>
-        step.fills?.map((f, fi) => {
-          let className = si === stepIndex || frozen ? "fill-current" : "fill-done";
-          let style: React.CSSProperties | undefined;
-          let onAnimationEnd: (() => void) | undefined;
-          let key = `fill-${si}-${fi}`;
-
-          if (animatingFills && si === stepIndex) {
-            const gp = fillPlan.pos[fi] ?? 0;
-            if (gp < groupSeq) {
-              className = "fill-seq-done";
-            } else if (gp === groupSeq) {
-              className = "fill-seq-active";
-              style = {
-                "--fill-dur": `${fillDuration}s`,
-                animationPlayState: paused ? "paused" : "running",
-              } as React.CSSProperties;
-              // Advance once per colour group, driven by the group's leader fill.
-              if (fillPlan.leaders[gp] === fi) {
-                onAnimationEnd = () => setGroupSeq((s) => (s === gp ? s + 1 : s));
-              }
-              // Remount when this group (re)becomes active so the fade restarts.
-              key = `fill-${si}-${fi}-a${groupSeq}`;
-            } else {
-              className = "fill-seq-pending";
-            }
-          }
-
-          return (
-            <path
-              key={key}
-              d={f.d}
-              fill={f.color}
-              stroke="none"
-              className={className}
-              style={style}
-              onAnimationEnd={onAnimationEnd}
-            />
-          );
-        }),
+        step.fills?.map((f, fi) => (
+          <path
+            key={`fill-${si}-${fi}`}
+            d={f.d}
+            fill={f.color}
+            stroke="none"
+            className={si === stepIndex || frozen ? "fill-current" : "fill-done"}
+          />
+        )),
       )}
 
       {/* Pass 2: outline strokes, on top of the fills. */}
