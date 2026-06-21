@@ -1,14 +1,15 @@
 ---
 name: add-drawing
 description: >-
-  Add a new drawing (animal, object, scene, painting, or character) to Learn to
-  Draw, following this repo's data-driven conventions, and run the checks that
-  keep the animation and layout correct. Use when the user asks to "add a
-  drawing", "add a new animal/picture", "create a <subject> to draw", add a
-  difficulty level of an existing subject, add a Famous Painting, or wants the
-  "write the name" finale on a hard-mode drawing. Covers authoring the SVG path
-  data, registering it, and the full verification checklist (build, one-pencil
-  animation, no stray dots, solid final picture, name/overlap, card preview).
+  Add a new drawing (animal, object, scene, painting, flag, sticker, or
+  character) to Learn to Draw, following this repo's data-driven conventions,
+  and run the checks that keep the animation and layout correct. Use when the
+  user asks to "add a drawing", "add a new animal/picture", "create a <subject>
+  to draw", add a difficulty level of an existing subject, add a Famous Painting
+  or flag. EVERY new drawing ends with the automatic "write the name" step.
+  Covers authoring the SVG path data, registering it, and the full verification
+  checklist (build, one-pencil animation, no stray dots, solid final picture,
+  name/overlap, card preview).
 ---
 
 # Add a new drawing
@@ -107,10 +108,12 @@ point inside 0–200 or it vanishes.**
 
 ### You can't see while you type — always verify visually (see §5).
 
-## 4. Hard-mode "write the name" finale (level 10)
+## 4. The "write the name" finale — ALWAYS add it
 
-Every level-10 drawing ends with a step where its name is written one
-pen-stroke at a time, so kids learn to write it. Use the helper:
+**Every drawing ends with a step that writes its name** one pen-stroke at a
+time, so kids learn to write the word too. This is now the default for **all
+categories** — animals (every level, not just hard mode), flags, paintings, and
+stickers/friend drawings. Never ship a new drawing without it. Use the helper:
 
 ```ts
 import { nameStep } from "../handwriting";
@@ -123,11 +126,29 @@ nameStep("BUTTERFLY", { baseline: 26, height: 15 }), // up top where the bottom 
 capital-letter strokes. Options: `cx` (default 100), `baseline` (bottom of the
 letters, default 192), `height`, `maxWidth` (default 184, auto-shrinks), `color`
 (default blue `#118ab2`), `hint`. Only the letters A–Z used by current names are
-defined — add a glyph to `GLYPHS` if a new name needs a missing letter.
+defined — **add a glyph to `GLYPHS` if a new name needs a missing letter**
+(then verify it visually like everything else).
 
 Place the word in the drawing's **clear band** — usually a caption just below
 the art; move it to the top (small baseline) when the bottom is busy. It must
 clear any ground/grass line (see the overlap check in §5).
+
+### Per-category: where the name step comes from
+
+- **Animals / objects / scenes** (`src/data/drawings/*.ts`): add the `nameStep`
+  yourself as the last entry of `steps`, at **every** level (5/7/10).
+- **Flags** (`src/data/flags.ts`): added **automatically** — the `withName`
+  mapper appends `nameStep(name, …)` to every flag in the exported array, so a
+  new flag added to that array gets its name for free. Don't add a second one.
+- **Paintings** (`src/data/paintings/*.ts`): add a `nameStep` with the work's
+  title as the last step (keep it short so it fits beside the side-by-side
+  image; nudge `cx`/`baseline` so it doesn't cover the sketch).
+- **Stickers / friend drawings** (`src/data/friends.ts` and any reused drawing):
+  add the `nameStep` so the reward animal's name is written too.
+
+If you build a whole new collection (like flags), prefer the same centralized
+`withName`-style mapper over hand-adding the step to each item — one place to
+get right, impossible to forget.
 
 ## 5. Verification checklist — DO ALL OF THESE
 
@@ -165,12 +186,14 @@ Check each of these:
 - [ ] **Final picture is fully solid & coloured** — on the last step and the
   celebration every stroke is `stroke-final` (not faded) and `fills` show. This
   matters most for fill-less art (paintings, Family, Rainbow).
-- [ ] **Hard-mode name doesn't overlap the drawing** — rasterize the name layer
-  and the art layer separately from the same SVG DOM and count where they
-  coincide; aim for ~0%. (Don't diff two different steps — a fade-in animation
-  and sub-pixel shift give false positives.) Identify name paths as the trailing
-  run of stroke `#118ab2` paths. Nudge `baseline`/`cx`/`height` until clear; mind
-  the ground/grass line.
+- [ ] **The written name is present and doesn't overlap the drawing** — confirm
+  the final `nameStep` actually renders (every new drawing must have one), then
+  rasterize the name layer and the art layer separately from the same SVG DOM
+  and count where they coincide; aim for ~0%. (Don't diff two different steps — a
+  fade-in animation and sub-pixel shift give false positives.) Identify name
+  paths as the trailing run of stroke `#118ab2` paths. Nudge
+  `baseline`/`cx`/`height` until clear; mind the ground/grass line. If the name
+  uses a letter with no glyph yet, add it to `GLYPHS` and re-verify.
 - [ ] **Home card isn't doubled** — the card preview stops at the coloring step
   (`previewSteps` in `animals.ts`), so the written name must NOT show in the
   thumbnail, only the drawing + its text label.
