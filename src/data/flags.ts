@@ -1,4 +1,5 @@
 import type { Animal, DrawStep } from "./animals";
+import { nameStep } from "./handwriting";
 
 // "Flags of the World" — each flag is drawn in our style: dark outline strokes
 // (the frame + the divisions/shapes) animate first, then a final step colours
@@ -648,6 +649,16 @@ const uae = (() => {
   );
 })();
 
+// Like the hard-mode drawings, every flag finishes with a "write the name"
+// step — the country's name drawn one pen-stroke at a time, below the flag
+// (which sits in the 40→160 band, leaving room beneath for the lettering).
+function withName(a: Animal): Animal {
+  return {
+    ...a,
+    steps: [...a.steps, nameStep(a.name, { baseline: 195, height: 18 })],
+  };
+}
+
 // ---------------------------------------------------------------------------
 // The collection — in the order requested (the FIDI top-30, Denmark once).
 // ---------------------------------------------------------------------------
@@ -681,7 +692,7 @@ export const flags: Animal[] = [
   brazil,
   greece,
   striped("flag-ireland", "Ireland", "🇮🇪", "v", [{ color: "#169B62" }, { color: "#ffffff" }, { color: "#FF883E" }], "Ireland's flag is green, white and orange."),
-];
+].map(withName);
 
 export function isFlag(id: string): boolean {
   return flags.some((f) => f.id === id);
