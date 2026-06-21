@@ -32,6 +32,9 @@
 [data-theme="dark"] .trophies-pick {
   background: #2c2740;
 }
+[data-theme="dark"] .facts-pick {
+  background: #25303a;
+}
 [data-theme="dark"] .voice-legend-pop {
   background: #262636;
   color: var(--ink);
@@ -968,6 +971,54 @@ kbd {
 .trophies-pick {
   background: #fff3d6;
   border-color: #06d6a0;
+}
+
+.facts-pick {
+  background: #e8f7ff;
+  border-color: #118ab2;
+}
+
+/* On phones, keep the whole picker (Easy/Medium/Harder + Paintings/Stickers/
+   Facts) on a single row by letting every button shrink to share the width. */
+@media (max-width: 640px) {
+  .level-row {
+    flex-wrap: nowrap;
+    gap: 0.18rem;
+    width: 100%;
+  }
+  /* Unwrap the difficulty group so all six buttons are equal-width siblings. */
+  .level-row .level-selector {
+    display: contents;
+  }
+  .level-row .level-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0.35rem 0.05rem;
+    border-width: 3px;
+    overflow: hidden;
+  }
+  /* `.level-row` prefixes raise specificity above the base .level-btn rules. */
+  .level-row .level-btn .level-icon {
+    font-size: 1.25rem;
+  }
+  .level-row .level-btn .level-label {
+    font-size: 0.54rem;
+    line-height: 1.05;
+    white-space: normal;
+  }
+}
+
+/* Compact pick labels (Art / Stickers / Facts) only on the tight phone row. */
+.lbl-short {
+  display: none;
+}
+@media (max-width: 640px) {
+  .lbl-long {
+    display: none;
+  }
+  .lbl-short {
+    display: inline;
+  }
 }
 
 .level-btn {
