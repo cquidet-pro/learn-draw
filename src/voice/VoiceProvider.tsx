@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { useSpeechRecognition } from "./useSpeechRecognition";
+import { CommandDeduper } from "./dedupe";
 
 interface VoiceContextValue {
   supported: boolean;
@@ -54,6 +55,9 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
   const resultIdxRef = useRef(-1); // which recognition result we're tracking
   const processedRef = useRef(0); // how many words of it we've already handled
   const prevFinalRef = useRef(true); // did the previous result end an utterance?
+  // Suppresses the same command repeated within a short sliding window, so a
+  // quick "next next" only fires once. See dedupe.ts to tune the window.
+  const deduperRef = useRef(new CommandDeduper());
 
   const onResult = useCallback(
     (transcript: string, isFinal: boolean, resultIndex: number) => {
@@ -73,11 +77,20 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
       // The recognizer sometimes revises a phrase shorter; don't skip words.
       if (words.length < processedRef.current) processedRef.current = words.length;
 
-      // Only consider words we haven't acted on yet, so several commands in one
-      // breath ("next next back back") each fire, in order.
+      // Only consider words we haven't acted on yet, so several *different*
+      // commands in one breath ("next back") each fire, in order.
       if (words.length > processedRef.current) {
         const fresh = words.slice(processedRef.current).join(" ");
-        const handled = handlerRef.current?.(fresh) ?? false;
+        let handled: boolean;
+        if (deduperRef.current.isDuplicate(fresh)) {
+          // Same command again within the sliding window — swallow the repeat,
+          // but still consume the words so they aren't reconsidered.
+          handled = true;
+        } else {
+          handled = handlerRef.current?.(fresh) ?? false;
+          // Remember handled commands so an immediate repeat is de-duped.
+          if (handled) deduperRef.current.mark(fresh);
+        }
         // Consume the new words once handled (so we don't repeat them), or once
         // the utterance is final (so leftover chatter doesn't linger).
         if (handled || isFinal) processedRef.current = words.length;
@@ -99,6 +112,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
       resultIdxRef.current = -1;
       processedRef.current = 0;
       prevFinalRef.current = true;
+      deduperRef.current.reset();
     }
   }, [listening]);
 
