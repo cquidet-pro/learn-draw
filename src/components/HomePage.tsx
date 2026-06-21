@@ -179,16 +179,6 @@ export function HomePage({
             <span className="level-label">Paintings</span>
           </button>
           <button
-            className="level-btn trophies-pick"
-            onClick={onOpenTrophies}
-            aria-label="My stickers"
-          >
-            <span className="level-icon" aria-hidden="true">
-              🏆
-            </span>
-            <span className="level-label">My Stickers</span>
-          </button>
-          <button
             className="level-btn flags-pick"
             onClick={onOpenFlags}
             aria-label="Flags of the world"
@@ -197,6 +187,16 @@ export function HomePage({
               🏳️
             </span>
             <span className="level-label">Flags</span>
+          </button>
+          <button
+            className="level-btn trophies-pick"
+            onClick={onOpenTrophies}
+            aria-label="My stickers"
+          >
+            <span className="level-icon" aria-hidden="true">
+              🏆
+            </span>
+            <span className="level-label">My Stickers</span>
           </button>
           <button
             className="level-btn facts-pick"
