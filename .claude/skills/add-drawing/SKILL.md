@@ -236,6 +236,13 @@ Check each of these:
   colour bottom-to-top, regions within a step fill one-at-a-time, and visually
   identical shades should land in the **same** step (tune the authored colours if
   two that look alike split, or two distinct ones merge).
+- [ ] **Overlapping layers keep their stacking** — for art with stacked fills
+  (a flag's cross/leaf over a band, a highlight over a shape), confirm the
+  **final** matches the authored stacking order. The colour-step expansion keeps
+  each step's fills in authored z-order, but a quick way to be sure across many
+  drawings is the A/B sweep: render every drawing's finished state on this build
+  and on a pre-change build and pixel-diff — anything non-cosmetic is a stacking
+  regression (this caught the Union Jack and the Canada maple leaf).
 - [ ] **No colour flashes anywhere** — the picture must never blank or re-fade
   as colours appear. Watch three transitions in particular: moving between two
   colour steps, and pressing next on the **last** colour step so the finish
