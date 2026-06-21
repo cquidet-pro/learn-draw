@@ -127,32 +127,26 @@ export function DrawingPlayer({
   // so the laptop doesn't dim or sleep during hands-free viewing.
   useWakeLock(true);
 
-  // Voice commands. Check "back" before "next" so "go back" isn't read as "go".
+  // Voice commands on the drawing page are kept to just three simple words:
+  // "next", "back" and "home". Check "back" before "next" so "go back" isn't
+  // misread as "go" → next.
   const onCommand = useCallback(
     (transcript: string): boolean => {
-      if (heardAny(transcript, ["home", "menu", "exit"])) {
+      if (heardAny(transcript, ["home"])) {
         onHome();
         return true;
       }
-      if (heardAny(transcript, ["back", "previous"])) {
+      if (heardAny(transcript, ["back"])) {
         handlePrev();
         return true;
       }
-      if (heardAny(transcript, ["pause", "stop", "freeze", "wait"])) {
-        player.setPaused(true);
-        return true;
-      }
-      if (heardAny(transcript, ["play", "resume", "unpause"])) {
-        player.setPaused(false);
-        return true;
-      }
-      if (heardAny(transcript, ["next", "go", "forward", "more"])) {
+      if (heardAny(transcript, ["next"])) {
         handleNext();
         return true;
       }
       return false;
     },
-    [onHome, handlePrev, handleNext, player.setPaused],
+    [onHome, handlePrev, handleNext],
   );
   useVoiceControl(onCommand);
 
@@ -183,7 +177,13 @@ export function DrawingPlayer({
       </header>
 
       <div className="control-bar">
-        <VoiceButton />
+        <VoiceButton
+          hint={
+            <>
+              <b>next</b> · <b>back</b> · <b>home</b>
+            </>
+          }
+        />
         <SoundButton />
       </div>
 
