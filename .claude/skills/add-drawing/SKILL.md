@@ -85,21 +85,34 @@ point inside 0–200 or it vanishes.**
   into multiple steps, or use `fills`.
 - `fills` are painted behind the outlines, so a final "Now color it all in! 🖍️"
   step (with `strokes: []` and a `fills` list) tints without hiding the lines.
-- **How the colouring animates (automatic).** The "color it in" step does NOT
-  flood every fill at once — `AnimatedDrawing` reveals it **one colour at a
-  time**, like a child using one crayon everywhere before swapping. All fills
-  that share the same `color` light up together as a single beat, and the colour
-  groups go **bottom-to-top** (each group ordered by its lowest on-screen point,
-  so the big body/background colours first and small features stacked on top come
-  later). It runs once and holds the finished picture (no loop). Each beat's pace
-  follows the speed slider. Authoring implications:
-  - You don't wire any of this up — just provide the `fills`. But reuse the
-    **exact same `color` string** for regions meant to fill together (e.g. both
-    eyes, both ears), so they share a beat instead of becoming separate steps.
+- **How the colouring works (automatic — author ONE colour step).** You author a
+  single "color it in" step (`strokes: []` + a `fills` list). At play time
+  `expandColorSteps` (in `src/data/expandColor.ts`, applied by `DrawingPlayer`)
+  turns it into the real, child-paced colouring sequence — you do **not** create
+  the per-colour steps yourself. What it does, and what to author for:
+  - **One real step per colour.** The single fills step is split so each colour
+    becomes its own navigable step (the step counter grows, e.g. the Dog goes
+    6→10). The child fills one crayon's worth, then presses on. The first colour
+    keeps your step's `hint`; the rest show "Now the next colour! 🖍️".
+  - **Near-identical colours merge into one step.** Fills are clustered by RGB
+    distance (≤ 36), so visually-the-same shades share a step (e.g. the Dog's dark
+    eyes `#3a2a20` and dark nose `#42301f` colour together) while each region
+    keeps its own exact shade. To force two regions into the **same** step give
+    them the same/very close colour; to keep them **separate** make the colours
+    differ by clearly more than ~36 in RGB.
+  - **Order is automatic, by geometry.** Colour steps run **bottom-to-top** (each
+    group by its lowest on-screen region, so the big body/background colours
+    first). **Within** a step the regions fade in **one at a time**, bottom-to-top
+    then left-to-right (e.g. nose → left eye → right eye; left cheek → right
+    cheek). You don't order anything — it's measured from the path bounds.
   - **Document order still controls stacking** (later fills paint on top),
-    independent of the reveal order — author base/background fills first, details
-    after, exactly as before. Reveal timing never changes the final picture.
-  - Reduced-motion and the celebration show every fill solid at once (unchanged).
+    independent of reveal order — author base/background fills first, details
+    after. Reveal order never changes the final picture.
+  - Pace follows the speed slider; it runs once and holds the finished picture.
+    Reduced-motion and the celebration show every fill solid at once.
+  - **So: author the fills in stacking order with honest per-region colours, and
+    let the engine split/merge/sequence.** Don't pre-split colours into separate
+    authored steps — that would double up the splitting.
 - `colorReveal: true` keeps strokes pencil-grey until the coloring step — only
   for drawings whose colour comes from stroke colour (e.g. the stick-figure
   Family, the Rainbow). The animator reveals colour from the coloring step
@@ -201,6 +214,11 @@ Check each of these:
 - [ ] **Final picture is fully solid & coloured** — on the last step and the
   celebration every stroke is `stroke-final` (not faded) and `fills` show. This
   matters most for fill-less art (paintings, Family, Rainbow).
+- [ ] **Colouring splits sensibly** — step through the auto-generated colour
+  steps: the counter should grow (one step per colour), each step should add one
+  colour bottom-to-top, regions within a step fill one-at-a-time, and visually
+  identical shades should land in the **same** step (tune the authored colours if
+  two that look alike split, or two distinct ones merge). No flash between steps.
 - [ ] **The written name is present and doesn't overlap the drawing** — confirm
   the final `nameStep` actually renders (every new drawing must have one), then
   rasterize the name layer and the art layer separately from the same SVG DOM
