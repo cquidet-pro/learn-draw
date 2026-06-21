@@ -961,6 +961,11 @@ kbd {
   object-fit: contain;
 }
 
+/* The gear art is dark, so recolour it white in dark mode for contrast. */
+[data-theme="dark"] .grownup-icon {
+  filter: brightness(0) invert(1);
+}
+
 /* ---------- Level selector ---------- */
 .level-row {
   display: flex;
