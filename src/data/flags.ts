@@ -114,8 +114,11 @@ function nordic(
   cross: string,
   inner?: string,
   fact?: string,
+  // Cross arm width and inner-cross width. Defaults suit a plain Nordic cross;
+  // Norway uses a bolder 1:2:1 white/blue/white cross (cw 30, inner 15).
+  cw = 16,
+  iw = 6,
 ): Animal {
-  const cw = 16;
   const vx0 = L + 0.3 * W,
     vx1 = vx0 + cw;
   const cy = (T + B) / 2;
@@ -129,7 +132,6 @@ function nordic(
     { d: hbar, color: cross },
   ];
   if (inner) {
-    const iw = 6;
     const ivx0 = vx0 + (cw - iw) / 2;
     fills.push({ d: rectPath(ivx0, T, ivx0 + iw, B), color: inner });
     fills.push({ d: rectPath(L, cy - iw / 2, R, cy + iw / 2), color: inner });
@@ -701,7 +703,7 @@ export const flags: Animal[] = [
   nordic("flag-sweden", "Sweden", "🇸🇪", "#006AA7", "#FECC00", undefined, "Sweden's flag has a yellow cross."),
   striped("flag-germany", "Germany", "🇩🇪", "h", [{ color: "#000000" }, { color: "#DD0000" }, { color: "#FFCE00" }], "Germany's flag is black, red and gold."),
   striped("flag-netherlands", "Netherlands", "🇳🇱", "h", [{ color: "#AE1C28" }, { color: "#ffffff" }, { color: "#21468B" }], "The Netherlands flag is red, white and blue."),
-  nordic("flag-norway", "Norway", "🇳🇴", "#BA0C2F", "#ffffff", "#00205B", "Norway's flag has a cross inside a cross."),
+  nordic("flag-norway", "Norway", "🇳🇴", "#BA0C2F", "#ffffff", "#00205B", "Norway's flag has a cross inside a cross.", 30, 15),
   unitedKingdom,
   usa,
   australia,
