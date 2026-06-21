@@ -3,11 +3,13 @@ import type { Animal, Level } from "./data/animals";
 import { drawingsForLevel, drawingLevel } from "./data/animals";
 import { masterpieces, isMasterpiece } from "./data/masterpieces";
 import { isFriendOnly, friendPool } from "./data/friends";
+import { flags, isFlag } from "./data/flags";
 import { HomePage } from "./components/HomePage";
 import { OfflineGuard } from "./components/OfflineGuard";
 import { DrawingPlayer } from "./components/DrawingPlayer";
 import { FactsPage } from "./components/FactsPage";
 import { PaintingsPage } from "./components/PaintingsPage";
+import { FlagsPage } from "./components/FlagsPage";
 import { PrivacyPage } from "./components/PrivacyPage";
 import { ContactPage } from "./components/ContactPage";
 import { TermsPage } from "./components/TermsPage";
@@ -40,6 +42,7 @@ function loadLevel(): Level {
 type Route =
   | { kind: "home" }
   | { kind: "paintings" }
+  | { kind: "flags" }
   | { kind: "facts" }
   | { kind: "privacy" }
   | { kind: "contact" }
@@ -94,9 +97,9 @@ export function App() {
   }, []);
 
   const markCompleted = useCallback((id: string) => {
-    // Reward-only "friend" drawings are just for fun — they don't count toward
-    // level progress or the reward milestones.
-    if (isFriendOnly(id)) return;
+    // Reward-only "friend" drawings and flags are just for fun — they don't
+    // count toward level progress or the reward milestones.
+    if (isFriendOnly(id) || isFlag(id)) return;
     setCompleted((prev) => {
       if (prev.has(id)) return prev;
       const next = new Set(prev).add(id);
@@ -133,14 +136,23 @@ export function App() {
     // Auto-advance stays within the collection the drawing came from — its own
     // level (so it follows the child up a level), or the masterpieces.
     const inPaintings = isMasterpiece(animal.id);
+    const inFlags = isFlag(animal.id);
     const pool = inPaintings
       ? masterpieces
-      : isFriendOnly(animal.id)
-        ? friendPool
-        : drawingsForLevel(drawingLevel(animal));
+      : inFlags
+        ? flags
+        : isFriendOnly(animal.id)
+          ? friendPool
+          : drawingsForLevel(drawingLevel(animal));
     // The Back button returns to whichever screen we came from, so label it
-    // to match (the paintings gallery, or home).
+    // to match (the paintings/flags gallery, or home).
     const cameFromPaintings = previous?.kind === "paintings";
+    const cameFromFlags = previous?.kind === "flags";
+    const homeLabel = cameFromPaintings
+      ? "🖼️ Paintings"
+      : cameFromFlags
+        ? "🏳️ Flags"
+        : "🏠 Home";
     screen = (
       <DrawingPlayer
         key={animal.id}
@@ -148,8 +160,8 @@ export function App() {
         pool={pool}
         completed={completed}
         onHome={goBack}
-        homeLabel={cameFromPaintings ? "🖼️ Paintings" : "🏠 Home"}
-        homeAria={cameFromPaintings ? "Back to paintings" : "Back to home"}
+        homeLabel={homeLabel}
+        homeAria={cameFromPaintings ? "Back to paintings" : cameFromFlags ? "Back to flags" : "Back to home"}
         onComplete={() => markCompleted(animal.id)}
         onGoTo={(next) => replace({ kind: "drawing", animal: next })}
       />
@@ -157,6 +169,14 @@ export function App() {
   } else if (current.kind === "paintings") {
     screen = (
       <PaintingsPage
+        onPick={(animal) => push({ kind: "drawing", animal })}
+        onHome={goBack}
+        completed={completed}
+      />
+    );
+  } else if (current.kind === "flags") {
+    screen = (
+      <FlagsPage
         onPick={(animal) => push({ kind: "drawing", animal })}
         onHome={goBack}
         completed={completed}
@@ -188,6 +208,7 @@ export function App() {
         onLevelChange={setLevel}
         onOpenFacts={() => push({ kind: "facts" })}
         onOpenPaintings={() => push({ kind: "paintings" })}
+        onOpenFlags={() => push({ kind: "flags" })}
         onOpenTrophies={() => push({ kind: "trophies" })}
         onOpenPrivacy={() => push({ kind: "privacy" })}
         onOpenContact={() => push({ kind: "contact" })}
