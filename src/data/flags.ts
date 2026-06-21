@@ -433,7 +433,7 @@ const canada = (() => {
   const b1 = L + W / 4,
     b2 = R - W / 4;
   const leaf =
-    "M 100,52 L 105,74 L 114,69 L 111,81 L 138,76 L 119,96 L 132,114 L 110,110 L 113,128 L 104,124 L 104,150 L 96,150 L 96,124 L 87,128 L 90,110 L 68,114 L 81,96 L 62,76 L 89,81 L 86,69 L 95,74 Z";
+    "M 100,46 L 108,62 L 116,59 L 115,74 L 125,71 L 124,86 L 139,90 L 120,101 L 130,120 L 113,116 L 117,138 L 105,132 L 105,150 L 95,150 L 95,132 L 83,138 L 87,116 L 70,120 L 80,101 L 61,90 L 76,86 L 75,71 L 85,74 L 84,59 L 92,62 Z";
   return flag(
     "flag-canada",
     "Canada",
@@ -456,14 +456,15 @@ const canada = (() => {
 const singapore = (() => {
   const midY = (T + B) / 2;
   // A real crescent shape (lune), opening to the right.
-  const cres = crescent(62, 74, 18, 8, 15);
-  const stars = [
-    star(80, 60, 5),
-    star(94, 70, 5),
-    star(94, 86, 5),
-    star(80, 96, 5),
-    star(72, 78, 5),
-  ];
+  const cres = crescent(58, 74, 19, 9, 16);
+  // Five stars in a ring (pentagon) nestled in the crescent's opening.
+  const sx = 92,
+    sy = 74,
+    sR = 13;
+  const stars = [0, 1, 2, 3, 4].map((i) => {
+    const a = (-90 + i * 72) * (Math.PI / 180);
+    return star(sx + sR * Math.cos(a), sy + sR * Math.sin(a), 4.5);
+  });
   return flag(
     "flag-singapore",
     "Singapore",
@@ -583,19 +584,16 @@ const qatar = (() => {
 const brazil = (() => {
   const diamond = `M 100,${T + 8} L ${R - 14},100 L 100,${B - 8} L ${L + 14},100 Z`;
   const disc = circle(100, 100, 26);
-  // White band curving across the globe (concave up), like the real flag.
-  const band = `M 76,94 Q 100,114 124,94 L 124,88 Q 100,108 76,88 Z`;
-  // A scattering of little white stars inside the blue globe.
-  const stars = [
-    star(90, 110, 3),
-    star(104, 112, 2.4),
-    star(112, 106, 2.2),
-    star(98, 120, 2.6),
-    star(86, 118, 2),
-    star(108, 120, 2),
-    star(118, 114, 2),
-    star(96, 102, 2),
+  // White band sweeping across the globe, low-left to upper-right, curving down
+  // in the middle (concave up) — like the real flag.
+  const band = `M 77,100 Q 100,116 123,90 L 123,84 Q 100,110 77,94 Z`;
+  // Stars scattered across the blue globe (a starry sky), avoiding the band.
+  const starPts: [number, number, number][] = [
+    [88, 84, 2.4], [100, 80, 2], [111, 86, 2.2],
+    [82, 106, 2.4], [92, 112, 2.8], [102, 106, 2], [112, 110, 2.4], [120, 102, 1.8],
+    [88, 122, 2.2], [100, 119, 2.6], [110, 123, 2.2], [95, 128, 1.8], [106, 130, 1.8], [118, 116, 2],
   ];
+  const stars = starPts.map(([x, y, r]) => star(x, y, r));
   return flag(
     "flag-brazil",
     "Brazil",
