@@ -428,11 +428,12 @@ const newZealand = cantonFlag(
 );
 
 const canada = (() => {
-  // White centre band, red sides, simplified red maple leaf.
+  // White centre band, red sides, and the official 11-point maple leaf (taken
+  // from the public-domain Flag of Canada SVG, scaled to fit the band).
   const b1 = L + W / 4,
     b2 = R - W / 4;
   const leaf =
-    "M 100,46 L 108,62 L 116,59 L 115,74 L 125,71 L 124,86 L 139,90 L 120,101 L 130,120 L 113,116 L 117,138 L 105,132 L 105,150 L 95,150 L 95,132 L 83,138 L 87,116 L 70,120 L 80,101 L 61,90 L 76,86 L 75,71 L 85,74 L 84,59 L 92,62 Z";
+    "M 102.1,146 L 101,125.9 A 2.2,2.2 0 0,1 103.6,123.6 L 123.7,127.1 L 121,119.6 A 1.5,1.5 0 0,1 121.4,117.9 L 143.4,100.2 L 138.4,97.9 A 1.5,1.5 0 0,1 137.6,96 L 142,82.7 L 129.3,85.4 A 1.5,1.5 0 0,1 127.6,84.5 L 125.2,78.7 L 115.3,89.3 A 1.5,1.5 0 0,1 112.7,88 L 117.5,63.4 L 109.9,67.8 A 1.5,1.5 0 0,1 107.7,67.2 L 100,52 L 92.3,67.2 A 1.5,1.5 0 0,1 90.1,67.8 L 82.5,63.4 L 87.3,88 A 1.5,1.5 0 0,1 84.7,89.3 L 74.8,78.7 L 72.4,84.5 A 1.5,1.5 0 0,1 70.7,85.4 L 58,82.7 L 62.4,96 A 1.5,1.5 0 0,1 61.6,97.9 L 56.6,100.2 L 78.6,117.9 A 1.5,1.5 0 0,1 79,119.6 L 76.3,127.1 L 96.4,123.6 A 2.2,2.2 0 0,1 99,125.9 L 97.9,146 Z";
   return flag(
     "flag-canada",
     "Canada",
@@ -454,15 +455,16 @@ const canada = (() => {
 
 const singapore = (() => {
   const midY = (T + B) / 2;
-  // A real crescent shape (lune), opening to the right.
-  const cres = crescent(58, 74, 19, 9, 16);
-  // Five stars in a ring (pentagon) nestled in the crescent's opening.
-  const sx = 92,
-    sy = 74,
-    sR = 13;
+  // A real crescent (lune), opening toward the fly (right), as on the real flag.
+  const cres = crescent(58, 70, 17, 9, 15);
+  // Five stars in a pentagon ring to the right of the crescent's opening,
+  // clearly separated from the moon (they must not overlap it).
+  const sx = 96,
+    sy = 70,
+    sR = 11;
   const stars = [0, 1, 2, 3, 4].map((i) => {
     const a = (-90 + i * 72) * (Math.PI / 180);
-    return star(sx + sR * Math.cos(a), sy + sR * Math.sin(a), 4.5);
+    return star(sx + sR * Math.cos(a), sy + sR * Math.sin(a), 4);
   });
   return flag(
     "flag-singapore",
