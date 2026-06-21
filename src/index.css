@@ -397,6 +397,29 @@ body {
   opacity: 1;
 }
 
+/* "Color it in" step: fills are revealed one crayon at a time (bottom-to-top).
+   Already-painted fills stay solid, the active one fades in over --fill-dur,
+   and not-yet-reached fills are hidden so the colour builds up gradually. */
+.fill-seq-done {
+  opacity: 1;
+}
+.fill-seq-active {
+  opacity: 1;
+  animation: color-in var(--fill-dur, 0.6s) ease both;
+}
+.fill-seq-pending {
+  opacity: 0;
+}
+
+@keyframes color-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 /* Current step strokes draw one at a time, like a single pencil. The active
    stroke draws once (1 -> 0) and stays; AnimatedDrawing advances to the next
    stroke when this one finishes, then loops the whole step. */
