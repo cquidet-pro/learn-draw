@@ -72,6 +72,16 @@ function star(cx: number, cy: number, r: number, rotDeg = -90): string {
 const circle = (cx: number, cy: number, r: number) =>
   `M ${n(cx - r)},${cy} a ${r},${r} 0 1,0 ${2 * r},0 a ${r},${r} 0 1,0 ${-2 * r},0`;
 
+// A crescent (lune): the part of the outer circle (cx,cy,R) NOT covered by a
+// bite circle of radius `br` whose centre is `dx` to the right. Opens rightward.
+// Returns a single path so it draws and fills as a real crescent (not a ring).
+const crescent = (cx: number, cy: number, R: number, dx: number, br: number) => {
+  const a = (dx * dx + R * R - br * br) / (2 * dx);
+  const h = Math.sqrt(Math.max(0, R * R - a * a));
+  const px = cx + a;
+  return `M ${n(px)},${n(cy - h)} A ${R},${R} 0 1,1 ${n(px)},${n(cy + h)} A ${br},${br} 0 0,0 ${n(px)},${n(cy - h)} Z`;
+};
+
 // ---- Striped flags (equal or weighted bands) -------------------------------
 interface Band {
   color: string;
@@ -412,7 +422,7 @@ const canada = (() => {
   const b1 = L + W / 4,
     b2 = R - W / 4;
   const leaf =
-    "M 100,66 L 103,80 L 114,75 L 110,86 L 124,86 L 116,96 L 128,104 L 112,106 L 116,118 L 104,112 L 100,128 L 96,112 L 84,118 L 88,106 L 72,104 L 84,96 L 76,86 L 90,86 L 86,75 L 97,80 Z";
+    "M 100,52 L 105,74 L 114,69 L 111,81 L 138,76 L 119,96 L 132,114 L 110,110 L 113,128 L 104,124 L 104,150 L 96,150 L 96,124 L 87,128 L 90,110 L 68,114 L 81,96 L 62,76 L 89,81 L 86,69 L 95,74 Z";
   return flag(
     "flag-canada",
     "Canada",
@@ -434,14 +444,14 @@ const canada = (() => {
 
 const singapore = (() => {
   const midY = (T + B) / 2;
-  // crescent (two circles, the field colour cuts a bite)
-  const cres = circle(58, 78, 17);
+  // A real crescent shape (lune), opening to the right.
+  const cres = crescent(62, 74, 18, 8, 15);
   const stars = [
-    star(78, 64, 5),
-    star(92, 74, 5),
-    star(92, 90, 5),
-    star(78, 100, 5),
-    star(70, 82, 5),
+    star(80, 60, 5),
+    star(94, 70, 5),
+    star(94, 86, 5),
+    star(80, 96, 5),
+    star(72, 78, 5),
   ];
   return flag(
     "flag-singapore",
@@ -456,7 +466,6 @@ const singapore = (() => {
         { d: rectPath(L, T, R, midY), color: "#EF3340" },
         { d: rectPath(L, midY, R, B), color: "#ffffff" },
         { d: cres, color: "#ffffff" },
-        { d: circle(66, 78, 14), color: "#EF3340" },
         ...stars.map((d) => ({ d, color: "#ffffff" })),
       ]),
     ],
@@ -563,7 +572,19 @@ const qatar = (() => {
 const brazil = (() => {
   const diamond = `M 100,${T + 8} L ${R - 14},100 L 100,${B - 8} L ${L + 14},100 Z`;
   const disc = circle(100, 100, 26);
-  const band = `M 78,96 Q 100,110 122,96`;
+  // White band curving across the globe (concave up), like the real flag.
+  const band = `M 76,94 Q 100,114 124,94 L 124,88 Q 100,108 76,88 Z`;
+  // A scattering of little white stars inside the blue globe.
+  const stars = [
+    star(90, 110, 3),
+    star(104, 112, 2.4),
+    star(112, 106, 2.2),
+    star(98, 120, 2.6),
+    star(86, 118, 2),
+    star(108, 120, 2),
+    star(118, 114, 2),
+    star(96, 102, 2),
+  ];
   return flag(
     "flag-brazil",
     "Brazil",
@@ -572,21 +593,33 @@ const brazil = (() => {
       frame(),
       { hint: "Draw a big diamond 💎", color: OUTLINE, strokes: [diamond] },
       { hint: "Draw a circle inside ⭕", color: OUTLINE, strokes: [disc] },
-      { hint: "Add a curvy band", color: OUTLINE, strokes: [band] },
+      { hint: "Add a curvy band and stars ⭐", color: OUTLINE, strokes: [band] },
       colorStep([
         { d: RECT, color: "#009C3B" },
         { d: diamond, color: "#FFDF00" },
         { d: disc, color: "#002776" },
-        { d: `M 78,96 Q 100,110 122,96 L 122,90 Q 100,104 78,90 Z`, color: "#ffffff" },
+        ...stars.map((d) => ({ d, color: "#ffffff" })),
+        { d: band, color: "#ffffff" },
       ]),
     ],
-    "Brazil's flag has a green field and a blue globe.",
+    "Brazil's flag has a starry blue globe.",
   );
 })();
 
 const portugal = (() => {
   const bx = L + W * 0.4;
-  const ring = circle(bx, 100, 16);
+  const cy = 100;
+  // Armillary sphere: a golden disc with darker ring lines (equator + meridian)
+  // suggesting the open sphere of the real badge.
+  const sphere = circle(bx, cy, 22);
+  const ringH = rectPath(bx - 22, cy - 2.5, bx + 22, cy + 2.5); // equator
+  const ringV = rectPath(bx - 2.5, cy - 22, bx + 2.5, cy + 22); // meridian
+  const ringMid = circle(bx, cy, 14);
+  // Shield: red with a white centre, pointed at the bottom.
+  const shield = (w: number, top: number, bot: number) =>
+    `M ${n(bx - w)},${n(top)} L ${n(bx + w)},${n(top)} L ${n(bx + w)},${n(bot - 6)} Q ${n(bx + w)},${n(bot)} ${bx},${n(bot)} Q ${n(bx - w)},${n(bot)} ${n(bx - w)},${n(bot - 6)} Z`;
+  const shieldRed = shield(9, 86, 116);
+  const shieldWhite = shield(5, 90, 110);
   return flag(
     "flag-portugal",
     "Portugal",
@@ -594,15 +627,55 @@ const portugal = (() => {
     [
       frame(),
       { hint: "Add a line down", color: OUTLINE, strokes: [`M ${n(bx)},${T} L ${n(bx)},${B}`] },
-      { hint: "Draw a round badge on the line", color: OUTLINE, strokes: [ring, rectPath(bx - 7, 92, bx + 7, 108)] },
+      { hint: "Draw a round badge on the line", color: OUTLINE, strokes: [sphere, shieldRed] },
       colorStep([
         { d: rectPath(L, T, bx, B), color: "#006600" },
         { d: rectPath(bx, T, R, B), color: "#FF0000" },
-        { d: ring, color: "#FFCC00" },
-        { d: rectPath(bx - 7, 92, bx + 7, 108), color: "#ffffff" },
+        { d: sphere, color: "#FFCC00" },
+        { d: ringMid, color: "#E0A000" },
+        { d: ringH, color: "#E0A000" },
+        { d: ringV, color: "#E0A000" },
+        { d: shieldRed, color: "#DA251D" },
+        { d: shieldWhite, color: "#ffffff" },
       ]),
     ],
-    "Portugal's flag is green and red with a badge.",
+    "Portugal's flag has a golden sphere and a shield.",
+  );
+})();
+
+const spain = (() => {
+  // Red-yellow-red (1:2:1) with a simplified coat of arms toward the hoist.
+  const t25 = T + H * 0.25,
+    t75 = T + H * 0.75;
+  const ex = 68,
+    ey = 100;
+  const pL = rectPath(ex - 18, ey - 9, ex - 13, ey + 16);
+  const pR = rectPath(ex + 13, ey - 9, ex + 18, ey + 16);
+  const capL = rectPath(ex - 19, ey - 13, ex - 12, ey - 9);
+  const capR = rectPath(ex + 12, ey - 13, ex + 19, ey - 9);
+  const shield = `M ${ex - 10},${ey - 9} L ${ex + 10},${ey - 9} L ${ex + 10},${ey + 6} Q ${ex + 10},${ey + 16} ${ex},${ey + 20} Q ${ex - 10},${ey + 16} ${ex - 10},${ey + 6} Z`;
+  const crown = `M ${ex - 8},${ey - 11} L ${ex - 8},${ey - 16} L ${ex - 4},${ey - 13} L ${ex},${ey - 18} L ${ex + 4},${ey - 13} L ${ex + 8},${ey - 16} L ${ex + 8},${ey - 11} Z`;
+  return flag(
+    "flag-spain",
+    "Spain",
+    "🇪🇸",
+    [
+      frame(),
+      { hint: "Add two lines across", color: OUTLINE, strokes: [`M ${L},${n(t25)} L ${R},${n(t25)}`, `M ${L},${n(t75)} L ${R},${n(t75)}`] },
+      { hint: "Draw a shield and a crown 👑", color: OUTLINE, strokes: [pL, pR, shield, crown] },
+      colorStep([
+        { d: rectPath(L, T, R, t25), color: "#AA151B" },
+        { d: rectPath(L, t25, R, t75), color: "#F1BF00" },
+        { d: rectPath(L, t75, R, B), color: "#AA151B" },
+        { d: pL, color: "#ffffff" },
+        { d: pR, color: "#ffffff" },
+        { d: capL, color: "#FABD00" },
+        { d: capR, color: "#FABD00" },
+        { d: shield, color: "#C60B1E" },
+        { d: crown, color: "#FABD00" },
+      ]),
+    ],
+    "Spain's flag has a crown and a shield.",
   );
 })();
 
@@ -770,7 +843,7 @@ export const flags: Animal[] = [
   china,
   striped("flag-italy", "Italy", "🇮🇹", "v", [{ color: "#009246" }, { color: "#ffffff" }, { color: "#CE2B37" }], "Italy's flag is green, white and red."),
   uae,
-  striped("flag-spain", "Spain", "🇪🇸", "h", [{ color: "#AA151B", w: 1 }, { color: "#F1BF00", w: 2 }, { color: "#AA151B", w: 1 }], "Spain's flag has a wide yellow stripe."),
+  spain,
   nordic("flag-finland", "Finland", "🇫🇮", "#ffffff", "#003580", undefined, "Finland's flag has a blue cross."),
   striped("flag-austria", "Austria", "🇦🇹", "h", [{ color: "#ED2939" }, { color: "#ffffff" }, { color: "#ED2939" }], "Austria's flag is red, white, red."),
   striped("flag-belgium", "Belgium", "🇧🇪", "v", [{ color: "#000000" }, { color: "#FAE042" }, { color: "#ED2939" }], "Belgium's flag is black, yellow and red."),
