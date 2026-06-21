@@ -189,7 +189,15 @@ export function AnimatedDrawing({ animal, stepIndex, duration, frozen, paused }:
           in one at a time (see fillOrder); earlier steps' fills stay solid. */}
       {visible.map(({ step, si }) =>
         step.fills?.map((f, fi) => {
-          let className = si === stepIndex || frozen ? "fill-current" : "fill-done";
+          // Frozen (finished/celebration) shows every fill solid with NO fade:
+          // using fill-current here re-ran the fade-in on all fills at once, so
+          // pressing next on the last colour step flashed every colour away for
+          // a moment. fill-done is opacity 1 with no animation.
+          let className = frozen
+            ? "fill-done"
+            : si === stepIndex
+              ? "fill-current"
+              : "fill-done";
           let style: React.CSSProperties | undefined;
           let onAnimationEnd: (() => void) | undefined;
           let key = `fill-${si}-${fi}`;
