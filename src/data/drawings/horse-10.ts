@@ -1,9 +1,10 @@
 import type { Animal } from "../animals";
 import { nameStep } from "../handwriting";
 
-// A detailed kawaii pony in a little meadow scene (level 10). The body has a
-// flat underside so the legs join it cleanly. Outline first, colored in, then
-// its name written one pen-stroke at a time.
+// A detailed kawaii pony in a little meadow scene (level 10). The head is a side
+// profile with a long muzzle (matching the easy horse), and the body has a flat
+// underside so the legs join cleanly. Outline first, colored in, then its name
+// written one pen-stroke at a time.
 const OUTLINE = "#4f3a2c";
 
 export const horse10: Animal = {
@@ -22,30 +23,32 @@ export const horse10: Animal = {
       ],
     },
     {
-      hint: "Add the head up front",
+      hint: "Add a long horse head from the side",
       color: OUTLINE,
-      strokes: ["M 32,74 a 20,22 0 1,0 40,0 a 20,22 0 1,0 -40,0"],
+      strokes: [
+        "M 68,54 Q 50,60 34,82 Q 26,96 28,106 Q 32,115 42,114 Q 58,112 68,94 Q 74,82 74,78 Q 78,64 68,54 Z",
+      ],
     },
     {
       hint: "Add two pointy ears 🔺",
       color: OUTLINE,
-      strokes: ["M 42,54 L 36,36 L 52,50 Z", "M 62,54 L 68,36 L 52,50 Z"],
+      strokes: ["M 64,54 L 58,34 L 72,50 Z", "M 74,52 L 84,36 L 75,50 Z"],
     },
     {
       hint: "Draw the flowing mane",
       color: OUTLINE,
       strokes: [
-        "M 56,40 Q 80,52 78,86 Q 92,96 88,114",
-        "M 62,44 Q 82,58 80,90",
+        "M 70,52 Q 88,60 84,90 Q 94,98 88,116",
+        "M 74,56 Q 88,66 86,92",
       ],
     },
     {
       hint: "Add an eye, a nostril and a smile 👀",
       color: OUTLINE,
       strokes: [
-        "M 47,72 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0",
-        "M 33,80 a 3,4 0 1,0 6,0 a 3,4 0 1,0 -6,0",
-        "M 33,90 Q 44,96 52,92",
+        "M 49,78 a 4.5,4.5 0 1,0 9,0 a 4.5,4.5 0 1,0 -9,0",
+        "M 31,97 a 3,3.5 0 1,0 6,0 a 3,3.5 0 1,0 -6,0",
+        "M 29,107 Q 36,113 44,109",
       ],
     },
     {
@@ -93,18 +96,21 @@ export const horse10: Animal = {
           d: "M 72,90 C 64,108 66,126 82,128 L 142,128 C 158,126 160,108 152,90 C 142,78 82,78 72,90 Z",
           color: "#c89b6c",
         },
-        { d: "M 32,74 a 20,22 0 1,0 40,0 a 20,22 0 1,0 -40,0", color: "#c89b6c" },
-        { d: "M 42,54 L 36,36 L 52,50 Z", color: "#c89b6c" },
-        { d: "M 62,54 L 68,36 L 52,50 Z", color: "#c89b6c" },
-        { d: "M 44,49 L 40,38 L 51,47 Z", color: "#e7a6b0" },
-        { d: "M 60,49 L 64,38 L 53,47 Z", color: "#e7a6b0" },
-        { d: "M 56,40 Q 80,52 78,86 Q 92,96 88,114 Q 78,94 74,82 Q 64,54 56,40 Z", color: "#8a5a34" },
+        {
+          d: "M 68,54 Q 50,60 34,82 Q 26,96 28,106 Q 32,115 42,114 Q 58,112 68,94 Q 74,82 74,78 Q 78,64 68,54 Z",
+          color: "#c89b6c",
+        },
+        { d: "M 64,54 L 58,34 L 72,50 Z", color: "#c89b6c" },
+        { d: "M 74,52 L 84,36 L 75,50 Z", color: "#c89b6c" },
+        { d: "M 65,51 L 61,38 L 70,49 Z", color: "#e7a6b0" },
+        { d: "M 75,49 L 81,39 L 76,49 Z", color: "#e7a6b0" },
+        { d: "M 70,52 Q 88,60 84,90 Q 94,98 88,116 Q 82,96 78,84 Q 74,62 70,52 Z", color: "#8a5a34" },
         { d: "M 152,96 Q 178,108 170,150 Q 166,168 152,164 Q 166,138 162,114 Q 160,102 152,96 Z", color: "#8a5a34" },
         { d: "M 96,84 L 128,84 L 124,100 L 100,100 Z", color: "#7a3f2a" },
         { d: "M 104,80 Q 112,74 120,80 L 119,88 L 105,88 Z", color: "#9a5836" },
         { d: "M 158,34 a 12,12 0 1,0 24,0 a 12,12 0 1,0 -24,0", color: "#ffd23f" },
-        { d: "M 47,72 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0", color: "#3a2a20" },
-        { d: "M 33,80 a 3,4 0 1,0 6,0 a 3,4 0 1,0 -6,0", color: "#5a3a28" },
+        { d: "M 49,78 a 4.5,4.5 0 1,0 9,0 a 4.5,4.5 0 1,0 -9,0", color: "#3a2a20" },
+        { d: "M 31,97 a 3,3.5 0 1,0 6,0 a 3,3.5 0 1,0 -6,0", color: "#5a3a28" },
       ],
     },
     nameStep("HORSE", { baseline: 196, height: 12 }),

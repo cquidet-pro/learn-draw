@@ -114,12 +114,17 @@ export function Celebration({
         {reward && (
           <div className="celebration-reward" aria-live="polite">
             <p className="celebration-reward-head">New friend unlocked! 🎉</p>
-            <span
-              className="celebration-reward-emoji"
-              aria-hidden="true"
-              style={{ fontSize: `${Math.max(reward.size, 3)}rem` }}
-            >
-              {reward.emoji}
+            <span className="celebration-reward-stage" aria-hidden="true">
+              <span className="reward-sparkle s1">✨</span>
+              <span className="reward-sparkle s2">⭐</span>
+              <span className="reward-sparkle s3">✨</span>
+              <span className="reward-sparkle s4">🌟</span>
+              <span
+                className="celebration-reward-emoji"
+                style={{ fontSize: `${Math.max(reward.size, 3)}rem` }}
+              >
+                {reward.emoji}
+              </span>
             </span>
             <p className="celebration-reward-name">
               You earned the <strong>{reward.name}</strong>!
