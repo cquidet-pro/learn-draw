@@ -346,11 +346,10 @@ const unitedKingdom = (() => {
     "United Kingdom",
     "🇬🇧",
     [
+      // No internal guide strokes: any line we draw would stay visible on top of
+      // the finished flag (the diagonals/cross can't be traced without leaving
+      // stray lines). The Union Jack forms during the colour step instead.
       frame(),
-      // Guide lines drawn in the flag's own red (not dark) so they vanish into
-      // the red saltire/cross instead of leaving stray black lines.
-      { hint: "Add crosses from corner to corner ✖️", color: "#C8102E", strokes: [`M ${L},${T} L ${R},${B}`, `M ${R},${T} L ${L},${B}`] },
-      { hint: "Add a straight cross too ➕", color: "#C8102E", strokes: [`M 100,${T} L 100,${B}`, `M ${L},100 L ${R},100`] },
       colorStep(uj.fills),
     ],
     "The Union Jack joins three crosses together.",
