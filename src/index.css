@@ -397,6 +397,29 @@ body {
   opacity: 1;
 }
 
+/* Within a single "color it in" step, the matching regions (e.g. two cheeks,
+   nose + eyes) fill one at a time: already-filled stay solid, the active one
+   fades in over --fill-dur, and not-yet-reached ones are hidden. */
+.fill-seq-done {
+  opacity: 1;
+}
+.fill-seq-active {
+  opacity: 1;
+  animation: color-in var(--fill-dur, 0.6s) ease both;
+}
+.fill-seq-pending {
+  opacity: 0;
+}
+
+@keyframes color-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 /* Current step strokes draw one at a time, like a single pencil. The active
    stroke draws once (1 -> 0) and stays; AnimatedDrawing advances to the next
    stroke when this one finishes, then loops the whole step. */
