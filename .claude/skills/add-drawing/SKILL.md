@@ -72,6 +72,14 @@ point inside 0–200 or it vanishes.**
 - **Order strokes the way a child would draw them**: main outline/body first,
   then features (ears → eyes → nose → mouth → limbs → accessories). Never draw a
   detail before the shape it sits on.
+- **Connected limbs — legs, arms, necks, tails, ears, etc. MUST touch the body.**
+  Start each appendage a few units *inside* the shape it grows from (overlap by
+  ~4–8 units), never with a gap. A floating limb reads as broken. The reliable
+  trick: give a body a roughly **flat edge** where limbs attach (a rounded-loaf
+  outline like Cat/Dog: `M ... C ... L <flat bottom> C ...`) and start all the
+  legs ~2–4 units above that edge, so every leg visibly joins the body. Don't
+  hang legs off the bottom of a pure ellipse — the curved sides leave gaps at
+  the outer legs. Verify the join after coloring (see §5).
 - A step's strokes share one colour (`step.color`). For multi-colour art, split
   into multiple steps, or use `fills`.
 - `fills` are painted behind the outlines, so a final "Now color it all in! 🖍️"
@@ -80,6 +88,22 @@ point inside 0–200 or it vanishes.**
   for drawings whose colour comes from stroke colour (e.g. the stick-figure
   Family, the Rainbow). The animator reveals colour from the coloring step
   onward (see `afterReveal` in `AnimatedDrawing.tsx`).
+
+### Standard motifs — draw these the same way every time
+
+- **Sun ☀️** — a filled disc with **eight short rays** evenly around it (N, NE,
+  E, SE, S, SW, W, NW), like the emoji — never a bare circle or a 4-spoke cross.
+  Recipe for centre `cx,cy`, disc radius `r`, rays from `r+3` out to `r+10`
+  (diagonals use the `0.71` factor). Draw the disc as one stroke and the eight
+  rays as one stroke (eight `M…L` sub-paths), then fill the disc `#ffd23f` /
+  rays `#f4a300`. Example at `cx=170, cy=34, r=12`:
+  ```
+  // disc
+  "M 158,34 a 12,12 0 1,0 24,0 a 12,12 0 1,0 -24,0"
+  // 8 rays (N,S,E,W then the four diagonals)
+  "M 170,19 L 170,12 M 170,49 L 170,56 M 185,34 L 192,34 M 155,34 L 148,34 \
+   M 181,23 L 186,18 M 159,23 L 154,18 M 181,45 L 186,50 M 159,45 L 154,50"
+  ```
 
 ### You can't see while you type — always verify visually (see §5).
 
