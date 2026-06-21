@@ -218,7 +218,14 @@ Check each of these:
   steps: the counter should grow (one step per colour), each step should add one
   colour bottom-to-top, regions within a step fill one-at-a-time, and visually
   identical shades should land in the **same** step (tune the authored colours if
-  two that look alike split, or two distinct ones merge). No flash between steps.
+  two that look alike split, or two distinct ones merge).
+- [ ] **No colour flashes anywhere** — the picture must never blank or re-fade
+  as colours appear. Watch three transitions in particular: moving between two
+  colour steps, and pressing next on the **last** colour step so the finish
+  stars (and then the celebration) appear — the colours must stay solid, not
+  disappear and fade back. (These are handled by `AnimatedDrawing`: sequence
+  resets happen during render, and frozen fills use `fill-done`, not the
+  fading `fill-current` — don't reintroduce a fade there.)
 - [ ] **The written name is present and doesn't overlap the drawing** — confirm
   the final `nameStep` actually renders (every new drawing must have one), then
   rasterize the name layer and the art layer separately from the same SVG DOM
