@@ -10,11 +10,14 @@ interface Props {
   /** Set when the child just cleared a whole level — congratulate and announce
    *  the new level we're moving up to. */
   levelUp?: { from: string; to: string };
-  /** Name/emoji of the drawing we'll auto-advance to. */
-  nextName: string;
-  nextEmoji: string;
-  /** Start the next drawing now (also fired automatically when the timer ends). */
-  onAutoNext: () => void;
+  /** Name/emoji of the drawing we'll auto-advance to. Omitted when there's no
+   *  other drawing to offer (e.g. the only earned sticker) — then no "Next"
+   *  button or countdown is shown. */
+  nextName?: string;
+  nextEmoji?: string;
+  /** Start the next drawing now (also fired automatically when the timer ends).
+   *  Omitted when there's nothing to advance to. */
+  onAutoNext?: () => void;
   /** Go back to the home screen to pick another drawing. */
   onAgain: () => void;
   /** Replay the same drawing from step 1. */
@@ -49,15 +52,16 @@ export function Celebration({
 }: Props) {
   const [secs, setSecs] = useState(COUNTDOWN);
 
-  // When a new animal friend is unlocked, let the child enjoy it — no countdown,
-  // no auto-advance; they tap "Next" themselves when ready.
-  const autoAdvance = !reward;
+  const hasNext = !!onAutoNext;
+  // Auto-advance only when there IS a next drawing and no reward to enjoy first
+  // (a new animal friend pauses the countdown so the child can savour it).
+  const autoAdvance = hasNext && !reward;
 
   // Tick down once a second; when it hits zero, auto-advance to the next drawing.
   useEffect(() => {
     if (!autoAdvance) return;
     if (secs <= 0) {
-      onAutoNext();
+      onAutoNext?.();
       return;
     }
     const t = setTimeout(() => setSecs((s) => s - 1), 1000);
@@ -135,17 +139,22 @@ export function Celebration({
         {fact && <p className="celebration-fact">💡 {fact}</p>}
 
         <div className="celebration-buttons">
-          <button className="home-btn big next-btn" onClick={onAutoNext}>
-            <span>
-              Next: {nextEmoji} {nextName}
-            </span>
-            {autoAdvance && (
-              <span className="next-count" aria-live="polite">
-                starting in {secs}s
+          {hasNext && (
+            <button className="home-btn big next-btn" onClick={onAutoNext}>
+              <span>
+                Next: {nextEmoji} {nextName}
               </span>
-            )}
-          </button>
-          <button className="ghost-btn" onClick={onAgain}>
+              {autoAdvance && (
+                <span className="next-count" aria-live="polite">
+                  starting in {secs}s
+                </span>
+              )}
+            </button>
+          )}
+          <button
+            className={hasNext ? "ghost-btn" : "home-btn big next-btn"}
+            onClick={onAgain}
+          >
             🎨 Pick another
           </button>
           <button className="ghost-btn" onClick={onWatchAgain}>

@@ -73,7 +73,10 @@ export function DrawingPlayer({
   // Decided once when the celebration appears, so the countdown target is stable.
   // Paintings cycle among themselves; the leveled drawings stay within their
   // level until it's cleared, then graduate to the next level.
-  const nextUp = useMemo(() => {
+  const nextUp = useMemo<{
+    animal: Animal | null;
+    levelUp?: { from: string; to: string };
+  } | null>(() => {
     if (!celebrating) return null;
     // Stickers, paintings, flags and reward "friends" cycle within their own
     // pool; the leveled drawings graduate level by level.
@@ -83,7 +86,10 @@ export function DrawingPlayer({
       isFlag(animal.id) ||
       isFriendOnly(animal.id)
     ) {
-      return { animal: chooseNext(pool, animal.id, completed) };
+      const next = chooseNext(pool, animal.id, completed);
+      // chooseNext returns the same drawing when there's no other to offer
+      // (e.g. only one earned sticker) — treat that as "no next".
+      return { animal: next.id === animal.id ? null : next };
     }
     return chooseNextInLevels(animal, completed);
   }, [celebrating, pool, animal, completed, stickerMode]);
@@ -269,9 +275,11 @@ export function DrawingPlayer({
           fact={animal.fact}
           reward={reward}
           levelUp={nextUp.levelUp}
-          nextName={nextUp.animal.name}
-          nextEmoji={nextUp.animal.emoji}
-          onAutoNext={() => onGoTo(nextUp.animal)}
+          nextName={nextUp.animal?.name}
+          nextEmoji={nextUp.animal?.emoji}
+          onAutoNext={
+            nextUp.animal ? () => onGoTo(nextUp.animal as Animal) : undefined
+          }
           onAgain={onHome}
           onWatchAgain={() => {
             setCelebrating(false);
