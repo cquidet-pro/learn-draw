@@ -22,6 +22,7 @@ function scrollPage(dir: 1 | -1) {
 const ALIASES: Record<string, string[]> = {
   dog: ["dog", "puppy", "doggy", "doggie"],
   cat: ["cat", "kitty", "kitten"],
+  horse: ["horse", "horsey", "pony"],
   hedgehog: ["hedgehog", "hedge hog", "porcupine"],
   fish: ["fish", "fishy"],
   dinosaur: ["dinosaur", "dino", "rex", "t rex"],

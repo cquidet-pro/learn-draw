@@ -1,5 +1,6 @@
 import { dog } from "./drawings/dog";
 import { cat } from "./drawings/cat";
+import { horse } from "./drawings/horse";
 import { hedgehog } from "./drawings/hedgehog";
 import { fish } from "./drawings/fish";
 import { dinosaur } from "./drawings/dinosaur";
@@ -23,6 +24,7 @@ import { heromask7 } from "./drawings/heromask-7";
 import { heromask10 } from "./drawings/heromask-10";
 import { dog7 } from "./drawings/dog-7";
 import { cat7 } from "./drawings/cat-7";
+import { horse7 } from "./drawings/horse-7";
 import { fish7 } from "./drawings/fish-7";
 import { butterfly7 } from "./drawings/butterfly-7";
 import { flower7 } from "./drawings/flower-7";
@@ -40,6 +42,7 @@ import { family7 } from "./drawings/family-7";
 import { princess7 } from "./drawings/princess-7";
 import { dog10 } from "./drawings/dog-10";
 import { cat10 } from "./drawings/cat-10";
+import { horse10 } from "./drawings/horse-10";
 import { hedgehog10 } from "./drawings/hedgehog-10";
 import { fish10 } from "./drawings/fish-10";
 import { dinosaur10 } from "./drawings/dinosaur-10";
@@ -117,6 +120,7 @@ export interface Animal {
 export const animals: Animal[] = [
   dog,
   cat,
+  horse,
   hedgehog,
   fish,
   dinosaur,
@@ -137,6 +141,7 @@ export const animals: Animal[] = [
   // Level 7 — more refined versions of the same subjects.
   dog7,
   cat7,
+  horse7,
   fish7,
   butterfly7,
   flower7,
@@ -157,6 +162,7 @@ export const animals: Animal[] = [
   // Level 10 — even more detailed versions with little scenes.
   dog10,
   cat10,
+  horse10,
   hedgehog10,
   fish10,
   dinosaur10,
