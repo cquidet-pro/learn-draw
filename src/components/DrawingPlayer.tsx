@@ -230,8 +230,9 @@ export function DrawingPlayer({
         )}
       </div>
 
+      <p className="hint">{hint}</p>
+
       <Controls
-        hint={hint}
         stepIndex={player.stepIndex}
         stepCount={animal.steps.length}
         prevDisabled={player.isFirst && !finished && !celebrating}
