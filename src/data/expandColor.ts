@@ -20,8 +20,8 @@ import type { Animal, DrawStep } from "./animals";
 
 type Fill = { d: string; color: string; paper?: boolean };
 
-function measureBottoms(ds: string[]): number[] {
-  if (typeof document === "undefined") return ds.map(() => 0);
+function measureBoxes(ds: string[]): { bottom: number; area: number }[] {
+  if (typeof document === "undefined") return ds.map(() => ({ bottom: 0, area: 0 }));
   const NS = "http://www.w3.org/2000/svg";
   const svg = document.createElementNS(NS, "svg");
   svg.setAttribute("viewBox", "0 0 200 200");
@@ -34,9 +34,9 @@ function measureBottoms(ds: string[]): number[] {
     try {
       path.setAttribute("d", d);
       const b = path.getBBox();
-      return b.y + b.height;
+      return { bottom: b.y + b.height, area: Math.max(0, b.width) * Math.max(0, b.height) };
     } catch {
-      return 0;
+      return { bottom: 0, area: 0 };
     }
   });
   document.body.removeChild(svg);
@@ -46,11 +46,15 @@ function measureBottoms(ds: string[]): number[] {
 /** Hint shown on each colour step after the first. */
 const NEXT_COLOR_HINT = "Now the next colour! 🖍️";
 
-// Two fills whose colours are within this RGB distance are treated as "the same
-// colour" and share a step — so near-identical shades (e.g. a dog's dark eyes
-// #3a2a20 and dark nose #42301f) colour together instead of as two steps. Kept
-// small so genuinely different colours stay separate.
-const COLOR_MERGE = 36;
+// Colours are merged into one step AND flattened to a single shade when they're
+// "the same colour to a child". Near-identical shades always merge (small RGB
+// distance). Beyond that we merge by PERCEPTION: same colour family (close hue)
+// and not too far apart — so two subtle greens, or two pinks, become one, but a
+// pink cheek on a tan face (different hue) and a brown ear on a tan head (far in
+// RGB) stay their own colours. Tunable below.
+const RGB_SAME = 36; // always-merge: basically the same hex
+const HUE_SAME = 25; // degrees: within this hue, same colour family
+const RGB_FAMILY = 80; // …and within this RGB distance, merge the family
 
 // A fill this close to white counts as "paper" (left blank, not coloured).
 const PAPER_DIST = 16;
@@ -74,6 +78,36 @@ function colorDist(a: string, b: string): number {
   const pb = parseHex(b);
   if (!pa || !pb) return Infinity;
   return Math.hypot(pa[0] - pb[0], pa[1] - pb[1], pa[2] - pb[2]);
+}
+
+/** Hue angle (0–360) of an RGB triple; 0 for greys. */
+function hueOf([r, g, b]: [number, number, number]): number {
+  r /= 255;
+  g /= 255;
+  b /= 255;
+  const mx = Math.max(r, g, b);
+  const mn = Math.min(r, g, b);
+  const d = mx - mn;
+  if (d === 0) return 0;
+  let h: number;
+  if (mx === r) h = ((g - b) / d) % 6;
+  else if (mx === g) h = (b - r) / d + 2;
+  else h = (r - g) / d + 4;
+  h *= 60;
+  return h < 0 ? h + 360 : h;
+}
+
+/** Should these two fill colours be treated as the same colour (one step, one
+ *  flat shade)? */
+function sameColour(a: string, b: string): boolean {
+  const d = colorDist(a, b);
+  if (d <= RGB_SAME) return true;
+  const pa = parseHex(a);
+  const pb = parseHex(b);
+  if (!pa || !pb) return false;
+  let dh = Math.abs(hueOf(pa) - hueOf(pb));
+  if (dh > 180) dh = 360 - dh;
+  return dh < HUE_SAME && d < RGB_FAMILY;
 }
 
 const isPaper = (c: string) => colorDist(c, "#ffffff") <= PAPER_DIST;
@@ -109,34 +143,43 @@ export function expandColorSteps(animal: Animal): Animal {
       continue;
     }
 
-    // Cluster the painted fills by colour (near-identical shades share a step).
+    // Cluster the painted fills by colour (same-colour shades share a step).
     const clusters: { rep: string; items: { f: Fill; i: number }[] }[] = [];
     for (const x of painted) {
-      const c = clusters.find((cl) => colorDist(cl.rep, x.f.color) <= COLOR_MERGE);
+      const c = clusters.find((cl) => sameColour(cl.rep, x.f.color));
       if (c) c.items.push(x);
       else clusters.push({ rep: x.f.color, items: [x] });
     }
 
-    // A single colour and no paper to convert — leave the step exactly as-is.
-    if (clusters.length === 1 && papers.length === 0) {
+    const distinctColours = new Set(painted.map((x) => x.f.color)).size;
+    // One colour already, nothing to flatten, no paper to convert — leave as-is.
+    if (clusters.length === 1 && distinctColours === 1 && papers.length === 0) {
       steps.push(step);
       continue;
     }
 
     changed = true;
 
-    // Order the colour clusters bottom-to-top by their lowest-on-screen region.
-    const bottoms = measureBottoms(fills.map((f) => f.d));
+    // Measure geometry: bottom (for bottom-to-top order) and area (to pick each
+    // cluster's dominant shade — the colour the whole group is flattened to).
+    const boxes = measureBoxes(fills.map((f) => f.d));
     const clusterBottom = (cl: (typeof clusters)[number]) =>
-      Math.max(...cl.items.map((x) => bottoms[x.i]));
+      Math.max(...cl.items.map((x) => boxes[x.i].bottom));
     clusters.sort((a, b) => clusterBottom(b) - clusterBottom(a));
+
+    // The dominant (largest-area) shade each cluster is flattened to, so subtle
+    // variations of the same colour render as one flat colour.
+    const dominant = (cl: (typeof clusters)[number]) =>
+      cl.items.reduce((best, x) => (boxes[x.i].area > boxes[best.i].area ? x : best)).f
+        .color;
 
     // Build each colour step's items, tracking each fill's ORIGINAL index so we
     // can restore authored stacking order within the step.
     const stepItems: { d: string; color: string; i: number; paper: boolean }[][] =
-      clusters.map((cl) =>
-        cl.items.map((x) => ({ d: x.f.d, color: x.f.color, i: x.i, paper: false })),
-      );
+      clusters.map((cl) => {
+        const col = dominant(cl);
+        return cl.items.map((x) => ({ d: x.f.d, color: col, i: x.i, paper: false }));
+      });
     const stepOfIndex = new Map<number, number>();
     clusters.forEach((cl, si) => cl.items.forEach((x) => stepOfIndex.set(x.i, si)));
 
