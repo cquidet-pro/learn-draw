@@ -321,11 +321,24 @@ const cantonFlag = (
   fieldColor: string,
   extraStars: { cx: number; cy: number; r: number }[],
   fact?: string,
+  // Star styling. Default white stars (Australia). New Zealand uses red stars
+  // with a white outline — the easiest way to tell the two flags apart — drawn
+  // as a larger border star behind a smaller coloured one.
+  starColor = "#ffffff",
+  starBorder?: string,
 ) => {
-  // Blue/coloured field with a small Union Jack in the top-left + white stars.
+  // Blue/coloured field with a small Union Jack in the top-left + stars.
   const cR = L + W * 0.5,
     cB = T + H * 0.5;
   const uj = unionJack(L, T, cR, cB);
+  const starFills = extraStars.flatMap((s) =>
+    starBorder
+      ? [
+          { d: star(s.cx, s.cy, s.r), color: starBorder },
+          { d: star(s.cx, s.cy, s.r * 0.62), color: starColor },
+        ]
+      : [{ d: star(s.cx, s.cy, s.r), color: starColor }],
+  );
   return flag(
     id,
     name,
@@ -334,11 +347,7 @@ const cantonFlag = (
       frame(),
       { hint: "Make a little flag box in the corner", color: OUTLINE, strokes: [uj.box] },
       { hint: "Add the stars ⭐", color: OUTLINE, strokes: extraStars.map((s) => star(s.cx, s.cy, s.r)) },
-      colorStep([
-        { d: RECT, color: fieldColor },
-        ...uj.fills,
-        ...extraStars.map((s) => ({ d: star(s.cx, s.cy, s.r), color: "#ffffff" })),
-      ]),
+      colorStep([{ d: RECT, color: fieldColor }, ...uj.fills, ...starFills]),
     ],
     fact,
   );
@@ -366,12 +375,14 @@ const newZealand = cantonFlag(
   "🇳🇿",
   "#00247D",
   [
-    { cx: 150, cy: 72, r: 6 },
-    { cx: 166, cy: 100, r: 6 },
-    { cx: 148, cy: 128, r: 6 },
-    { cx: 134, cy: 100, r: 6 },
+    { cx: 150, cy: 72, r: 7 },
+    { cx: 168, cy: 102, r: 7 },
+    { cx: 148, cy: 130, r: 7 },
+    { cx: 132, cy: 100, r: 7 },
   ],
   "New Zealand's flag has four red stars.",
+  "#CC142B", // red stars...
+  "#ffffff", // ...with a white outline
 );
 
 const canada = (() => {
