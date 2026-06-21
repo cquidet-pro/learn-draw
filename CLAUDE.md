@@ -133,3 +133,9 @@ Push to `main` → `.github/workflows/deploy.yml` builds and deploys to GitHub P
 Pages **Source must be "GitHub Actions"** (already configured). Live at
 `https://cquidet-pro.github.io/learn-draw/`. `tsconfig.tsbuildinfo` is gitignored —
 if it ever gets staged, `git rm --cached` it before committing.
+
+**Standing workflow:** after every merge to `main`, automatically watch the
+deploy (`watch-deploy` skill) and tell the user once it's live and ready to
+check — don't wait to be asked. Develop each new feature/fix on a fresh branch
+cut from the latest `main` (avoids the repeated merge conflicts a long-lived
+branch causes).
