@@ -159,9 +159,20 @@ point inside 0–200 or it vanishes.**
 
 Flags live in `src/data/flags.ts` (not `drawings/`). They share helpers and a
 fixed **3:2 box** (`L,T,R,B` / `RECT`). Every flag we ship has been wrong at
-least once; this checklist is the hard-won fix list. **If the user gives a
-reference image, you MUST render the flag from the real data and compare it
-side-by-side with that image before shipping — never judge a flag from code.**
+least once; this checklist is the hard-won fix list.
+
+**ALWAYS verify against an authoritative reference — never ship a flag from
+memory.** If the user gives a reference image, compare to it. If they don't,
+**fetch one** (e.g. `WebFetch` the Wikipedia "Flag of X" page for the exact
+geometry, and/or a flag image) — do not reconstruct from memory. Then render the
+flag from the real data and put it **side-by-side** with the reference.
+
+**Check explicit properties of every emblem, one by one — "looks roughly right"
+is how the Singapore crescent shipped flipped *and* with the stars overlapping
+the moon.** For each emblem write down and confirm, by zooming into a crop (not
+the thumbnail): **orientation** (which way does the crescent/swirl/leaf face?),
+**no overlap** between separate elements, **symmetry**, **count** (50 stars? 5
+stars? 13 stripes?), and **colours**. Tick each one against the reference.
 
 **Rendering a flag to compare (the build trick that actually works):**
 `npm run build` fails locally at `tsc` (a pre-existing `vite.config.ts` node
@@ -201,14 +212,22 @@ For a UI/preview build use `npx vite build` (skips tsc) + `npm run preview`.
   eye. Its four trigrams sit on the diagonals **tilted 45°** (bars point at the
   centre), not as flat horizontal bars.
 - **Crescents (Singapore): use a real lune path** (`crescent(…)`), not a white
-  circle with a field-colour "bite" circle — fill ordering paints the bite
-  under the moon and you see a **full circle**. The inner-arc sweep flag decides
-  whether you get a crescent or a blob — verify by rendering.
-- **Organic emblems (Canada maple leaf, etc.): don't make radial spikes.** Equal
-  spikes around a centre read as a **snowflake/star**, not a leaf. Keep the
-  serrations near the **outer** edge (shallow notches that stay close to the line
-  between tips), a solid body, and a clear stem. Render it **big** and iterate
-  until the silhouette is right.
+  circle with a field-colour "bite" circle — fill ordering paints the bite under
+  the moon and you see a **full circle**. SVG arc flags are *ambiguous*: the same
+  two endpoints admit two circle centres, so the wrong `large-arc`/`sweep` combo
+  silently **flips the crescent** (opens left instead of right) — which shipped
+  once. Don't reason the flags out by eye; render the four flag combos in a grid
+  and pick the one matching the reference (the working combo is in `crescent()`;
+  re-verify if you touch it). Singapore's crescent opens **right** (toward the
+  fly) and its five stars sit in a pentagon **clear of** the moon, not on it.
+- **Complex official emblems (Canada maple leaf, coats of arms): don't hand-trace
+  them.** Hand-drawn maple leaves came out as snowflakes/stars over many
+  attempts. Instead **fetch the official public-domain flag SVG** (e.g.
+  `curl` the Wikimedia "Flag of X.svg"), pull out the emblem's path, and
+  **parse → convert to absolute → uniform-scale/translate** it into our box (a
+  ~30-line node script; keep its arcs). That's how Canada's leaf was finally
+  right — it *is* the official path. For a genuinely simple shape you may author
+  by hand, but render it **big** and compare to the reference.
 - **Constellations/star groups: place them deliberately** (e.g. Singapore's five
   stars in a clean pentagon in the crescent's opening; Brazil's many stars
   scattered across the globe, with the band sweeping diagonally) — a few stars
