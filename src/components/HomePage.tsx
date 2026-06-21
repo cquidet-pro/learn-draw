@@ -156,49 +156,42 @@ export function HomePage({
       <Brand />
       <p className="subtitle">Pick something to draw 👇</p>
 
-      {/* Difficulty levels, with Famous Paintings sitting right after Harder
-          as a fourth "collection" to draw. */}
+      {/* Two rows: difficulty levels on top, then the "collections" to explore
+          (Paintings / My Stickers / Fun Facts) below. */}
       <div className="level-row">
         <LevelSelector level={level} onChange={onLevelChange} />
-        <button
-          className="level-btn paintings-pick"
-          onClick={onOpenPaintings}
-          aria-label="Famous paintings"
-        >
-          <span className="level-icon" aria-hidden="true">
-            🖼️
-          </span>
-          <span className="level-label">
-            <span className="lbl-long">Paintings</span>
-            <span className="lbl-short" aria-hidden="true">Art</span>
-          </span>
-        </button>
-        <button
-          className="level-btn trophies-pick"
-          onClick={onOpenTrophies}
-          aria-label="My stickers"
-        >
-          <span className="level-icon" aria-hidden="true">
-            🏆
-          </span>
-          <span className="level-label">
-            <span className="lbl-long">My Stickers</span>
-            <span className="lbl-short" aria-hidden="true">Stickers</span>
-          </span>
-        </button>
-        <button
-          className="level-btn facts-pick"
-          onClick={onOpenFacts}
-          aria-label="Fun facts"
-        >
-          <span className="level-icon" aria-hidden="true">
-            💡
-          </span>
-          <span className="level-label">
-            <span className="lbl-long">Fun Facts</span>
-            <span className="lbl-short" aria-hidden="true">Facts</span>
-          </span>
-        </button>
+        <div className="pick-row">
+          <button
+            className="level-btn paintings-pick"
+            onClick={onOpenPaintings}
+            aria-label="Famous paintings"
+          >
+            <span className="level-icon" aria-hidden="true">
+              🖼️
+            </span>
+            <span className="level-label">Paintings</span>
+          </button>
+          <button
+            className="level-btn trophies-pick"
+            onClick={onOpenTrophies}
+            aria-label="My stickers"
+          >
+            <span className="level-icon" aria-hidden="true">
+              🏆
+            </span>
+            <span className="level-label">My Stickers</span>
+          </button>
+          <button
+            className="level-btn facts-pick"
+            onClick={onOpenFacts}
+            aria-label="Fun facts"
+          >
+            <span className="level-icon" aria-hidden="true">
+              💡
+            </span>
+            <span className="level-label">Fun Facts</span>
+          </button>
+        </div>
       </div>
 
       {/* Visual divider between the "what to draw" picker above and the tool
