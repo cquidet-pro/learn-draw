@@ -132,8 +132,10 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
 }
 
 /** The mic on/off toggle. While listening, a little legend bubble appears
- *  right next to it showing what you can say. Place it anywhere in the layout. */
-export function VoiceButton() {
+ *  right next to it showing what you can say. Place it anywhere in the layout.
+ *  Pass `hint` to override the list of words for the current screen (e.g. the
+ *  drawing page only supports next/back/home). */
+export function VoiceButton({ hint }: { hint?: ReactNode } = {}) {
   const { supported, listening, toggle } = useVoice();
   const lastHeard = useContext(VoiceHeardContext);
 
@@ -159,7 +161,11 @@ export function VoiceButton() {
       {listening && (
         <span className="voice-legend-pop">
           <span className="voice-legend">
-            Say a name · <b>next</b> · <b>back</b> · <b>up</b> · <b>down</b>
+            {hint ?? (
+              <>
+                Say a name · <b>next</b> · <b>back</b> · <b>up</b> · <b>down</b>
+              </>
+            )}
           </span>
           {lastHeard && <span className="voice-heard">🗣️ "{lastHeard}"</span>}
         </span>
