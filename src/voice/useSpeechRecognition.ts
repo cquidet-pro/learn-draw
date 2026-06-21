@@ -25,6 +25,8 @@ interface SpeechRec {
   onresult: ((e: SpeechRecEvent) => void) | null;
   onend: (() => void) | null;
   onerror: ((e: SpeechRecErrorEvent) => void) | null;
+  onstart: (() => void) | null;
+  onaudiostart: (() => void) | null;
 }
 type SpeechRecCtor = new () => SpeechRec;
 
@@ -59,10 +61,36 @@ export function useSpeechRecognition(
 
   const recRef = useRef<SpeechRec | null>(null);
   const wantRef = useRef(false); // desired state, drives auto-restart
+  const runningRef = useRef(false); // is the engine actually capturing now?
+  const startingRef = useRef(false); // a start() is pending its onstart
+  const watchdogRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Start the engine if we want it on and it isn't already running/starting.
+  // Browsers throw if start() is called while active, so we guard and swallow.
+  const safeStart = useCallback(() => {
+    const rec = recRef.current;
+    if (!rec || !wantRef.current || runningRef.current || startingRef.current) {
+      return;
+    }
+    startingRef.current = true;
+    try {
+      rec.start();
+    } catch {
+      // Already running, or a stale instance — clear the guard so the watchdog
+      // can try again on its next tick.
+      startingRef.current = false;
+    }
+  }, []);
 
   const stop = useCallback(() => {
     wantRef.current = false;
-    recRef.current?.stop();
+    if (watchdogRef.current !== null) {
+      clearInterval(watchdogRef.current);
+      watchdogRef.current = null;
+    }
+    recRef.current?.abort();
+    runningRef.current = false;
+    startingRef.current = false;
     setListening(false);
   }, []);
 
@@ -82,6 +110,15 @@ export function useSpeechRecognition(
       // alternative avoids the engine computing/ranking extras, shaving latency.
       rec.maxAlternatives = 1;
       rec.lang = "en-US";
+      rec.onstart = () => {
+        runningRef.current = true;
+        startingRef.current = false;
+        setListening(true);
+      };
+      rec.onaudiostart = () => {
+        runningRef.current = true;
+        startingRef.current = false;
+      };
       rec.onresult = (e) => {
         const idx = e.results.length - 1;
         const last = e.results[idx];
@@ -90,51 +127,47 @@ export function useSpeechRecognition(
         }
       };
       rec.onerror = (e) => {
+        startingRef.current = false;
         if (e.error === "not-allowed" || e.error === "service-not-allowed") {
           setError("Microphone is blocked. Allow mic access to use voice.");
           wantRef.current = false;
           setListening(false);
         }
-        // "no-speech"/"aborted" are transient — onend restarts us.
+        // "no-speech"/"aborted"/"network" are transient — onend restarts us.
       };
       rec.onend = () => {
+        runningRef.current = false;
+        startingRef.current = false;
         if (!wantRef.current) {
           setListening(false);
           return;
         }
-        // Browsers stop after a pause; restart at once to keep listening. If the
-        // immediate restart races (throws), retry shortly so we don't get stuck
-        // silently unresponsive.
-        try {
-          rec!.start();
-        } catch {
-          setTimeout(() => {
-            if (wantRef.current) {
-              try {
-                rec!.start();
-              } catch {
-                /* will try again on the next onend */
-              }
-            }
-          }, 200);
-        }
+        // Browsers stop after a pause (or sometimes after each phrase); restart
+        // immediately to minimize the "deaf" gap where speech would be missed.
+        safeStart();
       };
       recRef.current = rec;
     }
 
     wantRef.current = true;
-    try {
-      rec.start();
-      setListening(true);
-    } catch {
-      /* already running */
+    setListening(true);
+    safeStart();
+
+    // Watchdog: some browsers stop recognition without ever firing `onend`
+    // (a silent death), which would leave the mic looking on but deaf. Poll
+    // and revive it whenever we want it on but it isn't running.
+    if (watchdogRef.current === null) {
+      watchdogRef.current = setInterval(() => {
+        if (wantRef.current && !runningRef.current) safeStart();
+      }, 1500);
     }
-  }, []);
+  }, [safeStart]);
 
   // Stop listening when the app unmounts.
   useEffect(() => {
     return () => {
       wantRef.current = false;
+      if (watchdogRef.current !== null) clearInterval(watchdogRef.current);
       recRef.current?.abort();
     };
   }, []);
