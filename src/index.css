@@ -29,6 +29,9 @@
 [data-theme="dark"] .paintings-pick {
   background: #302c44;
 }
+[data-theme="dark"] .trophies-pick {
+  background: #2c2740;
+}
 [data-theme="dark"] .voice-legend-pop {
   background: #262636;
   color: var(--ink);
@@ -960,6 +963,11 @@ kbd {
 .paintings-pick {
   background: #f1ecff;
   border-color: var(--accent-2);
+}
+
+.trophies-pick {
+  background: #fff3d6;
+  border-color: #06d6a0;
 }
 
 .level-btn {
