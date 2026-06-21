@@ -155,6 +155,67 @@ point inside 0–200 or it vanishes.**
    M 181,23 L 186,18 M 159,23 L 154,18 M 181,45 L 186,50 M 159,45 L 154,50"
   ```
 
+### Flags — match a reference, and avoid these specific pitfalls
+
+Flags live in `src/data/flags.ts` (not `drawings/`). They share helpers and a
+fixed **3:2 box** (`L,T,R,B` / `RECT`). Every flag we ship has been wrong at
+least once; this checklist is the hard-won fix list. **If the user gives a
+reference image, you MUST render the flag from the real data and compare it
+side-by-side with that image before shipping — never judge a flag from code.**
+
+**Rendering a flag to compare (the build trick that actually works):**
+`npm run build` fails locally at `tsc` (a pre-existing `vite.config.ts` node
+types error), so it never produces `dist`. To see a flag, bundle just the data
+with esbuild and render the *final* state (all `fills`, then the outline
+`strokes` at their `strokeWidth`):
+```bash
+npx esbuild src/data/flags.ts --bundle --format=esm --outfile=/tmp/flags.mjs
+# tiny node script: import {flags}, build an <svg> = fills (stroke none) + strokes
+# (fill none, stroke=step.color, stroke-width=step.strokeWidth??4), screenshot
+# with headless Chrome, then put it next to the user's reference at equal size.
+```
+For a UI/preview build use `npx vite build` (skips tsc) + `npm run preview`.
+
+**Pitfalls — each of these shipped wrong once:**
+- **Outline strokes are drawn ON TOP of the fills in the final picture** (pass 2).
+  Any dark guide line you add for the animation stays visible over the colours.
+  - For a border it's fine. For *internal* guide lines that shouldn't appear in
+    the design (e.g. the UK saltire/cross construction lines), give the stroke
+    **the flag's own colour** (red) so it vanishes into the matching coloured
+    band — don't use the dark `OUTLINE`. Black diagonal/cross lines over the
+    Union Jack are the classic bug.
+  - `flag()` already thins every flag's strokes to **1.5px** (flat colour
+    regions read cleanest crisp, not bold). Don't override unless needed.
+- **Crosses: draw ONE plus-shaped outline, never two overlapping rectangles.**
+  Two bar rectangles each get outlined, leaving a black-outlined **square where
+  they cross** (hit Switzerland, Denmark, the Greek canton). Use `plusOutline(…)`
+  for the stroke; the fills can stay as two rects.
+- **Same 3:2 box for every flag.** Don't give one its own proportions
+  (Switzerland was square and stuck out). Use `frame()`/`RECT`.
+- **Stripe dividers must not cross an overlaid canton** — they show as stray
+  lines over it (Greece). Start those dividers at the canton's edge, not `L`.
+- **Taegeuk (South Korea) is easy to get rotated 90° or mirrored.** Correct:
+  red **on top**, blue on the bottom, split by a **horizontal** S — red dips
+  down on the **left**, blue rises up on the **right**. Render candidate
+  sweep-flag combos and compare to the reference; don't trust the arc flags by
+  eye. Its four trigrams sit on the diagonals **tilted 45°** (bars point at the
+  centre), not as flat horizontal bars.
+- **Crescents (Singapore): use a real lune path** (`crescent(…)`), not a white
+  circle with a field-colour "bite" circle — fill ordering paints the bite
+  under the moon and you see a **full circle**. The inner-arc sweep flag decides
+  whether you get a crescent or a blob — verify by rendering.
+- **Organic emblems (Canada maple leaf, etc.): don't make radial spikes.** Equal
+  spikes around a centre read as a **snowflake/star**, not a leaf. Keep the
+  serrations near the **outer** edge (shallow notches that stay close to the line
+  between tips), a solid body, and a clear stem. Render it **big** and iterate
+  until the silhouette is right.
+- **Constellations/star groups: place them deliberately** (e.g. Singapore's five
+  stars in a clean pentagon in the crescent's opening; Brazil's many stars
+  scattered across the globe, with the band sweeping diagonally) — a few stars
+  dumped near a motif reads as a face. Keep emblems off the field edges (margin).
+- New stars/circles/crosses already have helpers: `star`, `circle`, `rectPath`,
+  `plusOutline`, `crescent`. Reuse them.
+
 ### You can't see while you type — always verify visually (see §5).
 
 ## 4. The "write the name" finale — ALWAYS add it
