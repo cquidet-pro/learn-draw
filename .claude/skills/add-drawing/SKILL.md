@@ -301,22 +301,31 @@ get right, impossible to forget.
 
 ## 5. Verification checklist — DO ALL OF THESE
 
-Run `npm run build` first (it's `tsc -b && vite build`, so it type-checks).
+**Type-check:** run `npx tsc -b`. On this macOS checkout it also reports two
+pre-existing `vite.config.ts` "Cannot find module 'node:fs'" errors (missing
+`@types/node`) — those are environmental; only care about errors in the file you
+touched. `npm run build` chains `tsc -b && vite build`, so it stops at those tsc
+errors and never builds `dist` locally — use **`npx vite build`** when you need a
+real build (it skips tsc).
 
-Then verify **visually with headless Chromium** — you cannot judge SVG by
-reading it. Recipe used throughout this repo:
+Then verify **visually with headless Chrome** — you cannot judge SVG by reading
+it. Two methods (no playwright in this env; use the system Chrome at
+`/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`):
 
 ```bash
-# 1. Build with relative paths so file:// / a tiny static server works
-npx vite build --base ./ --outDir /tmp/relbuild
-# 2. playwright-core is pruned by the SessionStart hook — reinstall each run
-npm install --no-save playwright-core@1.56.1
-# 3. Drive it: chromium at /opt/pw-browsers/chromium-1194/chrome-linux/chrome,
-#    env PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers, serve /tmp/relbuild over http.
-#    Use context { reducedMotion: "no-preference" } to SEE animation;
-#    "reduce" renders every step instantly solid (handy for final-state shots).
-#    Advance with the "Next step" button until the ".step-indicator" reads X / X.
-#    Screenshot the ".drawing" element and Read the PNG.
+# A. Render just the data (fast; the workhorse all over this repo). Bundle the
+#    data module with esbuild, then a tiny node script builds an <svg> from the
+#    fills/strokes and screenshots it; Read the PNG.
+npx esbuild src/data/flags.ts --bundle --format=esm --outfile=/tmp/x.mjs
+#    ...node script imports {flags}, emits <svg>, then:
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  --headless=new --screenshot=/tmp/out.png --window-size=400,400 /tmp/x.svg
+
+# B. Drive the real app / run logic that needs the DOM (e.g. expandColorSteps,
+#    getBBox). `npx vite build` then `python3 -m http.server` an HTML page that
+#    imports the bundle; capture results with --dump-dom or --screenshot and
+#    --virtual-time-budget for async work. (This is how the A/B colour-stacking
+#    sweep runs — see the "Overlapping layers" check below.)
 ```
 
 Check each of these:
