@@ -236,12 +236,24 @@ For a UI/preview build use `npx vite build` (skips tsc) + `npm run preview`.
   ~30-line node script; keep its arcs). That's how Canada's leaf was finally
   right — it *is* the official path. For a genuinely simple shape you may author
   by hand, but render it **big** and compare to the reference.
-- **Constellations/star groups: place them deliberately** (e.g. Singapore's five
-  stars in a clean pentagon in the crescent's opening; Brazil's many stars
-  scattered across the globe, with the band sweeping diagonally) — a few stars
-  dumped near a motif reads as a face. Keep emblems off the field edges (margin).
-- New stars/circles/crosses already have helpers: `star`, `circle`, `rectPath`,
-  `plusOutline`, `crescent`. Reuse them.
+- **Constellations/star groups: use the OFFICIAL positions, never scatter by
+  hand.** Hand-placing Brazil's stars looked random and "wrong/too many".
+  Pull the real `<use x= y=>` coordinates and sizes from the official SVG and map
+  them in (point-count, position, and relative size all come from the data).
+- **Reducing a busy emblem: cut the COUNT, keep the SPREAD.** When the faithful
+  version is too dense for our small flag, drop stars but **sample across the
+  whole region — the brightest one from each cluster** — keeping each at its
+  official position. Do NOT take a spatially-contiguous subset (e.g. only the
+  Southern Cross): nearby stars clump into a tiny blob and stop reading as the
+  flag. Bump a size multiplier so the survivors are visible.
+- **How simplified is a user preference — ask, don't keep guessing.** "How many
+  stars / how much detail" has no single right answer for the kid version. If a
+  reference is faithful but the user calls it "too busy", and you've guessed
+  wrong once, ask which density they want (e.g. ~9 / ~14 / all) rather than
+  iterating blind.
+- New stars/circles/crosses already have helpers: `star` (pass `points` for
+  7-pointed etc.), `circle`, `rectPath`, `plusOutline`, `crescent`, and
+  `clipPoly` for clipping a band/region to a shape. Reuse them.
 
 ### You can't see while you type — always verify visually (see §5).
 
