@@ -678,6 +678,9 @@ kbd {
   font-size: 1.05rem !important;
   font-weight: 700;
   background: #fff8e7;
+  /* The cream background is light in both themes, so pin a dark text colour —
+     otherwise dark mode inherits light text and it's unreadable on the cream. */
+  color: #3a3a55;
   border-radius: 14px;
   padding: 0.6rem 0.8rem;
   margin: 0 0 1.2rem !important;
