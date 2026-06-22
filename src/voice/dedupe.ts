@@ -1,12 +1,18 @@
 // Sliding-window de-duplication for voice commands.
 //
-// Speech recognition (and excited kids) can repeat the same word in a quick
-// burst — "next next" — which we don't want to act on twice. Saying the same
-// command again within DEDUP_WINDOW_MS is treated as a single command.
+// The point is to absorb the SPEECH ENGINE's own stutter for a single spoken
+// word: an interim result and its final, plus the auto-restart re-delivering the
+// same word, all land within a few hundred milliseconds and would otherwise fire
+// the command twice. The window must stay SHORT — long enough to swallow that
+// machine echo, but well under the cadence of a child deliberately repeating a
+// command ("next" … wait … "next"). At 2000ms it ate real repeats: a second,
+// deliberate "next" a beat later was suppressed (and its words consumed, so it
+// couldn't re-fire even after the window), which felt like the command getting
+// stuck until you spammed "next next next" past it.
 //
 // Tune the window by changing this one constant; it's used everywhere voice
 // commands are dispatched.
-export const DEDUP_WINDOW_MS = 2000;
+export const DEDUP_WINDOW_MS = 700;
 
 /**
  * Remembers recently handled command keys and reports whether a key repeats
