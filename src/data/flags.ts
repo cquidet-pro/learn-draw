@@ -79,7 +79,10 @@ const crescent = (cx: number, cy: number, R: number, dx: number, br: number) => 
   const a = (dx * dx + R * R - br * br) / (2 * dx);
   const h = Math.sqrt(Math.max(0, R * R - a * a));
   const px = cx + a;
-  return `M ${n(px)},${n(cy - h)} A ${R},${R} 0 1,1 ${n(px)},${n(cy + h)} A ${br},${br} 0 0,0 ${n(px)},${n(cy - h)} Z`;
+  // Outer arc sweeps the major arc AROUND THE LEFT (the far side from the bite),
+  // inner arc is the bite's left edge — giving a moon that opens to the RIGHT.
+  // The sweep flags below are verified by rendering; re-check if params change.
+  return `M ${n(px)},${n(cy - h)} A ${R},${R} 0 1,0 ${n(px)},${n(cy + h)} A ${br},${br} 0 0,1 ${n(px)},${n(cy - h)} Z`;
 };
 
 // ---- Striped flags (equal or weighted bands) -------------------------------
