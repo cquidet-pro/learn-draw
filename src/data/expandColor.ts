@@ -20,8 +20,10 @@ import type { Animal, DrawStep } from "./animals";
 
 type Fill = { d: string; color: string; paper?: boolean };
 
-function measureBoxes(ds: string[]): { bottom: number; area: number }[] {
-  if (typeof document === "undefined") return ds.map(() => ({ bottom: 0, area: 0 }));
+type Box = { x: number; y: number; w: number; h: number; bottom: number; area: number };
+function measureBoxes(ds: string[]): Box[] {
+  const empty = (): Box => ({ x: 0, y: 0, w: 0, h: 0, bottom: 0, area: 0 });
+  if (typeof document === "undefined") return ds.map(empty);
   const NS = "http://www.w3.org/2000/svg";
   const svg = document.createElementNS(NS, "svg");
   svg.setAttribute("viewBox", "0 0 200 200");
@@ -34,13 +36,23 @@ function measureBoxes(ds: string[]): { bottom: number; area: number }[] {
     try {
       path.setAttribute("d", d);
       const b = path.getBBox();
-      return { bottom: b.y + b.height, area: Math.max(0, b.width) * Math.max(0, b.height) };
+      const w = Math.max(0, b.width);
+      const h = Math.max(0, b.height);
+      return { x: b.x, y: b.y, w, h, bottom: b.y + h, area: w * h };
     } catch {
-      return { bottom: 0, area: 0 };
+      return empty();
     }
   });
   document.body.removeChild(svg);
   return out;
+}
+
+// Do two bounding boxes really overlap (not merely touch)? Used to decide
+// stacking constraints, so a small overlap epsilon avoids false positives from
+// regions that only share an edge (e.g. adjacent stripes).
+function boxesOverlap(a: Box, b: Box): boolean {
+  const e = 0.5;
+  return a.x < b.x + b.w - e && b.x < a.x + a.w - e && a.y < b.y + b.h - e && b.y < a.y + a.h - e;
 }
 
 /** Hint shown on each colour step after the first. */
@@ -128,13 +140,6 @@ export function expandColorSteps(animal: Animal): Animal {
       steps.push(step);
       continue;
     }
-    // Opt-out: keep layered emblems as one step so the per-colour reordering
-    // can't paint a later colour over them (their authored stacking is correct).
-    if (step.noSplit) {
-      steps.push(step);
-      continue;
-    }
-
     // Separate the real colours from the "paper" (white) regions.
     const painted = fills
       .map((f, i) => ({ f, i }))
@@ -149,60 +154,115 @@ export function expandColorSteps(animal: Animal): Animal {
       continue;
     }
 
-    // Cluster the painted fills by colour (same-colour shades share a step).
-    const clusters: { rep: string; items: { f: Fill; i: number }[] }[] = [];
-    for (const x of painted) {
-      const c = clusters.find((cl) => sameColour(cl.rep, x.f.color));
-      if (c) c.items.push(x);
-      else clusters.push({ rep: x.f.color, items: [x] });
-    }
-
     const distinctColours = new Set(painted.map((x) => x.f.color)).size;
-    // One colour already, nothing to flatten, no paper to convert — leave as-is.
-    if (clusters.length === 1 && distinctColours === 1 && papers.length === 0) {
+    // One colour and no paper to convert — leave the step untouched.
+    if (distinctColours === 1 && papers.length === 0) {
       steps.push(step);
       continue;
     }
 
     changed = true;
 
-    // Measure geometry: bottom (for bottom-to-top order) and area (to pick each
-    // cluster's dominant shade — the colour the whole group is flattened to).
+    // Geometry of every fill (bbox + overlap test) for ordering and stacking.
     const boxes = measureBoxes(fills.map((f) => f.d));
-    const clusterBottom = (cl: (typeof clusters)[number]) =>
+    const overlaps = (i: number, j: number) => boxesOverlap(boxes[i], boxes[j]);
+
+    // Cluster painted fills by colour, but start a NEW cluster for a colour when
+    // a different-colour fill that OVERLAPS it was painted in between — otherwise
+    // merging would drag a fill into an earlier step and invert the stacking
+    // (e.g. a flag's shield is the same red as the field but sits over the badge).
+    type Cluster = { rep: string; items: { f: Fill; i: number }[]; maxI: number };
+    const clusters: Cluster[] = [];
+    for (const x of painted) {
+      let host: Cluster | undefined;
+      for (let k = clusters.length - 1; k >= 0; k--) {
+        if (!sameColour(clusters[k].rep, x.f.color)) continue;
+        const blocked = painted.some(
+          (g) =>
+            g.i > clusters[k].maxI &&
+            g.i < x.i &&
+            !sameColour(g.f.color, x.f.color) &&
+            overlaps(g.i, x.i),
+        );
+        host = blocked ? undefined : clusters[k];
+        break;
+      }
+      if (host) {
+        host.items.push(x);
+        host.maxI = x.i;
+      } else {
+        clusters.push({ rep: x.f.color, items: [x], maxI: x.i });
+      }
+    }
+
+    // The dominant (largest-area) shade each cluster is flattened to.
+    const dominant = (cl: Cluster) =>
+      cl.items.reduce((best, x) => (boxes[x.i].area > boxes[best.i].area ? x : best)).f.color;
+    const clusterBottom = (cl: Cluster) =>
       Math.max(...cl.items.map((x) => boxes[x.i].bottom));
-    clusters.sort((a, b) => clusterBottom(b) - clusterBottom(a));
 
-    // The dominant (largest-area) shade each cluster is flattened to, so subtle
-    // variations of the same colour render as one flat colour.
-    const dominant = (cl: (typeof clusters)[number]) =>
-      cl.items.reduce((best, x) => (boxes[x.i].area > boxes[best.i].area ? x : best)).f
-        .color;
+    // Order the clusters: cluster A must come BEFORE B if a fill of A sits under
+    // (authored earlier than, and overlaps) a fill of B — so authored stacking is
+    // preserved. Among clusters with no such constraint, colour the lowest one
+    // first (bottom-to-top). Topological sort (Kahn) with that tiebreak.
+    const N = clusters.length;
+    const reqAfter: Set<number>[] = clusters.map(() => new Set<number>());
+    const indeg = new Array(N).fill(0);
+    for (let a = 0; a < N; a++) {
+      for (let b = 0; b < N; b++) {
+        if (a === b || reqAfter[a].has(b)) continue;
+        const under = clusters[a].items.some((ia) =>
+          clusters[b].items.some((ib) => ia.i < ib.i && overlaps(ia.i, ib.i)),
+        );
+        if (under) {
+          reqAfter[a].add(b);
+          indeg[b]++;
+        }
+      }
+    }
+    const order: number[] = [];
+    const avail = new Set<number>();
+    for (let k = 0; k < N; k++) if (indeg[k] === 0) avail.add(k);
+    while (avail.size) {
+      let pick = -1;
+      let best = -Infinity;
+      for (const k of avail) {
+        const cb = clusterBottom(clusters[k]);
+        if (cb > best) {
+          best = cb;
+          pick = k;
+        }
+      }
+      avail.delete(pick);
+      order.push(pick);
+      for (const m of reqAfter[pick]) if (--indeg[m] === 0) avail.add(m);
+    }
+    for (let k = 0; k < N; k++) if (!order.includes(k)) order.push(k); // cycle safety
 
-    // Build each colour step's items, tracking each fill's ORIGINAL index so we
-    // can restore authored stacking order within the step.
+    const orderedClusters = order.map((k) => clusters[k]);
     const stepItems: { d: string; color: string; i: number; paper: boolean }[][] =
-      clusters.map((cl) => {
+      orderedClusters.map((cl) => {
         const col = dominant(cl);
         return cl.items.map((x) => ({ d: x.f.d, color: col, i: x.i, paper: false }));
       });
     const stepOfIndex = new Map<number, number>();
-    clusters.forEach((cl, si) => cl.items.forEach((x) => stepOfIndex.set(x.i, si)));
+    orderedClusters.forEach((cl, si) => cl.items.forEach((x) => stepOfIndex.set(x.i, si)));
 
-    // Attach each paper region to the step of the colour directly beneath it
-    // (the nearest earlier painted fill), so that colour fills around it. A paper
-    // region under no colour is dropped (the canvas already is the paper).
+    // Attach each paper region to the colour directly beneath it: the nearest
+    // earlier painted fill that OVERLAPS it (fall back to nearest earlier by
+    // index). A paper region under no colour is dropped — the canvas is paper.
     for (const pf of papers) {
-      let bestIdx = -1;
-      let bestStep = -1;
-      for (const [idx, si] of stepOfIndex) {
-        if (idx < pf.i && idx > bestIdx) {
-          bestIdx = idx;
-          bestStep = si;
-        }
+      let bestOv = -1;
+      let bestAny = -1;
+      for (const idx of stepOfIndex.keys()) {
+        if (idx >= pf.i) continue;
+        if (idx > bestAny) bestAny = idx;
+        if (idx > bestOv && overlaps(idx, pf.i)) bestOv = idx;
       }
-      if (bestStep >= 0) {
-        stepItems[bestStep].push({ d: pf.f.d, color: pf.f.color, i: pf.i, paper: true });
+      const host = bestOv >= 0 ? bestOv : bestAny;
+      if (host >= 0) {
+        const si = stepOfIndex.get(host)!;
+        stepItems[si].push({ d: pf.f.d, color: pf.f.color, i: pf.i, paper: true });
       }
     }
 

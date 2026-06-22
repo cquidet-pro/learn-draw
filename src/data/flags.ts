@@ -22,8 +22,8 @@ const n = (x: number) => Math.round(x * 10) / 10;
 function frame(rect = RECT): DrawStep {
   return { hint: "Draw the flag's box 🏁", color: OUTLINE, strokes: [rect] };
 }
-function colorStep(fills: { d: string; color: string }[], noSplit = false): DrawStep {
-  return { hint: "Now colour the flag in! 🖍️", color: OUTLINE, strokes: [], fills, noSplit };
+function colorStep(fills: { d: string; color: string }[]): DrawStep {
+  return { hint: "Now colour the flag in! 🖍️", color: OUTLINE, strokes: [], fills };
 }
 function flag(
   id: string,
@@ -753,12 +753,12 @@ const portugal = (() => {
         { d: rectPath(L, T, bx, B), color: "#006600" },
         { d: rectPath(bx, T, R, B), color: "#FF0000" },
         { d: sphere, color: "#FFCC00" },
-        { d: ringMid, color: "#E0A000" },
-        { d: ringH, color: "#E0A000" },
-        { d: ringV, color: "#E0A000" },
+        { d: ringMid, color: "#C87800" },
+        { d: ringH, color: "#C87800" },
+        { d: ringV, color: "#C87800" },
         { d: shieldRed, color: "#DA251D" },
         { d: shieldWhite, color: "#ffffff" },
-      ], true),
+      ]),
     ],
     "Portugal's flag has a golden sphere and a shield.",
   );
@@ -794,7 +794,7 @@ const spain = (() => {
         { d: capR, color: "#FABD00" },
         { d: shield, color: "#C60B1E" },
         { d: crown, color: "#FABD00" },
-      ], true),
+      ]),
     ],
     "Spain's flag has a crown and a shield.",
   );
