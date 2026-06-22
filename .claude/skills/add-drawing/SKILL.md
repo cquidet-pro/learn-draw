@@ -341,17 +341,17 @@ Check each of these:
   identical shades should land in the **same** step (tune the authored colours if
   two that look alike split, or two distinct ones merge).
 - [ ] **Overlapping layers keep their stacking — A/B sweep vs the colour-step
-  expansion.** `expandColorSteps` regroups a colour step's fills by colour and
-  reorders them bottom-to-top, which can **invert the authored stacking of a
-  small emblem over a big background** and paint the later colour OVER the
-  emblem, so it vanishes/flashes in the finished flag. This silently hid Brazil's
-  band text, **Spain's whole coat of arms, and Portugal's shield**. Always run
-  the sweep: for each flag render (a) the colour step's fills in **authored
-  order** and (b) `expandColorSteps(flag)`'s steps in **expanded order** (run it
-  in a real browser — it needs `getBBox`), rasterise both and pixel-diff. Any
-  non-zero diff is a covered emblem. **Fix:** set `noSplit: true` on that colour
-  step (via `colorStep(fills, true)`) so a layered emblem stays one step and
-  colours in authored order — don't try to out-colour the reorderer by hand.
+  expansion.** `expandColorSteps` splits a colour step into ONE STEP PER COLOUR;
+  it now preserves authored stacking (contiguous-by-overlap clustering +
+  topological order + geometry-based paper attachment), so a small emblem over a
+  big background no longer gets painted over. Still verify — it's the bug that
+  silently hid Brazil's band text, Spain's arms, Portugal's shield, and even the
+  princess's hair: for each drawing render (a) the colour step's fills in
+  **authored order** and (b) `expandColorSteps(drawing)`'s steps in **expanded
+  order** (in a real browser — it needs `getBBox`), rasterise both and pixel-diff.
+  A diff that *moves/hides* a shape is a stacking bug to chase in `expandColor.ts`;
+  a diff that only shifts a *shade* is the intentional same-colour flatten (fine).
+  Keep "one step per colour" — don't lump colours into one step to dodge this.
 - [ ] **No colour flashes anywhere** — the picture must never blank or re-fade
   as colours appear. Watch three transitions in particular: moving between two
   colour steps, and pressing next on the **last** colour step so the finish
