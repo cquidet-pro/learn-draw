@@ -656,18 +656,49 @@ const qatar = (() => {
 })();
 
 const brazil = (() => {
-  const diamond = `M 100,${T + 8} L ${R - 14},100 L 100,${B - 8} L ${L + 14},100 Z`;
-  const disc = circle(100, 100, 26);
-  // White band sweeping across the globe, low-left to upper-right, curving down
-  // in the middle (concave up) — like the real flag.
-  const band = `M 77,100 Q 100,116 123,90 L 123,84 Q 100,110 77,94 Z`;
-  // Stars scattered across the blue globe (a starry sky), avoiding the band.
-  const starPts: [number, number, number][] = [
-    [88, 84, 2.4], [100, 80, 2], [111, 86, 2.2],
-    [82, 106, 2.4], [92, 112, 2.8], [102, 106, 2], [112, 110, 2.4], [120, 102, 1.8],
-    [88, 122, 2.2], [100, 119, 2.6], [110, 123, 2.2], [95, 128, 1.8], [106, 130, 1.8], [118, 116, 2],
+  // Geometry mapped from the official Flag of Brazil SVG (globe radius 735 in a
+  // 4200×2940 flag), scaled by globe radius into our box and centred on (100,100).
+  const gx = 100,
+    gy = 100,
+    gr = 26;
+  const s = gr / 735;
+  const X = (x: number) => gx + x * s;
+  const Y = (y: number) => gy + y * s;
+  const diamond = `M ${n(X(-1743))},${gy} L ${gx},${n(Y(1113))} L ${n(X(1743))},${gy} L ${gx},${n(Y(-1113))} Z`;
+  const disc = circle(gx, gy, gr);
+  // White "ORDEM E PROGRESSO" band: the annulus between r1785 and r1680 about a
+  // centre below the globe, clipped to the globe — the real flag's curved band.
+  const globePoly: Pt[] = [];
+  for (let i = 0; i < 64; i++) {
+    const a = (i / 64) * 2 * Math.PI;
+    globePoly.push([gx + gr * Math.cos(a), gy + gr * Math.sin(a)]);
+  }
+  const cx = X(0),
+    cy = Y(1470);
+  const ro = 1785 * s,
+    ri = 1680 * s;
+  const strip: Pt[] = [];
+  for (let t = 0; t <= 80; t++) {
+    const a = ((-150 + (120 * t) / 80) * Math.PI) / 180;
+    strip.push([cx + ro * Math.cos(a), cy + ro * Math.sin(a)]);
+  }
+  for (let t = 80; t >= 0; t--) {
+    const a = ((-150 + (120 * t) / 80) * Math.PI) / 180;
+    strip.push([cx + ri * Math.cos(a), cy + ri * Math.sin(a)]);
+  }
+  const band = "M " + clipPoly(strip, globePoly).map(([x, y]) => `${n(x)},${n(y)}`).join(" L ") + " Z";
+  // The 27 stars at their official positions (x,y in flag units) and sizes.
+  const SZ: Record<string, number> = { a: 31.5, b: 26.25, f: 21, h: 15, i: 10.5 };
+  const V = 2; // scaled up a touch so the little stars read at our size
+  const starData: [number, number, string][] = [
+    [-600, -132, "a"], [-535, 177, "a"], [-625, 243, "b"], [-463, 132, "h"], [-382, 250, "b"],
+    [-404, 323, "f"], [228, -228, "a"], [515, 258, "a"], [617, 265, "f"], [545, 323, "b"],
+    [368, 477, "b"], [367, 551, "f"], [441, 419, "f"], [500, 382, "b"], [365, 405, "f"],
+    [-280, 30, "b"], [200, -37, "f"], [0, 330, "a"], [85, 184, "b"], [0, 118, "b"],
+    [-74, 184, "f"], [-37, 235, "h"], [220, 495, "b"], [283, 430, "f"], [162, 412, "f"],
+    [-295, 390, "a"], [0, 575, "i"],
   ];
-  const stars = starPts.map(([x, y, r]) => star(x, y, r));
+  const stars = starData.map(([x, y, sz]) => star(X(x), Y(y), SZ[sz] * s * V));
   return flag(
     "flag-brazil",
     "Brazil",
