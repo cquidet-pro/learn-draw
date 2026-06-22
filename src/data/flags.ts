@@ -717,7 +717,10 @@ const brazil = (() => {
         { d: disc, color: "#002776" },
         ...stars.map((d) => ({ d, color: "#ffffff" })),
         { d: band, color: "#ffffff" },
-        { d: bandText, color: "#009C3B" },
+        // A distinct dark green (not the field green) so the colour-step splitter
+        // gives the text its OWN, last step — painted on TOP of the white band
+        // instead of being hidden/flashed when the band (paper) fills after it.
+        { d: bandText, color: "#064d1f" },
       ]),
     ],
     "Brazil's flag has a starry blue globe.",
