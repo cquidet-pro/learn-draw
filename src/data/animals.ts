@@ -83,6 +83,10 @@ export interface DrawStep {
   /** Optional stroke width for this step's strokes (default 4). Thinner reads
    *  better for small lettering, e.g. the "write the name" finale. */
   strokeWidth?: number;
+  /** Keep this colour step as ONE step (don't split it per colour). Use for
+   *  layered emblems where the per-colour reordering would invert the authored
+   *  stacking and paint a later colour over an emblem (e.g. flag coats of arms). */
+  noSplit?: boolean;
 }
 
 /** Difficulty level, shown to the child as Easy (5) / Medium (7) / Harder (10). */

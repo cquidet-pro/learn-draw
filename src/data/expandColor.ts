@@ -128,6 +128,12 @@ export function expandColorSteps(animal: Animal): Animal {
       steps.push(step);
       continue;
     }
+    // Opt-out: keep layered emblems as one step so the per-colour reordering
+    // can't paint a later colour over them (their authored stacking is correct).
+    if (step.noSplit) {
+      steps.push(step);
+      continue;
+    }
 
     // Separate the real colours from the "paper" (white) regions.
     const painted = fills
