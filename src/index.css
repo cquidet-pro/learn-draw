@@ -434,7 +434,12 @@ body {
    stroke draws once (1 -> 0) and stays; AnimatedDrawing advances to the next
    stroke when this one finishes, then loops the whole step. */
 .stroke-seq-active {
-  stroke-dasharray: 1;
+  /* Dash = the whole path (pathLength 1) with a BIG gap. A plain `1` is dash 1
+     + gap 1, so the next repeat of the dash begins exactly at the path's end —
+     and with stroke-linecap:round its cap paints a stray dot there on the first
+     (hidden) frame, most visible on short strokes like the dog's eyebrow. The
+     wide gap pushes that phantom dash off the path; the draw is identical. */
+  stroke-dasharray: 1 3;
   stroke-dashoffset: 1;
   animation: draw var(--seg, 3s) ease-in-out forwards;
 }
