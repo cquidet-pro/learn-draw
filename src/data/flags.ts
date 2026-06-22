@@ -687,16 +687,15 @@ const brazil = (() => {
     strip.push([cx + ri * Math.cos(a), cy + ri * Math.sin(a)]);
   }
   const band = "M " + clipPoly(strip, globePoly).map(([x, y]) => `${n(x)},${n(y)}`).join(" L ") + " Z";
-  // The 27 stars at their official positions (x,y in flag units) and sizes.
+  // A spread of the brightest stars at their official positions (x,y in flag
+  // units) — the six big stars from each cluster, the Southern Cross, and the
+  // lone Sigma Octantis — dropping the tiny ones that just clutter at our size.
   const SZ: Record<string, number> = { a: 31.5, b: 26.25, f: 21, h: 15, i: 10.5 };
-  const V = 2; // scaled up a touch so the little stars read at our size
+  const V = 1.7; // scaled up so the little stars read at our size
   const starData: [number, number, string][] = [
-    [-600, -132, "a"], [-535, 177, "a"], [-625, 243, "b"], [-463, 132, "h"], [-382, 250, "b"],
-    [-404, 323, "f"], [228, -228, "a"], [515, 258, "a"], [617, 265, "f"], [545, 323, "b"],
-    [368, 477, "b"], [367, 551, "f"], [441, 419, "f"], [500, 382, "b"], [365, 405, "f"],
-    [-280, 30, "b"], [200, -37, "f"], [0, 330, "a"], [85, 184, "b"], [0, 118, "b"],
-    [-74, 184, "f"], [-37, 235, "h"], [220, 495, "b"], [283, 430, "f"], [162, 412, "f"],
-    [-295, 390, "a"], [0, 575, "i"],
+    [-600, -132, "a"], [-535, 177, "a"], [228, -228, "a"], [515, 258, "a"], [0, 330, "a"], [-295, 390, "a"],
+    [0, 118, "b"], [85, 184, "b"], [-74, 184, "f"], [-37, 235, "h"], // Southern Cross
+    [545, 323, "b"], [368, 477, "b"], [200, -37, "f"], [0, 575, "i"],
   ];
   const stars = starData.map(([x, y, sz]) => star(X(x), Y(y), SZ[sz] * s * V));
   return flag(
