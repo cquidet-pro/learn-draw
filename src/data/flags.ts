@@ -62,7 +62,8 @@ const plusOutline = (
 // Australian flag's stars are seven-pointed). Inner radius shrinks a little for
 // busier stars so they don't look like gears.
 function star(cx: number, cy: number, r: number, rotDeg = -90, points = 5): string {
-  const inner = r * (points >= 7 ? 0.54 : 0.5);
+  // 7-point inner ratio 0.444 matches the official Australian flag star.
+  const inner = r * (points >= 7 ? 0.444 : 0.5);
   const step = 360 / points;
   const pts: string[] = [];
   for (let i = 0; i < points; i++) {
@@ -409,14 +410,16 @@ const australia = cantonFlag(
   "🇦🇺",
   "#00247D",
   [
-    // Commonwealth Star + four big Southern Cross stars are 7-pointed; the small
-    // fifth (Epsilon) is 5-pointed — exactly as on the real flag.
-    { cx: 50, cy: 132, r: 9, points: 7 }, // Commonwealth star
-    { cx: 150, cy: 70, r: 6, points: 7 },
-    { cx: 168, cy: 92, r: 6, points: 7 },
-    { cx: 150, cy: 116, r: 6, points: 7 },
-    { cx: 132, cy: 96, r: 5, points: 7 },
-    { cx: 158, cy: 134, r: 4, points: 5 },
+    // Positions & sizes mapped from the official flag SVG (a 2:1 flag) by
+    // fraction into our box: x = 10 + fracX*180, y = 40 + fracY*120, radius
+    // scaled by height (120/5040). Commonwealth + the four big Crux stars are
+    // 7-pointed; the small fifth (Epsilon) is 5-pointed — as on the real flag.
+    { cx: 55, cy: 130, r: 18, points: 7 }, // Commonwealth Star (under the canton)
+    { cx: 145, cy: 140, r: 8.6, points: 7 }, // α Crucis
+    { cx: 122.5, cy: 92.5, r: 8.6, points: 7 }, // β Crucis
+    { cx: 145, cy: 60, r: 8.6, points: 7 }, // γ Crucis
+    { cx: 165, cy: 84.5, r: 8.6, points: 7 }, // δ Crucis
+    { cx: 154, cy: 105, r: 5, points: 5 }, // ε Crucis (small)
   ],
   "Australia's flag shows the Southern Cross stars.",
 );
