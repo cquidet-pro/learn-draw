@@ -469,7 +469,9 @@ const singapore = (() => {
   const cres = crescent(58, 70, 17, 9, 15);
   // Five stars in a pentagon ring to the right of the crescent's opening,
   // clearly separated from the moon (they must not overlap it).
-  const sx = 84,
+  // Ring centre sits in the crescent's opening so the two left-hand stars fall
+  // inside the moon's bay, as on the real flag.
+  const sx = 73,
     sy = 70,
     sR = 11;
   const stars = [0, 1, 2, 3, 4].map((i) => {
