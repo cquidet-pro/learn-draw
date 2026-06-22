@@ -161,11 +161,19 @@ Flags live in `src/data/flags.ts` (not `drawings/`). They share helpers and a
 fixed **3:2 box** (`L,T,R,B` / `RECT`). Every flag we ship has been wrong at
 least once; this checklist is the hard-won fix list.
 
-**ALWAYS verify against an authoritative reference — never ship a flag from
-memory.** If the user gives a reference image, compare to it. If they don't,
-**fetch one** (e.g. `WebFetch` the Wikipedia "Flag of X" page for the exact
-geometry, and/or a flag image) — do not reconstruct from memory. Then render the
-flag from the real data and put it **side-by-side** with the reference.
+**Prefer authoritative NUMERIC data over your own eyes.** You cannot reliably
+judge geometry from a screenshot — hand-placing/eyeballing stars, crescents, and
+leaves failed repeatedly here, while pulling exact data worked first try. So when
+positions, sizes, point-counts, or a shape matter, **`curl` the official flag SVG
+from Wikimedia and read the coordinates** (`<use x= y=>`, `transform`, `scale`,
+the path `d`), then compute the mapping into our box (by fraction:
+`x = L + fracX*W`, `y = T + fracY*H`; scale radii by height). This is how Canada's
+leaf and Australia's Southern Cross were finally right.
+
+**Then still verify against an authoritative reference — never ship from memory.**
+If the user gives a reference image, compare to it; otherwise fetch one. Render
+the flag from the real data, put it **side-by-side** with the reference, and
+treat the render as a sanity check on the data — not as the source of truth.
 
 **Check explicit properties of every emblem, one by one — "looks roughly right"
 is how the Singapore crescent shipped flipped *and* with the stars overlapping
