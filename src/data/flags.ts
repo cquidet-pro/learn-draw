@@ -58,14 +58,18 @@ const plusOutline = (
 ) =>
   `M ${n(vx0)},${n(yTop)} L ${n(vx1)},${n(yTop)} L ${n(vx1)},${n(hy0)} L ${n(xRight)},${n(hy0)} L ${n(xRight)},${n(hy1)} L ${n(vx1)},${n(hy1)} L ${n(vx1)},${n(yBot)} L ${n(vx0)},${n(yBot)} L ${n(vx0)},${n(hy1)} L ${n(xLeft)},${n(hy1)} L ${n(xLeft)},${n(hy0)} L ${n(vx0)},${n(hy0)} Z`;
 
-// A five-pointed star.
-function star(cx: number, cy: number, r: number, rotDeg = -90): string {
+// A pointed star. Defaults to five points; pass `points` for others (the
+// Australian flag's stars are seven-pointed). Inner radius shrinks a little for
+// busier stars so they don't look like gears.
+function star(cx: number, cy: number, r: number, rotDeg = -90, points = 5): string {
+  const inner = r * (points >= 7 ? 0.54 : 0.5);
+  const step = 360 / points;
   const pts: string[] = [];
-  for (let i = 0; i < 5; i++) {
-    const ao = ((rotDeg + i * 72) * Math.PI) / 180;
+  for (let i = 0; i < points; i++) {
+    const ao = ((rotDeg + i * step) * Math.PI) / 180;
     pts.push(`${n(cx + r * Math.cos(ao))},${n(cy + r * Math.sin(ao))}`);
-    const ai = ((rotDeg + i * 72 + 36) * Math.PI) / 180;
-    pts.push(`${n(cx + r * 0.5 * Math.cos(ai))},${n(cy + r * 0.5 * Math.sin(ai))}`);
+    const ai = ((rotDeg + i * step + step / 2) * Math.PI) / 180;
+    pts.push(`${n(cx + inner * Math.cos(ai))},${n(cy + inner * Math.sin(ai))}`);
   }
   return "M " + pts.join(" L ") + " Z";
 }
@@ -364,7 +368,7 @@ const cantonFlag = (
   name: string,
   emoji: string,
   fieldColor: string,
-  extraStars: { cx: number; cy: number; r: number }[],
+  extraStars: { cx: number; cy: number; r: number; points?: number }[],
   fact?: string,
   // Star styling. Default white stars (Australia). New Zealand uses red stars
   // with a white outline — the easiest way to tell the two flags apart — drawn
@@ -376,13 +380,14 @@ const cantonFlag = (
   const cR = L + W * 0.5,
     cB = T + H * 0.5;
   const uj = unionJack(L, T, cR, cB);
+  const pof = (s: { points?: number }) => s.points ?? 5;
   const starFills = extraStars.flatMap((s) =>
     starBorder
       ? [
-          { d: star(s.cx, s.cy, s.r), color: starBorder },
-          { d: star(s.cx, s.cy, s.r * 0.62), color: starColor },
+          { d: star(s.cx, s.cy, s.r, -90, pof(s)), color: starBorder },
+          { d: star(s.cx, s.cy, s.r * 0.62, -90, pof(s)), color: starColor },
         ]
-      : [{ d: star(s.cx, s.cy, s.r), color: starColor }],
+      : [{ d: star(s.cx, s.cy, s.r, -90, pof(s)), color: starColor }],
   );
   return flag(
     id,
@@ -391,7 +396,7 @@ const cantonFlag = (
     [
       frame(),
       { hint: "Make a little flag box in the corner", color: OUTLINE, strokes: [uj.box] },
-      { hint: "Add the stars ⭐", color: OUTLINE, strokes: extraStars.map((s) => star(s.cx, s.cy, s.r)) },
+      { hint: "Add the stars ⭐", color: OUTLINE, strokes: extraStars.map((s) => star(s.cx, s.cy, s.r, -90, pof(s))) },
       colorStep([{ d: RECT, color: fieldColor }, ...uj.fills, ...starFills]),
     ],
     fact,
@@ -404,12 +409,14 @@ const australia = cantonFlag(
   "🇦🇺",
   "#00247D",
   [
-    { cx: 50, cy: 132, r: 9 }, // Commonwealth star
-    { cx: 150, cy: 70, r: 6 },
-    { cx: 168, cy: 92, r: 6 },
-    { cx: 150, cy: 116, r: 6 },
-    { cx: 132, cy: 96, r: 5 },
-    { cx: 158, cy: 134, r: 4 },
+    // Commonwealth Star + four big Southern Cross stars are 7-pointed; the small
+    // fifth (Epsilon) is 5-pointed — exactly as on the real flag.
+    { cx: 50, cy: 132, r: 9, points: 7 }, // Commonwealth star
+    { cx: 150, cy: 70, r: 6, points: 7 },
+    { cx: 168, cy: 92, r: 6, points: 7 },
+    { cx: 150, cy: 116, r: 6, points: 7 },
+    { cx: 132, cy: 96, r: 5, points: 7 },
+    { cx: 158, cy: 134, r: 4, points: 5 },
   ],
   "Australia's flag shows the Southern Cross stars.",
 );
@@ -462,7 +469,7 @@ const singapore = (() => {
   const cres = crescent(58, 70, 17, 9, 15);
   // Five stars in a pentagon ring to the right of the crescent's opening,
   // clearly separated from the moon (they must not overlap it).
-  const sx = 96,
+  const sx = 84,
     sy = 70,
     sR = 11;
   const stars = [0, 1, 2, 3, 4].map((i) => {
