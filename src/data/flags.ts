@@ -307,44 +307,102 @@ const usa = (() => {
   );
 })();
 
+// Clip a convex polygon by another convex polygon (Sutherland–Hodgman).
+type Pt = [number, number];
+function clipPoly(subject: Pt[], cp: Pt[]): Pt[] {
+  let area = 0;
+  for (let i = 0; i < cp.length; i++) {
+    const [x1, y1] = cp[i];
+    const [x2, y2] = cp[(i + 1) % cp.length];
+    area += x1 * y2 - x2 * y1;
+  }
+  let clip = area < 0 ? [...cp].reverse() : cp;
+  let out = subject;
+  for (let i = 0; i < clip.length; i++) {
+    const A = clip[i];
+    const B = clip[(i + 1) % clip.length];
+    const side = (p: Pt) => (B[0] - A[0]) * (p[1] - A[1]) - (B[1] - A[1]) * (p[0] - A[0]);
+    const inter = (p: Pt, q: Pt): Pt => {
+      const d1 = side(p);
+      const d2 = side(q);
+      const t = d1 / (d1 - d2);
+      return [p[0] + t * (q[0] - p[0]), p[1] + t * (q[1] - p[1])];
+    };
+    const inp = out;
+    out = [];
+    for (let j = 0; j < inp.length; j++) {
+      const P = inp[j];
+      const Q = inp[(j + 1) % inp.length];
+      const Pin = side(P) >= -1e-9;
+      const Qin = side(Q) >= -1e-9;
+      if (Pin) {
+        out.push(P);
+        if (!Qin) out.push(inter(P, Q));
+      } else if (Qin) {
+        out.push(inter(P, Q));
+      }
+    }
+    if (out.length === 0) break;
+  }
+  return out;
+}
+// A diagonal band (centre-line p0→p1, half-width hw) as a long rectangle.
+function diagBand(p0: Pt, p1: Pt, hw: number): Pt[] {
+  const dx = p1[0] - p0[0],
+    dy = p1[1] - p0[1];
+  const len = Math.hypot(dx, dy);
+  const ux = dx / len,
+    uy = dy / len,
+    px = -uy,
+    py = ux,
+    ext = 14;
+  const a: Pt = [p0[0] - ux * ext, p0[1] - uy * ext];
+  const b: Pt = [p1[0] + ux * ext, p1[1] + uy * ext];
+  return [
+    [a[0] + px * hw, a[1] + py * hw],
+    [b[0] + px * hw, b[1] + py * hw],
+    [b[0] - px * hw, b[1] - py * hw],
+    [a[0] - px * hw, a[1] - py * hw],
+  ];
+}
+
+// A correct Union Jack inside the given box, built from the official flag's
+// geometry (a 50×30 design): the St Patrick red saltire is counterchanged via
+// the official clip triangles, so the diagonals sit exactly right.
 const unionJack = (cL: number, cT: number, cR: number, cB: number) => {
-  // A simplified Union Jack inside the given box. Returns { strokes, fills }.
-  const cw = (cR - cL),
-    ch = (cB - cT);
-  const cx = (cL + cR) / 2,
-    cy = (cT + cB) / 2;
+  const cw = cR - cL,
+    ch = cB - cT;
+  const X = (x: number) => cL + (x / 50) * cw;
+  const Y = (y: number) => cT + (y / 30) * ch;
+  const mp = (pts: Pt[]) => "M " + pts.map(([x, y]) => `${n(X(x))},${n(Y(y))}`).join(" L ") + " Z";
+  const rectP = (x0: number, y0: number, x1: number, y1: number): Pt[] => [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
   const navy = "#012169",
     red = "#C8102E",
     white = "#ffffff";
-  const tW = Math.min(cw, ch) * 0.18; // cross thickness
-  const fills = [
-    { d: rectPath(cL, cT, cR, cB), color: navy },
-    // white diagonals (two thick bands corner-to-corner, approximated as filled quads)
-    {
-      d: `M ${n(cL)},${n(cT)} L ${n(cL + tW)},${n(cT)} L ${n(cR)},${n(cB - tW)} L ${n(cR)},${n(cB)} L ${n(cR - tW)},${n(cB)} L ${n(cL)},${n(cT + tW)} Z`,
-      color: white,
-    },
-    {
-      d: `M ${n(cR)},${n(cT)} L ${n(cR)},${n(cT + tW)} L ${n(cL + tW)},${n(cB)} L ${n(cL)},${n(cB)} L ${n(cL)},${n(cB - tW)} L ${n(cR - tW)},${n(cT)} Z`,
-      color: white,
-    },
-    // red diagonals (thinner, along the same lines)
-    {
-      d: `M ${n(cL)},${n(cT)} L ${n(cL + tW * 0.6)},${n(cT)} L ${n(cR)},${n(cB - tW * 0.6)} L ${n(cR)},${n(cB)} Z`,
-      color: red,
-    },
-    {
-      d: `M ${n(cR)},${n(cT)} L ${n(cR)},${n(cT + tW * 0.6)} L ${n(cL + tW * 0.6)},${n(cB)} L ${n(cL)},${n(cB)} Z`,
-      color: red,
-    },
-    // white upright cross
-    { d: rectPath(cx - tW * 0.9, cT, cx + tW * 0.9, cB), color: white },
-    { d: rectPath(cL, cy - tW * 0.9, cR, cy + tW * 0.9), color: white },
-    // red upright cross
-    { d: rectPath(cx - tW * 0.5, cT, cx + tW * 0.5, cB), color: red },
-    { d: rectPath(cL, cy - tW * 0.5, cR, cy + tW * 0.5), color: red },
-  ];
-  return { fills, box: rectPath(cL, cT, cR, cB) };
+  const FR = rectP(0, 0, 50, 30);
+  const D1: [Pt, Pt] = [[0, 0], [50, 30]];
+  const D2: [Pt, Pt] = [[50, 0], [0, 30]];
+  // Official clip triangles (from clipPath "M25,15h25v15z…") that counterchange
+  // the red saltire. Each diagonal shows red in two opposite triangles.
+  const T1: Pt[] = [[25, 15], [50, 15], [50, 30]];
+  const T2: Pt[] = [[25, 15], [25, 30], [0, 30]];
+  const T3: Pt[] = [[25, 15], [0, 15], [0, 0]];
+  const T4: Pt[] = [[25, 15], [25, 0], [50, 0]];
+  const fills: { d: string; color: string }[] = [{ d: mp(FR), color: navy }];
+  // St Andrew white saltire (width 6).
+  fills.push({ d: mp(clipPoly(diagBand(D1[0], D1[1], 3), FR)), color: white });
+  fills.push({ d: mp(clipPoly(diagBand(D2[0], D2[1], 3), FR)), color: white });
+  // St Patrick red saltire (width 4), counterchanged by the clip triangles.
+  for (const [D, T] of [[D1, T3], [D1, T1], [D2, T4], [D2, T2]] as [[Pt, Pt], Pt[]][]) {
+    const poly = clipPoly(diagBand(D[0], D[1], 2), T);
+    if (poly.length) fills.push({ d: mp(poly), color: red });
+  }
+  // St George cross: white border then red.
+  fills.push({ d: mp(clipPoly(rectP(20, 0, 30, 30), FR)), color: white });
+  fills.push({ d: mp(clipPoly(rectP(0, 10, 50, 20), FR)), color: white });
+  fills.push({ d: mp(rectP(21, 0, 29, 30)), color: red });
+  fills.push({ d: mp(rectP(0, 11, 50, 19)), color: red });
+  return { fills, box: mp(FR) };
 };
 
 const unitedKingdom = (() => {
