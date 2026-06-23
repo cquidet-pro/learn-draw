@@ -49,6 +49,11 @@ export const heromask: Animal = {
       ],
     },
     {
+      hint: "Add a brave smile",
+      color: OUTLINE,
+      strokes: ["M 90,98 Q 100,104 110,98"],
+    },
+    {
       hint: "Finish with a lightning emblem on the chest! ⚡",
       color: OUTLINE,
       strokes: [
