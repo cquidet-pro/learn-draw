@@ -87,7 +87,7 @@ export function ContactPage({ onHome }: Props) {
       <section className="feedback" aria-label="Send us feedback">
         <h2 className="feedback-title">💌 Tell us what you think</h2>
         <p className="feedback-intro">
-          Grown-ups: we'd love to hear how we can make Learn to Draw even better!
+          Grown-ups: we'd love to hear how we can make Learn 2 Draw even better!
         </p>
 
         {status === "success" ? (
@@ -103,8 +103,8 @@ export function ContactPage({ onHome }: Props) {
         ) : (
           <form className="feedback-form" onSubmit={handleSubmit}>
             <input type="hidden" name="access_key" value={WEB3FORMS_KEY} />
-            <input type="hidden" name="subject" value="New Learn to Draw feedback 🎨" />
-            <input type="hidden" name="from_name" value="Learn to Draw" />
+            <input type="hidden" name="subject" value="New Learn 2 Draw feedback 🎨" />
+            <input type="hidden" name="from_name" value="Learn 2 Draw" />
             {/* Honeypot — hidden from people, catches bots. */}
             <input
               type="checkbox"

@@ -1,4 +1,4 @@
-# Learn to Draw — follow-ups to revisit
+# Learn 2 Draw — follow-ups to revisit
 
 Notes for later. None of these are blockers; the site is live and working at
 https://cquidet-pro.github.io/learn-draw/

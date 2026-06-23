@@ -1,4 +1,4 @@
-# 🎨 Learn to Draw
+# 🎨 Learn 2 Draw
 
 A playful website that teaches young children to draw, **step by step**. Each step
 shows the pen strokes *drawing themselves* in a gentle loop. No backend — it's a

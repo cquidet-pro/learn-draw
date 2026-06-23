@@ -2,7 +2,7 @@
 name: add-drawing
 description: >-
   Add a new drawing (animal, object, scene, painting, flag, sticker, or
-  character) to Learn to Draw, following this repo's data-driven conventions,
+  character) to Learn 2 Draw, following this repo's data-driven conventions,
   and run the checks that keep the animation and layout correct. Use when the
   user asks to "add a drawing", "add a new animal/picture", "create a <subject>
   to draw", add a difficulty level of an existing subject, add a Famous Painting

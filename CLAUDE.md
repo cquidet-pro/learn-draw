@@ -5,7 +5,7 @@ and conventions so you can make changes quickly and safely.
 
 ## What this is
 
-**Learn to Draw** — a playful, no-backend static website that teaches young
+**Learn 2 Draw** — a playful, no-backend static website that teaches young
 children to draw, step by step. Each step animates its strokes "drawing
 themselves" on a loop. There are three difficulty levels and a "Famous Paintings"
 section, plus optional hands-free voice control.

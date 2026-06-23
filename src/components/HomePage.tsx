@@ -338,7 +338,7 @@ export function HomePage({
           </a>
         </div>
         <p className="footer-love">
-          <strong className="footer-brand">Learn to Draw</strong> — made with ❤️ for
+          <strong className="footer-brand">Learn 2 Draw</strong> — made with ❤️ for
           little artists, and built with them 🖍️
         </p>
       </footer>

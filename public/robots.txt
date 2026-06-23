@@ -1,4 +1,4 @@
-# Learn to Draw — everyone is welcome to crawl and index this site,
+# Learn 2 Draw — everyone is welcome to crawl and index this site,
 # including AI search engines and assistant crawlers.
 User-agent: *
 Allow: /

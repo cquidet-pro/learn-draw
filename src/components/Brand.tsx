@@ -1,10 +1,10 @@
-// The Learn to Draw brand: a friendly crayon mascot + a colourful, crayon-
+// The Learn 2 Draw brand: a friendly crayon mascot + a colourful, crayon-
 // coloured wordmark. Built for little artists — and with them. Used on the home
 // header.
 
 // Crayon palette, cycled across the wordmark's letters like a pack of crayons.
 const PALETTE = ["#e63946", "#f4a300", "#06d6a0", "#118ab2", "#9b5de5"];
-const WORDMARK = "Learn to Draw";
+const WORDMARK = "Learn 2 Draw";
 
 function CrayonMascot() {
   return (
@@ -12,7 +12,7 @@ function CrayonMascot() {
       className="brand-mascot"
       viewBox="0 0 60 76"
       role="img"
-      aria-label="Learn to Draw crayon"
+      aria-label="Learn 2 Draw crayon"
     >
       {/* tip */}
       <path
