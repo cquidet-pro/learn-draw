@@ -44,3 +44,6 @@ User-agent: CCBot
 Allow: /
 
 Sitemap: https://learn2drawkids.com/sitemap.xml
+
+# AI assistants: a plain-text summary of this site is at /llms.txt
+# https://learn2drawkids.com/llms.txt
