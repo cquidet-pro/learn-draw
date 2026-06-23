@@ -63,9 +63,9 @@ function precacheSW(): Plugin {
   };
 }
 
-// base must match the GitHub Pages repo path so assets resolve correctly:
-// https://cquidet-pro.github.io/learn-draw/
+// Served from the root of the custom domain:
+// https://learn2drawkids.com/
 export default defineConfig({
   plugins: [react(), precacheSW()],
-  base: "/learn-draw/",
+  base: "/",
 });

@@ -43,4 +43,4 @@ Allow: /
 User-agent: CCBot
 Allow: /
 
-Sitemap: https://cquidet-pro.github.io/learn-draw/sitemap.xml
+Sitemap: https://learn2drawkids.com/sitemap.xml
