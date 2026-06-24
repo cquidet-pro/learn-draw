@@ -211,8 +211,17 @@ For a UI/preview build use `npx vite build` (skips tsc) + `npm run preview`.
   for the stroke; the fills can stay as two rects.
 - **Same 3:2 box for every flag.** Don't give one its own proportions
   (Switzerland was square and stuck out). Use `frame()`/`RECT`.
-- **Stripe dividers must not cross an overlaid canton** — they show as stray
-  lines over it (Greece). Start those dividers at the canton's edge, not `L`.
+- **An enclosed sub-region (canton, badge box) is drawn right after the frame,
+  then the divisions are drawn AROUND it — never the other way round.** Two things
+  go wrong if you draw all the stripes/divisions first and the box last:
+  (1) the dividers that pass under the box show as **stray lines** over it
+  (Greece), and (2) the **animation order is illogical** — a child draws the
+  outer rectangle, then the corner box, then fills the stripes in around it; they
+  don't rule every line across the whole flag and *then* discover a square in the
+  corner (USA, fixed June 2026). So order the steps `frame → box → divisions`,
+  and start each divider that would cross the box at the **box's edge**, not `L`
+  (the divider that coincides with the box's far edge can stay full-width). The
+  USA flag (`usa` in `flags.ts`) and Greece both follow this pattern — copy it.
 - **Taegeuk (South Korea) is easy to get rotated 90° or mirrored.** Correct:
   red **on top**, blue on the bottom, split by a **horizontal** S — red dips
   down on the **left**, blue rises up on the **right**. Render candidate
