@@ -196,6 +196,19 @@ npx esbuild src/data/flags.ts --bundle --format=esm --outfile=/tmp/flags.mjs
 For a UI/preview build use `npx vite build` (skips tsc) + `npm run preview`.
 
 **Pitfalls — each of these shipped wrong once:**
+- **Colour fills a shape the child already DREW — it never conjures new shapes.**
+  Every coloured region should have its outline drawn in an earlier guide step, so
+  the colour step just fills it in. If a shape exists *only* as a fill (no guide
+  stroke), it pops into existence at colour time, which reads as "the crayon is
+  adding a shape, not colouring" (shipped wrong on Portugal's sphere rings and the
+  whole UK Union Jack — both formed entirely during colouring). Fix: draw the
+  emblem's structure as line-art in the badge/detail step. Guide strokes that
+  shouldn't show as dark lines use the vanishing-colour trick below (Portugal's
+  sphere is dark line-art around the shield; the UK's red cross + saltire are drawn
+  as **red** strokes that vanish into the red fills). White regions are the
+  exception — they can't be drawn on the white box, so the white saltire/cross
+  still form as the navy fills around them; that's fine, it's the *coloured* shapes
+  that must be pre-drawn.
 - **Outline strokes are drawn ON TOP of the fills in the final picture** (pass 2).
   Any dark guide line you add for the animation stays visible over the colours.
   - For a border it's fine. For *internal* guide lines that shouldn't appear in

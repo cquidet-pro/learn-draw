@@ -407,20 +407,33 @@ const unionJack = (cL: number, cT: number, cR: number, cB: number) => {
   const T3: Pt[] = [[25, 15], [0, 15], [0, 0]];
   const T4: Pt[] = [[25, 15], [25, 0], [50, 0]];
   const fills: { d: string; color: string }[] = [{ d: mp(FR), color: navy }];
+  // The red shapes (saltire + cross), collected so they can be drawn as RED
+  // guide strokes BEFORE colouring — visible on the white box while drawn, then
+  // they vanish into the matching red fill in the finished flag (a dark guide
+  // line would leave a stray mark; red-on-red disappears). So the child outlines
+  // the red strips first and the colour step just fills them in.
+  const redStrokes: string[] = [];
   // St Andrew white saltire (width 6).
   fills.push({ d: mp(clipPoly(diagBand(D1[0], D1[1], 3), FR)), color: white });
   fills.push({ d: mp(clipPoly(diagBand(D2[0], D2[1], 3), FR)), color: white });
   // St Patrick red saltire (width 4), counterchanged by the clip triangles.
   for (const [D, T] of [[D1, T3], [D1, T1], [D2, T4], [D2, T2]] as [[Pt, Pt], Pt[]][]) {
     const poly = clipPoly(diagBand(D[0], D[1], 2), T);
-    if (poly.length) fills.push({ d: mp(poly), color: red });
+    if (poly.length) {
+      const d = mp(poly);
+      fills.push({ d, color: red });
+      redStrokes.push(d);
+    }
   }
   // St George cross: white border then red.
   fills.push({ d: mp(clipPoly(rectP(20, 0, 30, 30), FR)), color: white });
   fills.push({ d: mp(clipPoly(rectP(0, 10, 50, 20), FR)), color: white });
-  fills.push({ d: mp(rectP(21, 0, 29, 30)), color: red });
-  fills.push({ d: mp(rectP(0, 11, 50, 19)), color: red });
-  return { fills, box: mp(FR) };
+  const vRed = mp(rectP(21, 0, 29, 30)),
+    hRed = mp(rectP(0, 11, 50, 19));
+  fills.push({ d: vRed, color: red });
+  fills.push({ d: hRed, color: red });
+  redStrokes.push(vRed, hRed);
+  return { fills, box: mp(FR), redStrokes };
 };
 
 const unitedKingdom = (() => {
@@ -430,10 +443,13 @@ const unitedKingdom = (() => {
     "United Kingdom",
     "🇬🇧",
     [
-      // No internal guide strokes: any line we draw would stay visible on top of
-      // the finished flag (the diagonals/cross can't be traced without leaving
-      // stray lines). The Union Jack forms during the colour step instead.
+      // Draw the red cross + diagonal X first (in red, so the guide lines vanish
+      // into the red fills — see redStrokes), so the colour step fills shapes the
+      // child has already outlined rather than conjuring the whole Union Jack.
+      // The white saltire/cross still form during colouring (white can't be drawn
+      // as a guide line on the white box).
       frame(),
+      { hint: "Draw the red cross and a red X ✚", color: "#C8102E", strokes: uj.redStrokes },
       colorStep(uj.fills),
     ],
     "The Union Jack joins three crosses together.",
@@ -748,12 +764,23 @@ const brazil = (() => {
 const portugal = (() => {
   const bx = L + W * 0.4;
   const cy = 100;
-  // Armillary sphere: a golden disc with darker ring lines (equator + meridian)
-  // suggesting the open sphere of the real badge.
-  const sphere = circle(bx, cy, 22);
-  const ringH = rectPath(bx - 22, cy - 2.5, bx + 22, cy + 2.5); // equator
-  const ringV = rectPath(bx - 2.5, cy - 22, bx + 2.5, cy + 22); // meridian
-  const ringMid = circle(bx, cy, 14);
+  // Armillary sphere: a golden globe drawn as line-art — two concentric rings
+  // with four short connectors (the equator/meridian peeking out around the
+  // shield). It's ALL drawn in the badge step so colouring just fills the disc;
+  // the rings deliberately sit AROUND the central shield (which is drawn on top)
+  // so no guide line ever crosses it. (The old version only outlined the outer
+  // circle, so the inner gold rings popped in as new shapes at colour time —
+  // confusing to "colour".)
+  const rOut = 22,
+    rIn = 14;
+  const sphere = circle(bx, cy, rOut);
+  const innerRing = circle(bx, cy, rIn);
+  const connectors = [
+    `M ${n(bx + rIn)},${cy} L ${n(bx + rOut)},${cy}`, // equator, right of shield
+    `M ${n(bx - rIn)},${cy} L ${n(bx - rOut)},${cy}`, // equator, left of shield
+    `M ${bx},${n(cy - rOut)} L ${bx},${n(cy - rIn)}`, // meridian, above shield
+    `M ${bx},${n(cy + rIn)} L ${bx},${n(cy + rOut)}`, // meridian, below shield
+  ];
   // Shield: red with a white centre, pointed at the bottom.
   const shield = (w: number, top: number, bot: number) =>
     `M ${n(bx - w)},${n(top)} L ${n(bx + w)},${n(top)} L ${n(bx + w)},${n(bot - 6)} Q ${n(bx + w)},${n(bot)} ${bx},${n(bot)} Q ${n(bx - w)},${n(bot)} ${n(bx - w)},${n(bot - 6)} Z`;
@@ -766,14 +793,15 @@ const portugal = (() => {
     [
       frame(),
       { hint: "Add a line down", color: OUTLINE, strokes: [`M ${n(bx)},${T} L ${n(bx)},${B}`] },
-      { hint: "Draw a round badge on the line", color: OUTLINE, strokes: [sphere, shieldRed] },
+      {
+        hint: "Draw a round badge on the line",
+        color: OUTLINE,
+        strokes: [sphere, innerRing, ...connectors, shieldRed, shieldWhite],
+      },
       colorStep([
         { d: rectPath(L, T, bx, B), color: "#006600" },
         { d: rectPath(bx, T, R, B), color: "#FF0000" },
         { d: sphere, color: "#FFCC00" },
-        { d: ringMid, color: "#C87800" },
-        { d: ringH, color: "#C87800" },
-        { d: ringV, color: "#C87800" },
         { d: shieldRed, color: "#DA251D" },
         { d: shieldWhite, color: "#ffffff" },
       ]),
