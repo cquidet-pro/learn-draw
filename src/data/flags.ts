@@ -396,10 +396,43 @@ function diagBand(p0: Pt, p1: Pt, hw: number): Pt[] {
     [a[0] - px * hw, a[1] - py * hw],
   ];
 }
+// Keep the part of a polygon on one side of the infinite line A→B (Sutherland–
+// Hodgman against a single edge). Used to slice a flag corner along a saltire-band
+// edge into one of the Union Jack's blue triangles. keepPositive keeps points
+// where the cross product (B−A)×(P−A) is ≥ 0.
+function clipHalfPlane(poly: Pt[], A: Pt, B: Pt, keepPositive: boolean): Pt[] {
+  const cross = (p: Pt) => (B[0] - A[0]) * (p[1] - A[1]) - (B[1] - A[1]) * (p[0] - A[0]);
+  const inside = (p: Pt) => (keepPositive ? cross(p) >= -1e-9 : cross(p) <= 1e-9);
+  const inter = (p: Pt, q: Pt): Pt => {
+    const d1 = cross(p),
+      d2 = cross(q),
+      t = d1 / (d1 - d2);
+    return [p[0] + t * (q[0] - p[0]), p[1] + t * (q[1] - p[1])];
+  };
+  const out: Pt[] = [];
+  for (let i = 0; i < poly.length; i++) {
+    const P = poly[i];
+    const Q = poly[(i + 1) % poly.length];
+    const Pin = inside(P);
+    const Qin = inside(Q);
+    if (Pin) {
+      out.push(P);
+      if (!Qin) out.push(inter(P, Q));
+    } else if (Qin) {
+      out.push(inter(P, Q));
+    }
+  }
+  return out;
+}
 
-// A correct Union Jack inside the given box, built from the official flag's
-// geometry (a 50×30 design): the St Patrick red saltire is counterchanged via
-// the official clip triangles, so the diagonals sit exactly right.
+const UJ_NAVY = "#012169";
+const UJ_RED = "#C8102E";
+
+// A correct Union Jack inside the given box (a 50×30 design), decomposed into the
+// shapes a child actually colours rather than layered fills: the white saltire +
+// St George border are the PAPER gaps, leaving 8 blue triangles, one red cross and
+// 4 thin red diagonals — each its OWN outline, so colouring fills a shape that was
+// drawn first (the old all-at-once Union Jack was too hard to follow).
 const unionJack = (cL: number, cT: number, cR: number, cB: number) => {
   const cw = cR - cL,
     ch = cB - cT;
@@ -407,47 +440,85 @@ const unionJack = (cL: number, cT: number, cR: number, cB: number) => {
   const Y = (y: number) => cT + (y / 30) * ch;
   const mp = (pts: Pt[]) => "M " + pts.map(([x, y]) => `${n(X(x))},${n(Y(y))}`).join(" L ") + " Z";
   const rectP = (x0: number, y0: number, x1: number, y1: number): Pt[] => [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
-  const navy = "#012169",
-    red = "#C8102E",
-    white = "#ffffff";
+  // A plus/cross as one 12-point polygon: vertical bar x∈[vx0,vx1] over the full
+  // height, horizontal bar y∈[hy0,hy1] over the full width (no boxed-in centre).
+  const plus = (vx0: number, vx1: number, hy0: number, hy1: number): Pt[] => [
+    [vx0, 0], [vx1, 0], [vx1, hy0], [50, hy0], [50, hy1], [vx1, hy1],
+    [vx1, 30], [vx0, 30], [vx0, hy1], [0, hy1], [0, hy0], [vx0, hy0],
+  ];
+  const white = "#ffffff";
   const FR = rectP(0, 0, 50, 30);
   const D1: [Pt, Pt] = [[0, 0], [50, 30]];
   const D2: [Pt, Pt] = [[50, 0], [0, 30]];
-  // Official clip triangles (from clipPath "M25,15h25v15z…") that counterchange
-  // the red saltire. Each diagonal shows red in two opposite triangles.
+
+  // White St Andrew saltire (width 6) + white St George border (width 10): the
+  // flag's white, left as paper. (These become paper holes; on a coloured field
+  // like Australia's canton they paint the white back over the navy.)
+  const whiteShapes = [
+    mp(clipPoly(diagBand(D1[0], D1[1], 3), FR)),
+    mp(clipPoly(diagBand(D2[0], D2[1], 3), FR)),
+    mp(plus(20, 30, 10, 20)),
+  ];
+
+  // 8 blue triangles: each corner sliced by the diagonal band that runs through
+  // it. The band's two edges (centre ± 3 perpendicular) cut the corner into the
+  // two triangles either side of the white diagonal.
+  const corners: [Pt[], [Pt, Pt]][] = [
+    [rectP(0, 0, 20, 10), D1], // top-left
+    [rectP(30, 0, 50, 10), D2], // top-right
+    [rectP(0, 20, 20, 30), D2], // bottom-left
+    [rectP(30, 20, 50, 30), D1], // bottom-right
+  ];
+  const blueTris: string[] = [];
+  for (const [rect, [p0, p1]] of corners) {
+    const dx = p1[0] - p0[0],
+      dy = p1[1] - p0[1],
+      len = Math.hypot(dx, dy);
+    const px = (-dy / len) * 3,
+      py = (dx / len) * 3;
+    const triA = clipHalfPlane(rect, [p0[0] + px, p0[1] + py], [p1[0] + px, p1[1] + py], true);
+    const triB = clipHalfPlane(rect, [p0[0] - px, p0[1] - py], [p1[0] - px, p1[1] - py], false);
+    if (triA.length >= 3) blueTris.push(mp(triA));
+    if (triB.length >= 3) blueTris.push(mp(triB));
+  }
+
+  // Red St George cross (width 8, inside the width-10 white border).
+  const redCross = mp(plus(21, 29, 11, 19));
+  // Red St Patrick saltire (width 4), counterchanged into 4 pieces by the official
+  // clip triangles so it sits on one side of each white diagonal arm.
   const T1: Pt[] = [[25, 15], [50, 15], [50, 30]];
   const T2: Pt[] = [[25, 15], [25, 30], [0, 30]];
   const T3: Pt[] = [[25, 15], [0, 15], [0, 0]];
   const T4: Pt[] = [[25, 15], [25, 0], [50, 0]];
-  const fills: { d: string; color: string }[] = [{ d: mp(FR), color: navy }];
-  // The red shapes (saltire + cross), collected so they can be drawn as RED
-  // guide strokes BEFORE colouring — visible on the white box while drawn, then
-  // they vanish into the matching red fill in the finished flag (a dark guide
-  // line would leave a stray mark; red-on-red disappears). So the child outlines
-  // the red strips first and the colour step just fills them in.
-  const redStrokes: string[] = [];
-  // St Andrew white saltire (width 6).
-  fills.push({ d: mp(clipPoly(diagBand(D1[0], D1[1], 3), FR)), color: white });
-  fills.push({ d: mp(clipPoly(diagBand(D2[0], D2[1], 3), FR)), color: white });
-  // St Patrick red saltire (width 4), counterchanged by the clip triangles.
-  for (const [D, T] of [[D1, T3], [D1, T1], [D2, T4], [D2, T2]] as [[Pt, Pt], Pt[]][]) {
-    const poly = clipPoly(diagBand(D[0], D[1], 2), T);
-    if (poly.length) {
-      const d = mp(poly);
-      fills.push({ d, color: red });
-      redStrokes.push(d);
-    }
-  }
-  // St George cross: white border then red.
-  fills.push({ d: mp(clipPoly(rectP(20, 0, 30, 30), FR)), color: white });
-  fills.push({ d: mp(clipPoly(rectP(0, 10, 50, 20), FR)), color: white });
-  const vRed = mp(rectP(21, 0, 29, 30)),
-    hRed = mp(rectP(0, 11, 50, 19));
-  fills.push({ d: vRed, color: red });
-  fills.push({ d: hRed, color: red });
-  redStrokes.push(vRed, hRed);
-  return { fills, box: mp(FR), redStrokes };
+  const redDiagonals = ([[D1, T3], [D1, T1], [D2, T4], [D2, T2]] as [[Pt, Pt], Pt[]][])
+    .map(([[a, b], T]) => clipPoly(diagBand(a, b, 2), T))
+    .filter((p) => p.length >= 3)
+    .map(mp);
+
+  // Stacking order: white (paper) first, then the blue triangles, then the reds
+  // on top of the white they sit on.
+  const fills = [
+    ...whiteShapes.map((d) => ({ d, color: white })),
+    ...blueTris.map((d) => ({ d, color: UJ_NAVY })),
+    { d: redCross, color: UJ_RED },
+    ...redDiagonals.map((d) => ({ d, color: UJ_RED })),
+  ];
+
+  return { fills, box: mp(FR), redCross, blueTris, redDiagonals };
 };
+
+// Outline-then-colour steps for a Union Jack: the child draws the red cross, the
+// 8 blue triangles and the 4 thin red diagonals (each in its own colour, so the
+// guide lines vanish into the fills), then colours blue and red. The white
+// saltire/cross are the paper gaps left between them. Shared by the UK flag and
+// the Australia/NZ cantons.
+function unionJackSteps(uj: ReturnType<typeof unionJack>): DrawStep[] {
+  return [
+    { hint: "Draw a big thick red cross ✚", color: UJ_RED, strokes: [uj.redCross] },
+    { hint: "Draw 8 blue triangles in the corners 🔺", color: UJ_NAVY, strokes: uj.blueTris },
+    { hint: "Draw 4 thin red diagonal stripes ╳", color: UJ_RED, strokes: uj.redDiagonals },
+  ];
+}
 
 const unitedKingdom = (() => {
   const uj = unionJack(L, T, R, B);
@@ -456,13 +527,8 @@ const unitedKingdom = (() => {
     "United Kingdom",
     "🇬🇧",
     [
-      // Draw the red cross + diagonal X first (in red, so the guide lines vanish
-      // into the red fills — see redStrokes), so the colour step fills shapes the
-      // child has already outlined rather than conjuring the whole Union Jack.
-      // The white saltire/cross still form during colouring (white can't be drawn
-      // as a guide line on the white box).
       frame(),
-      { hint: "Draw the red cross and a red X ✚", color: "#C8102E", strokes: uj.redStrokes },
+      ...unionJackSteps(uj),
       colorStep(uj.fills),
     ],
     "The Union Jack joins three crosses together.",
@@ -502,9 +568,9 @@ const cantonFlag = (
     [
       frame(),
       { hint: "Make a little flag box in the corner", color: OUTLINE, strokes: [uj.box] },
-      // Draw the box's red cross + X (the "England flag" inside) before colouring,
-      // in red so the guide lines vanish into the red fills — same as the UK flag.
-      { hint: "Draw the red cross and a red X in the box ✚", color: "#C8102E", strokes: uj.redStrokes },
+      // The box holds a mini Union Jack — outline its red cross, blue triangles and
+      // red diagonals first (same outline-then-colour breakdown as the UK flag).
+      ...unionJackSteps(uj),
       { hint: "Add the stars ⭐", color: OUTLINE, strokes: extraStars.map((s) => star(s.cx, s.cy, s.r, -90, pof(s))) },
       colorStep([{ d: RECT, color: fieldColor }, ...uj.fills, ...starFills]),
     ],
