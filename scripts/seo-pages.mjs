@@ -167,7 +167,7 @@ ul.more a{display:inline-block;background:var(--surface);border:2px solid var(--
   border-radius:14px;padding:8px 14px;text-decoration:none;color:var(--ink);font-weight:600}
 .levelrow{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:8px 0}
 .sib{font-size:.95rem;color:var(--muted)}
-.coffee-link{font-size:1.25em;text-decoration:none;vertical-align:-2px}
+.coffee-link{font-size:2.5em;text-decoration:none;vertical-align:middle}
 .more-facts{margin-top:14px;font-size:1.02rem}
 footer{margin-top:40px;font-size:.85rem;color:var(--muted)}
 `;
