@@ -4,12 +4,15 @@ import { useCallback, useState } from "react";
 // so a speed picked on one drawing carries over to the next one the child opens.
 // Key is versioned because the meaning changed from per-loop to per-stroke.
 const SPEED_KEY = "learn-draw:speed-v2";
-const DEFAULT_DURATION = 3; // seconds per stroke — strokes now draw one at a time
+// Default to the slowest speed (the slider's far-left 🐢) so the strokes draw
+// nice and slow for little ones until a grown-up speeds them up. Matches the
+// slider's slow end (SLOW = 9 in Controls).
+const DEFAULT_DURATION = 9; // seconds per stroke — strokes draw one at a time
 
 function loadDuration(): number {
   const n = Number(localStorage.getItem(SPEED_KEY));
-  // Keep within the slider's range (1s fast … 8s slow); fall back to default.
-  return Number.isFinite(n) && n >= 1 && n <= 8 ? n : DEFAULT_DURATION;
+  // Keep within the slider's range (1s fast … 9s slow); fall back to default.
+  return Number.isFinite(n) && n >= 1 && n <= 9 ? n : DEFAULT_DURATION;
 }
 
 /**

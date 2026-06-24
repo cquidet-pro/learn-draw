@@ -3,6 +3,7 @@ import type { Animal } from "../data/animals";
 import { flags } from "../data/flags";
 import { AnimalCard } from "./AnimalCard";
 import { useVoiceControl, VoiceButton } from "../voice/VoiceProvider";
+import { scrollPage } from "../lib/scroll";
 import { heardAny } from "../voice/match";
 
 interface Props {
@@ -14,6 +15,14 @@ interface Props {
 export function FlagsPage({ onPick, onHome, completed }: Props) {
   const onCommand = useCallback(
     (transcript: string): boolean => {
+      if (heardAny(transcript, ["up"])) {
+        scrollPage(-1);
+        return true;
+      }
+      if (heardAny(transcript, ["down"])) {
+        scrollPage(1);
+        return true;
+      }
       if (heardAny(transcript, ["home", "back", "menu"])) {
         onHome();
         return true;

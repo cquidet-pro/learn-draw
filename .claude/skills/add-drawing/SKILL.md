@@ -203,6 +203,12 @@ For a UI/preview build use `npx vite build` (skips tsc) + `npm run preview`.
     **the flag's own colour** (red) so it vanishes into the matching coloured
     band — don't use the dark `OUTLINE`. Black diagonal/cross lines over the
     Union Jack are the classic bug.
+  - Same trick for a **guide step that draws small emblems** (e.g. the USA's 50
+    stars): draw them in the colour of the region they sit in (the canton navy),
+    NOT the dark `OUTLINE`. They're clearly visible on the still-white region as
+    the child draws them, then vanish into that region's fill in the finished
+    flag, leaving the clean white star shapes. A heavy dark `OUTLINE` stroke over
+    a tiny star swallows the white and leaves dark blobs.
   - `flag()` already thins every flag's strokes to **1.5px** (flat colour
     regions read cleanest crisp, not bold). Don't override unless needed.
 - **Crosses: draw ONE plus-shaped outline, never two overlapping rectangles.**
@@ -211,6 +217,11 @@ For a UI/preview build use `npx vite build` (skips tsc) + `npm run preview`.
   for the stroke; the fills can stay as two rects.
 - **Same 3:2 box for every flag.** Don't give one its own proportions
   (Switzerland was square and stuck out). Use `frame()`/`RECT`.
+- **Stripe step hints state the COUNT** — "Add 13 stripes across" / "Add 3
+  stripes up and down", never a vague "add the stripes across". Use the number of
+  colour bands the child ends up with (13 for the USA, 3 for a tricolour, 9 for
+  Greece). The `striped()` helper does this from `bands.length`; match it in any
+  hand-written striped flag.
 - **An enclosed sub-region (canton, badge box) is drawn right after the frame,
   then the divisions are drawn AROUND it — never the other way round.** Two things
   go wrong if you draw all the stripes/divisions first and the box last:
