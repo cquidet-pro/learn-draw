@@ -920,9 +920,13 @@ const greece = (() => {
     "Greece",
     "🇬🇷",
     [
+      // The canton is an enclosed box, so (like the USA flag) draw it BEFORE the
+      // stripes and run the stripes around it — not all the stripes first and the
+      // box on top. The top-five dividers already start at the box's right edge.
       frame(),
+      { hint: "Add a box in the corner", color: OUTLINE, strokes: [canton] },
+      { hint: "Add a cross in the box ➕", color: OUTLINE, strokes: [crossOutline] },
       { hint: "Add 9 stripes across", color: OUTLINE, strokes: lines },
-      { hint: "Add a cross in the corner ➕", color: OUTLINE, strokes: [canton, crossOutline] },
       colorStep([
         ...stripes,
         { d: canton, color: "#0D5EAF" },
