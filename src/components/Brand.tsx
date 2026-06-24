@@ -66,7 +66,7 @@ export function Brand() {
       </div>
       <span className="brand-stripes" aria-hidden="true" />
       <p className="brand-tagline">
-        Let's learn to draw — built with little artists 💛
+        Let's learn to draw, step by step — a free drawing site for kids 💛
       </p>
     </header>
   );
