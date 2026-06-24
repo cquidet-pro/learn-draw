@@ -146,7 +146,8 @@ h2{margin-top:1.8em}
 ul.more{list-style:none;padding:0;display:flex;flex-wrap:wrap;gap:10px}
 ul.more a{display:inline-block;background:var(--surface);border:2px solid var(--accent);
   border-radius:14px;padding:8px 14px;text-decoration:none;color:var(--ink);font-weight:600}
-.sib{margin:.4em 0 .2em}
+.levelrow{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;margin:2px 0}
+.sib{font-size:.95rem;color:var(--muted)}
 footer{margin-top:40px;font-size:.85rem;color:var(--muted)}
 `;
 
@@ -175,13 +176,13 @@ function pageHtml(animal, ctx) {
   const stepsHtml = steps
     .map((h) => `      <li>${esc(h)}</li>`)
     .join("\n");
-  const siblingsHtml = siblings.length
-    ? `<p class="sib">Also try drawing ${art} ${esc(name)} at another level: ${siblings
+  const siblingsInline = siblings.length
+    ? `<span class="sib">Also try drawing ${art} ${esc(name)} at another level: ${siblings
         .map(
           (a) =>
             `<a href="/draw/${a.id}/">${LEVEL_ICON[drawingLevel(a)] ?? ""} ${LEVEL_LABEL[drawingLevel(a)]}</a>`,
         )
-        .join(" · ")}</p>`
+        .join(" · ")}</span>`
     : "";
   const moreHtml = more
     .map(
@@ -250,7 +251,10 @@ ${graph}
       <nav class="crumbs" aria-label="Breadcrumb">
         <a href="/">Home</a> › How to draw ${art} ${esc(name)}
       </nav>
-      <span class="badge">${LEVEL_ICON[lvl] ?? ""} ${levelLabel}</span>
+      <div class="levelrow">
+        <span class="badge">${LEVEL_ICON[lvl] ?? ""} ${levelLabel}</span>
+        ${siblingsInline}
+      </div>
       <h1>How to draw ${art} ${esc(name)} ${animal.emoji ? esc(animal.emoji) : ""}</h1>
       ${previewSvg(animal, previewStrokes, previewFills)}
       <a class="cta" href="/?d=${animal.id}">▶ Draw this ${esc(name)} step by step</a>
@@ -260,7 +264,6 @@ ${graph}
         app each step shows the lines drawing themselves so children can copy along.
         It's completely free, with no sign-up and no ads.
       </p>
-      ${siblingsHtml}
       <h2>Steps to draw ${art} ${esc(name)}</h2>
       <ol class="steps">
 ${stepsHtml}
