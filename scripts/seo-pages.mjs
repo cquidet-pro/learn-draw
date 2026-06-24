@@ -291,9 +291,9 @@ ${stepsHtml}
       </ol>
       <h2>More things to draw</h2>
       <ul class="more">
-${moreHtml}
-        <li><a href="/?go=paintings">🖼️ Famous Paintings</a></li>
         <li><a href="/?go=flags">🏳️ Flags of the world</a></li>
+        <li><a href="/?go=paintings">🖼️ Famous Paintings</a></li>
+${moreHtml}
       </ul>
       <p class="more-facts">You can also <a href="/?go=facts">💡 learn Fun Facts</a> about the animals and things you draw.</p>
       <footer>
