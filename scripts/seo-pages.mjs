@@ -129,9 +129,11 @@ a{color:var(--link)}
 .brand-tagline{margin:.5rem 0 0;font-size:clamp(.95rem,2.6vw,1.2rem);font-weight:700;opacity:.85;text-align:center}
 @keyframes brand-wiggle{0%,88%,100%{transform:rotate(0)}92%{transform:rotate(-7deg)}96%{transform:rotate(7deg)}}
 @media (prefers-reduced-motion:reduce){.brand-mascot{animation:none}}
-nav.crumbs{font-size:.85rem;margin:6px 0;color:var(--muted)}
-nav.crumbs a{color:var(--muted)}
-h1{font-size:1.9rem;line-height:1.15;margin:.2em 0 .35em}
+.pagehead{display:flex;align-items:center;flex-wrap:wrap;gap:4px 9px;margin:10px 0 2px}
+.homecrumb{display:inline-flex;align-items:center;gap:6px;color:var(--muted);text-decoration:none;font-weight:700;font-size:1.05rem}
+.home-ico{width:24px;height:24px;border-radius:6px}
+.crumb-sep{color:var(--muted);font-size:1.1rem}
+.pagehead h1{margin:0;font-size:1.3rem;line-height:1.2;font-weight:800;color:var(--ink)}
 .badge{display:inline-block;background:var(--accent);color:#5b4410;border-radius:999px;
   padding:3px 12px;font-size:.8rem;font-weight:800}
 .picture{display:block;width:min(340px,80vw);height:auto;margin:18px auto;
@@ -248,14 +250,15 @@ ${graph}
   <body>
     <div class="wrap">
       ${BRAND_HEADER}
-      <nav class="crumbs" aria-label="Breadcrumb">
-        <a href="/">Home</a> › How to draw ${art} ${esc(name)}
-      </nav>
+      <div class="pagehead" aria-label="Breadcrumb">
+        <a class="homecrumb" href="/" aria-label="Learn 2 Draw home"><img class="home-ico" src="/icon.svg" alt="" /> Home</a>
+        <span class="crumb-sep" aria-hidden="true">›</span>
+        <h1>How to draw ${art} ${esc(name)} ${animal.emoji ? esc(animal.emoji) : ""}</h1>
+      </div>
       <div class="levelrow">
         <span class="badge">${LEVEL_ICON[lvl] ?? ""} ${levelLabel}</span>
         ${siblingsInline}
       </div>
-      <h1>How to draw ${art} ${esc(name)} ${animal.emoji ? esc(animal.emoji) : ""}</h1>
       ${previewSvg(animal, previewStrokes, previewFills)}
       <a class="cta" href="/?d=${animal.id}">▶ Draw this ${esc(name)} step by step</a>
       <p>
