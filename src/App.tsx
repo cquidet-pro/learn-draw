@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Animal, Level } from "./data/animals";
-import { drawingsForLevel, drawingLevel } from "./data/animals";
+import { drawingsForLevel, drawingLevel, getAnimal } from "./data/animals";
 import { masterpieces, isMasterpiece } from "./data/masterpieces";
-import { isFriendOnly, earnedFriendPool } from "./data/friends";
+import { isFriendOnly, earnedFriendPool, friendPool } from "./data/friends";
 import { flags, isFlag } from "./data/flags";
 import { HomePage } from "./components/HomePage";
 import { OfflineGuard } from "./components/OfflineGuard";
@@ -129,6 +129,25 @@ export function App() {
       /* ignore storage errors */
     }
   }, []);
+
+  // Deep link: the per-drawing SEO landing pages (/draw/<id>/) link into the app
+  // as /?d=<id> to open that drawing directly. Handle it once on mount.
+  const deepLinkedRef = useRef(false);
+  useEffect(() => {
+    if (deepLinkedRef.current) return;
+    deepLinkedRef.current = true;
+    const id = new URLSearchParams(window.location.search).get("d");
+    if (!id) return;
+    const animal =
+      getAnimal(id) ??
+      friendPool.find((f) => f.id === id) ??
+      masterpieces.find((m) => m.id === id) ??
+      flags.find((f) => f.id === id);
+    if (!animal) return;
+    // Match the level so auto-advance stays within the right pool.
+    if (getAnimal(id)) setLevel(drawingLevel(animal));
+    push({ kind: "drawing", animal });
+  }, [push, setLevel]);
 
   let screen;
   if (current.kind === "drawing") {

@@ -77,7 +77,7 @@ const levelList = (levels: number[]) =>
   levels.map((l) => LEVEL_LABEL[l] ?? String(l)).join(", ");
 
 type Catalog = {
-  subjects: { name: string; emoji: string; levels: number[] }[];
+  subjects: { name: string; emoji: string; levels: number[]; id: string }[];
   paintings: { name: string }[];
 };
 
@@ -91,21 +91,30 @@ function readCatalog(root: string): Catalog {
   };
 
   // One subject (e.g. "Dog") exists as several files (dog, dog-7, dog-10);
-  // group them so each subject lists the difficulty levels it's available at.
-  const byName = new Map<string, { name: string; emoji: string; levels: Set<number> }>();
+  // group them so each subject lists the difficulty levels it's available at,
+  // and remember the lowest-level (Easy) id to link its landing page.
+  const byName = new Map<
+    string,
+    { name: string; emoji: string; levels: Set<number>; id: string; baseLevel: number }
+  >();
   for (const f of tsFiles("src/data/drawings")) {
     const src = fs.readFileSync(path.join(root, "src/data/drawings", f), "utf8");
     const name = grab(src, /name:\s*"([^"]+)"/);
-    if (!name) continue;
+    const id = grab(src, /id:\s*"([^"]+)"/);
+    if (!name || !id) continue;
     const level = Number(grab(src, /level:\s*(5|7|10)/) || "5");
     const entry =
       byName.get(name) ??
-      { name, emoji: grab(src, /emoji:\s*"([^"]+)"/), levels: new Set<number>() };
+      { name, emoji: grab(src, /emoji:\s*"([^"]+)"/), levels: new Set<number>(), id, baseLevel: level };
     entry.levels.add(level);
+    if (level <= entry.baseLevel) {
+      entry.baseLevel = level;
+      entry.id = id;
+    }
     byName.set(name, entry);
   }
   const subjects = [...byName.values()]
-    .map((s) => ({ name: s.name, emoji: s.emoji, levels: [...s.levels].sort((a, b) => a - b) }))
+    .map((s) => ({ name: s.name, emoji: s.emoji, id: s.id, levels: [...s.levels].sort((a, b) => a - b) }))
     .sort((a, b) => a.name.localeCompare(b.name));
 
   const paintings = tsFiles("src/data/paintings")
@@ -119,7 +128,9 @@ function readCatalog(root: string): Catalog {
 }
 
 function catalogHtml({ subjects, paintings }: Catalog): string {
-  const subs = subjects.map((s) => `<li>${s.name} (${levelList(s.levels)})</li>`).join("");
+  const subs = subjects
+    .map((s) => `<li><a href="/draw/${s.id}/">How to draw ${s.name}</a> (${levelList(s.levels)})</li>`)
+    .join("");
   const arts = paintings.map((p) => `<li>${p.name}</li>`).join("");
   return [
     `<h2>Things you can learn to draw</h2>`,
@@ -151,7 +162,9 @@ function llmsTxt({ subjects, paintings }: Catalog): string {
     ``,
     `Each subject is available at the difficulty levels shown in parentheses.`,
     ``,
-    ...subjects.map((s) => `- ${s.name} (${levelList(s.levels)})`),
+    ...subjects.map(
+      (s) => `- ${s.name} (${levelList(s.levels)}): https://learn2drawkids.com/draw/${s.id}/`,
+    ),
     ``,
     `## Famous paintings`,
     ``,
