@@ -168,6 +168,7 @@ ul.more a{display:inline-block;background:var(--surface);border:2px solid var(--
 .levelrow{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:8px 0}
 .sib{font-size:.95rem;color:var(--muted)}
 .coffee-link{font-size:1.25em;text-decoration:none;vertical-align:-2px}
+.more-facts{margin-top:14px;font-size:1.02rem}
 footer{margin-top:40px;font-size:.85rem;color:var(--muted)}
 `;
 
@@ -291,7 +292,10 @@ ${stepsHtml}
       <h2>More things to draw</h2>
       <ul class="more">
 ${moreHtml}
+        <li><a href="/?go=paintings">🖼️ Famous Paintings</a></li>
+        <li><a href="/?go=flags">🏳️ Flags of the world</a></li>
       </ul>
+      <p class="more-facts">You can also <a href="/?go=facts">💡 learn Fun Facts</a> about the animals and things you draw.</p>
       <footer>
         <p>
           <a href="/?d=${animal.id}">Open ${esc(name)} in Learn 2 Draw →</a> ·
