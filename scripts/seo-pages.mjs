@@ -74,33 +74,77 @@ function previewSvg(animal, previewStrokes, previewFills) {
   return `<svg viewBox="${animal.viewBox}" xmlns="http://www.w3.org/2000/svg" class="picture" role="img" aria-label="A finished drawing of ${article(animal.name)} ${esc(animal.name)}">${fills}${strokes}</svg>`;
 }
 
+// Crayon palette + wordmark + mascot, matching src/components/Brand.tsx so the
+// header on these pages is identical to the home page (and supports dark mode).
+const PALETTE = ["#e63946", "#f4a300", "#06d6a0", "#118ab2", "#9b5de5"];
+const WORDMARK = "Learn 2 Draw";
+function brandLetters() {
+  let ci = 0;
+  return [...WORDMARK]
+    .map((ch) =>
+      ch === " "
+        ? `<span class="brand-space"> </span>`
+        : `<span style="color:${PALETTE[ci++ % PALETTE.length]}">${ch}</span>`,
+    )
+    .join("");
+}
+const MASCOT = `<svg class="brand-mascot" viewBox="0 0 60 76" role="img" aria-label="Learn 2 Draw crayon"><path d="M30,3 L41,22 L19,22 Z" fill="#fb8500" stroke="#3a2a20" stroke-width="2" stroke-linejoin="round"/><rect x="17" y="21" width="26" height="50" rx="7" fill="#ffd23f" stroke="#3a2a20" stroke-width="2"/><rect x="17" y="27" width="26" height="9" fill="#fff3c4" stroke="#3a2a20" stroke-width="1.5"/><ellipse cx="21" cy="54" rx="3" ry="2.2" fill="#ff9eb1"/><ellipse cx="39" cy="54" rx="3" ry="2.2" fill="#ff9eb1"/><circle cx="25" cy="49" r="2.4" fill="#3a2a20"/><circle cx="35" cy="49" r="2.4" fill="#3a2a20"/><path d="M25,55 Q30,60 35,55" fill="none" stroke="#3a2a20" stroke-width="2" stroke-linecap="round"/></svg>`;
+const BRAND_HEADER = `<header class="brand">
+        <a class="brand-row" href="/" aria-label="Learn 2 Draw — home">
+          ${MASCOT}
+          <span class="brand-name" aria-label="Learn 2 Draw">${brandLetters()}</span>
+        </a>
+        <span class="brand-stripes" aria-hidden="true"></span>
+        <p class="brand-tagline">Let's learn to draw, step by step — a free drawing site for kids 💛</p>
+      </header>`;
+
+// Applies the saved/system theme before first paint (shares the home page's
+// localStorage key so the choice carries across the whole site).
+const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem("learn-draw:theme");if(t!=="dark"&&t!=="light"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}document.documentElement.setAttribute("data-theme",t);var m=document.querySelector('meta[name=\\"theme-color\\"]');if(m)m.setAttribute("content",t==="dark"?"#181824":"#ffd166");}catch(e){}})();`;
+
 const STYLE = `
-:root{color-scheme:light}
+:root{--bg:#fff8e7;--surface:#fff;--canvas:#fff;--accent:#ffd166;
+  --ink:#3a3a55;--muted:#857a93;--link:#c8552b;color-scheme:light;
+  font-family:"Comic Sans MS","Baloo 2","Trebuchet MS",system-ui,-apple-system,sans-serif}
+[data-theme="dark"]{--bg:#181824;--surface:#262636;--canvas:#ece8dd;--accent:#ffd166;
+  --ink:#ecebf6;--muted:#a89fba;--link:#ffc488;color-scheme:dark}
 *{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  color:#3a2e24;background:#fff7e6;line-height:1.55;-webkit-text-size-adjust:100%}
-.wrap{max-width:760px;margin:0 auto;padding:20px 18px 60px}
-a{color:#c8552b}
-header a.brand{font-weight:800;font-size:1.25rem;text-decoration:none;color:#3a2e24}
-nav.crumbs{font-size:.85rem;margin:14px 0 6px;color:#8a7a68}
-nav.crumbs a{color:#8a7a68}
+body{margin:0;font-family:inherit;color:var(--ink);background:var(--bg);
+  line-height:1.55;-webkit-text-size-adjust:100%}
+.wrap{max-width:760px;margin:0 auto;padding:14px 18px 60px}
+a{color:var(--link)}
+.brand{display:flex;flex-direction:column;align-items:center;margin:.5rem 0 1.3rem}
+.brand-row{display:flex;align-items:center;gap:.5rem;text-decoration:none}
+.brand-mascot{width:clamp(40px,9vw,60px);height:auto;transform-origin:50% 90%;
+  animation:brand-wiggle 3.5s ease-in-out infinite}
+.brand-name{margin:0;font-size:clamp(2.4rem,8vw,4rem);font-weight:800;letter-spacing:.01em;line-height:1}
+.brand-name span{display:inline-block;transition:transform .15s ease}
+.brand-row:hover .brand-name span{transform:translateY(-4px) rotate(-4deg)}
+.brand-name .brand-space{display:inline;margin:0 .08em}
+.brand-stripes{width:clamp(160px,40vw,280px);height:7px;margin-top:.45rem;border-radius:99px;
+  background:linear-gradient(90deg,#e63946 0 20%,#f4a300 20% 40%,#06d6a0 40% 60%,#118ab2 60% 80%,#9b5de5 80% 100%)}
+.brand-tagline{margin:.5rem 0 0;font-size:clamp(.95rem,2.6vw,1.2rem);font-weight:700;opacity:.85;text-align:center}
+@keyframes brand-wiggle{0%,88%,100%{transform:rotate(0)}92%{transform:rotate(-7deg)}96%{transform:rotate(7deg)}}
+@media (prefers-reduced-motion:reduce){.brand-mascot{animation:none}}
+nav.crumbs{font-size:.85rem;margin:6px 0;color:var(--muted)}
+nav.crumbs a{color:var(--muted)}
 h1{font-size:1.9rem;line-height:1.15;margin:.2em 0 .35em}
-.badge{display:inline-block;background:#ffe1a8;color:#7a5a17;border-radius:999px;
-  padding:3px 12px;font-size:.8rem;font-weight:700}
+.badge{display:inline-block;background:var(--accent);color:#5b4410;border-radius:999px;
+  padding:3px 12px;font-size:.8rem;font-weight:800}
 .picture{display:block;width:min(340px,80vw);height:auto;margin:18px auto;
-  background:#fff;border:3px solid #ffd166;border-radius:24px;padding:10px}
+  background:var(--canvas);border:3px solid var(--accent);border-radius:24px;padding:10px}
 a.cta{display:block;max-width:420px;margin:18px auto;text-align:center;
-  background:#ffd166;color:#3a2e24;font-weight:800;font-size:1.15rem;
+  background:var(--accent);color:#2a2333;font-weight:800;font-size:1.15rem;
   text-decoration:none;padding:16px 22px;border-radius:18px}
-a.cta:hover{background:#ffc94d}
+a.cta:hover{filter:brightness(.96)}
 ol.steps{padding-left:1.2em}
 ol.steps li{margin:.45em 0;font-size:1.08rem}
 h2{margin-top:1.8em}
 ul.more{list-style:none;padding:0;display:flex;flex-wrap:wrap;gap:10px}
-ul.more a{display:inline-block;background:#fff;border:2px solid #ffd166;
-  border-radius:14px;padding:8px 14px;text-decoration:none;color:#3a2e24;font-weight:600}
+ul.more a{display:inline-block;background:var(--surface);border:2px solid var(--accent);
+  border-radius:14px;padding:8px 14px;text-decoration:none;color:var(--ink);font-weight:600}
 .sib{margin:.4em 0 .2em}
-footer{margin-top:40px;font-size:.85rem;color:#8a7a68}
+footer{margin-top:40px;font-size:.85rem;color:var(--muted)}
 `;
 
 function pageHtml(animal, ctx) {
@@ -178,6 +222,7 @@ function pageHtml(animal, ctx) {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#ffd166" />
+    <script>${THEME_SCRIPT}</script>
     <title>${esc(title)}</title>
     <meta name="description" content="${esc(desc)}" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
@@ -198,7 +243,7 @@ ${graph}
   </head>
   <body>
     <div class="wrap">
-      <header><a class="brand" href="/">🎨 Learn 2 Draw</a></header>
+      ${BRAND_HEADER}
       <nav class="crumbs" aria-label="Breadcrumb">
         <a href="/">Home</a> › How to draw ${art} ${esc(name)}
       </nav>
