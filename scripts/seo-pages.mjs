@@ -21,6 +21,9 @@ import { tmpdir } from "node:os";
 const ORIGIN = "https://learn2drawkids.com";
 const DIST = resolve("dist");
 
+// Difficulty icons, matching src/components/LevelSelector.tsx.
+const LEVEL_ICON = { 5: "🌱", 7: "🌟", 10: "🔥" };
+
 // --- load the real drawing data via esbuild -------------------------------
 async function loadData() {
   const result = await build({
@@ -176,7 +179,7 @@ function pageHtml(animal, ctx) {
     ? `<p class="sib">Also try drawing ${art} ${esc(name)} at another level: ${siblings
         .map(
           (a) =>
-            `<a href="/draw/${a.id}/">${LEVEL_LABEL[drawingLevel(a)]}</a>`,
+            `<a href="/draw/${a.id}/">${LEVEL_ICON[drawingLevel(a)] ?? ""} ${LEVEL_LABEL[drawingLevel(a)]}</a>`,
         )
         .join(" · ")}</p>`
     : "";
@@ -247,7 +250,7 @@ ${graph}
       <nav class="crumbs" aria-label="Breadcrumb">
         <a href="/">Home</a> › How to draw ${art} ${esc(name)}
       </nav>
-      <span class="badge">${levelLabel}</span>
+      <span class="badge">${LEVEL_ICON[lvl] ?? ""} ${levelLabel}</span>
       <h1>How to draw ${art} ${esc(name)} ${animal.emoji ? esc(animal.emoji) : ""}</h1>
       ${previewSvg(animal, previewStrokes, previewFills)}
       <a class="cta" href="/?d=${animal.id}">▶ Draw this ${esc(name)} step by step</a>
