@@ -177,10 +177,22 @@ function nordic(
     { d: vbar, color: cross },
     { d: hbar, color: cross },
   ];
+  // Norway's inner (blue) cross: draw it as its own guide stroke so the blue
+  // stripes colour a shape the child already outlined, instead of appearing for
+  // the first time at colour-time. Drawn in the inner colour so the line vanishes
+  // into the blue fill (a dark OUTLINE would leave a stray edge on the blue).
+  const innerStep: DrawStep[] = [];
   if (inner) {
     const ivx0 = vx0 + (cw - iw) / 2;
+    const ihy0 = cy - iw / 2,
+      ihy1 = cy + iw / 2;
     fills.push({ d: rectPath(ivx0, T, ivx0 + iw, B), color: inner });
-    fills.push({ d: rectPath(L, cy - iw / 2, R, cy + iw / 2), color: inner });
+    fills.push({ d: rectPath(L, ihy0, R, ihy1), color: inner });
+    innerStep.push({
+      hint: "Add a thinner cross inside ➕",
+      color: inner,
+      strokes: [plusOutline(ivx0, ivx0 + iw, T, B, L, R, ihy0, ihy1)],
+    });
   }
   return flag(
     id,
@@ -193,6 +205,7 @@ function nordic(
         color: OUTLINE,
         strokes: [crossOutline],
       },
+      ...innerStep,
       colorStep(fills),
     ],
     fact,
@@ -489,6 +502,9 @@ const cantonFlag = (
     [
       frame(),
       { hint: "Make a little flag box in the corner", color: OUTLINE, strokes: [uj.box] },
+      // Draw the box's red cross + X (the "England flag" inside) before colouring,
+      // in red so the guide lines vanish into the red fills — same as the UK flag.
+      { hint: "Draw the red cross and a red X in the box ✚", color: "#C8102E", strokes: uj.redStrokes },
       { hint: "Add the stars ⭐", color: OUTLINE, strokes: extraStars.map((s) => star(s.cx, s.cy, s.r, -90, pof(s))) },
       colorStep([{ d: RECT, color: fieldColor }, ...uj.fills, ...starFills]),
     ],
