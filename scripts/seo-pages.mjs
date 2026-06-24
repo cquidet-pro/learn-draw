@@ -129,9 +129,11 @@ a{color:var(--link)}
 .brand-tagline{margin:.5rem 0 0;font-size:clamp(.95rem,2.6vw,1.2rem);font-weight:700;opacity:.85;text-align:center}
 @keyframes brand-wiggle{0%,88%,100%{transform:rotate(0)}92%{transform:rotate(-7deg)}96%{transform:rotate(7deg)}}
 @media (prefers-reduced-motion:reduce){.brand-mascot{animation:none}}
-.pagehead{display:flex;align-items:center;flex-wrap:wrap;gap:4px 9px;margin:10px 0 2px}
-.homecrumb{display:inline-flex;align-items:center;gap:6px;color:var(--muted);text-decoration:none;font-weight:700;font-size:1.05rem}
-.home-ico{width:24px;height:24px;border-radius:6px}
+.pagehead{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;margin:12px 0 2px}
+.home-btn{display:inline-block;background:var(--accent);color:#2a2333;border:none;border-radius:999px;
+  font-size:1.05rem;font-weight:700;padding:.45rem 1rem;text-decoration:none;font-family:inherit;
+  box-shadow:0 4px 0 rgba(0,0,0,.12);line-height:1}
+.home-btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.12)}
 .crumb-sep{color:var(--muted);font-size:1.1rem}
 .pagehead h1{margin:0;font-size:1.3rem;line-height:1.2;font-weight:800;color:var(--ink)}
 .badge{display:inline-block;background:var(--accent);color:#5b4410;border-radius:999px;
@@ -251,7 +253,7 @@ ${graph}
     <div class="wrap">
       ${BRAND_HEADER}
       <div class="pagehead" aria-label="Breadcrumb">
-        <a class="homecrumb" href="/" aria-label="Learn 2 Draw home"><img class="home-ico" src="/icon.svg" alt="" /> Home</a>
+        <a class="home-btn" href="/" aria-label="Back to home">🏠 Home</a>
         <span class="crumb-sep" aria-hidden="true">›</span>
         <h1>How to draw ${art} ${esc(name)} ${animal.emoji ? esc(animal.emoji) : ""}</h1>
       </div>
