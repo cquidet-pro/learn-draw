@@ -139,7 +139,7 @@ export function App() {
     deepLinkedRef.current = true;
     const params = new URLSearchParams(window.location.search);
     const go = params.get("go");
-    if (go === "paintings" || go === "flags" || go === "facts") {
+    if (go === "paintings" || go === "flags" || go === "facts" || go === "contact") {
       push({ kind: go });
       return;
     }
