@@ -167,6 +167,7 @@ ul.more a{display:inline-block;background:var(--surface);border:2px solid var(--
   border-radius:14px;padding:8px 14px;text-decoration:none;color:var(--ink);font-weight:600}
 .levelrow{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:8px 0}
 .sib{font-size:.95rem;color:var(--muted)}
+.coffee-link{font-size:1.25em;text-decoration:none;vertical-align:-2px}
 footer{margin-top:40px;font-size:.85rem;color:var(--muted)}
 `;
 
@@ -279,7 +280,9 @@ ${graph}
         Follow along and learn how to draw ${art} ${esc(name)}, step by step. This
         ${levelLabel.toLowerCase()} drawing for kids is broken into ${n} easy steps, and in the
         app each step shows the lines drawing themselves so children can copy along.
-        It's completely free, with no sign-up and no ads.
+        It's completely free, with no sign-up and no ads — but you can buy us a
+        <a class="coffee-link" href="https://buy.stripe.com/5kQ7sE4pQdjc2JGfrG8Zq00" target="_blank" rel="noopener noreferrer" aria-label="Buy us a coffee to support Learn 2 Draw">☕</a>,
+        if you like and want to support the website.
       </p>
       <h2>Steps to draw ${art} ${esc(name)}</h2>
       <ol class="steps">
