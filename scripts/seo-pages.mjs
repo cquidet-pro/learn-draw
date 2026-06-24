@@ -64,6 +64,17 @@ const article = (name) => (/^[aeiou]/i.test(name) ? "an" : "a");
 const jsonLd = (obj) =>
   JSON.stringify(obj, null, 2).replace(/</g, "\\u003c");
 
+// A difficulty chip styled like the home page's level buttons. `current` marks
+// this page's own level (highlighted, like the active selector button); `href`
+// makes it a link to that level's page.
+function lvlChip(level, label, opts = {}) {
+  const inner = `<span class="lvl-ico">${LEVEL_ICON[level] ?? ""}</span> ${label}`;
+  const cls = `lvl-chip${opts.current ? " current" : ""}`;
+  return opts.href
+    ? `<a class="${cls}" href="${opts.href}">${inner}</a>`
+    : `<span class="${cls}">${inner}</span>`;
+}
+
 function previewSvg(animal, previewStrokes, previewFills) {
   const fills = previewFills(animal)
     .map((f) => `<path d="${f.d}" fill="${f.color}"/>`)
@@ -136,8 +147,12 @@ a{color:var(--link)}
 .home-btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.12)}
 .crumb-sep{color:var(--muted);font-size:1.1rem}
 .pagehead h1{margin:0;font-size:1.3rem;line-height:1.2;font-weight:800;color:var(--ink)}
-.badge{display:inline-block;background:var(--accent);color:#5b4410;border-radius:999px;
-  padding:3px 12px;font-size:.8rem;font-weight:800}
+.lvl-chip{display:inline-flex;align-items:center;gap:5px;background:var(--surface);
+  border:3px solid var(--accent);color:var(--ink);border-radius:14px;padding:2px 11px;
+  font-size:.92rem;font-weight:800;text-decoration:none;box-shadow:0 3px 0 rgba(0,0,0,.08);line-height:1.5}
+.lvl-chip .lvl-ico{font-size:1.2rem;line-height:1}
+.lvl-chip.current{border-color:var(--accent-2);background:#fff0f4}
+[data-theme="dark"] .lvl-chip.current{background:#3b2b39}
 .picture{display:block;width:min(340px,80vw);height:auto;margin:18px auto;
   background:var(--canvas);border:3px solid var(--accent);border-radius:24px;padding:10px}
 a.cta{display:block;max-width:420px;margin:18px auto;text-align:center;
@@ -150,7 +165,7 @@ h2{margin-top:1.8em}
 ul.more{list-style:none;padding:0;display:flex;flex-wrap:wrap;gap:10px}
 ul.more a{display:inline-block;background:var(--surface);border:2px solid var(--accent);
   border-radius:14px;padding:8px 14px;text-decoration:none;color:var(--ink);font-weight:600}
-.levelrow{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;margin:2px 0}
+.levelrow{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:8px 0}
 .sib{font-size:.95rem;color:var(--muted)}
 footer{margin-top:40px;font-size:.85rem;color:var(--muted)}
 `;
@@ -180,13 +195,12 @@ function pageHtml(animal, ctx) {
   const stepsHtml = steps
     .map((h) => `      <li>${esc(h)}</li>`)
     .join("\n");
-  const siblingsInline = siblings.length
-    ? `<span class="sib">Also try drawing ${art} ${esc(name)} at another level: ${siblings
-        .map(
-          (a) =>
-            `<a href="/draw/${a.id}/">${LEVEL_ICON[drawingLevel(a)] ?? ""} ${LEVEL_LABEL[drawingLevel(a)]}</a>`,
+  const siblingsRow = siblings.length
+    ? `<div class="levelrow"><span class="sib">Also try ${art} ${esc(name)} at another level:</span> ${siblings
+        .map((a) =>
+          lvlChip(drawingLevel(a), LEVEL_LABEL[drawingLevel(a)], { href: `/draw/${a.id}/` }),
         )
-        .join(" · ")}</span>`
+        .join(" ")}</div>`
     : "";
   const moreHtml = more
     .map(
@@ -256,11 +270,9 @@ ${graph}
         <a class="home-btn" href="/" aria-label="Back to home">🏠 Home</a>
         <span class="crumb-sep" aria-hidden="true">›</span>
         <h1>How to draw ${art} ${esc(name)} ${animal.emoji ? esc(animal.emoji) : ""}</h1>
+        ${lvlChip(lvl, levelLabel, { current: true })}
       </div>
-      <div class="levelrow">
-        <span class="badge">${LEVEL_ICON[lvl] ?? ""} ${levelLabel}</span>
-        ${siblingsInline}
-      </div>
+      ${siblingsRow}
       ${previewSvg(animal, previewStrokes, previewFills)}
       <a class="cta" href="/?d=${animal.id}">▶ Draw this ${esc(name)} step by step</a>
       <p>
