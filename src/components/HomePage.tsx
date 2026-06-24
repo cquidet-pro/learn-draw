@@ -9,15 +9,11 @@ import { useVoiceControl, VoiceButton } from "../voice/VoiceProvider";
 import { SoundButton } from "../sound/SoundProvider";
 import { ThemeButton } from "../theme/ThemeButton";
 import { applyTheme } from "../theme/theme";
+import { scrollPage } from "../lib/scroll";
 import { heardAny } from "../voice/match";
 import { TimeLimitSettings } from "../parental/TimeLimitSettings";
 import { useTimeLimit } from "../parental/TimeLimitProvider";
 import gearIcon from "../assets/gear.png";
-
-/** Smoothly scroll the page up (-1) or down (+1) by most of a screenful. */
-function scrollPage(dir: 1 | -1) {
-  window.scrollBy({ top: dir * Math.round(window.innerHeight * 0.7), behavior: "smooth" });
-}
 
 // Spoken words (beyond each drawing's own name) that select it.
 const ALIASES: Record<string, string[]> = {

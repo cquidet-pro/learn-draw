@@ -6,6 +6,7 @@ import { rewardTiers } from "../data/rewards";
 import { FRIEND_DRAWINGS } from "../data/friends";
 import { DrawingThumb } from "./DrawingThumb";
 import { useVoiceControl, VoiceButton } from "../voice/VoiceProvider";
+import { scrollPage } from "../lib/scroll";
 import { heardAny } from "../voice/match";
 
 interface Props {
@@ -41,6 +42,14 @@ export function TrophyPage({ onHome, completed, onReset, onPick }: Props) {
 
   const onCommand = useCallback(
     (transcript: string): boolean => {
+      if (heardAny(transcript, ["up"])) {
+        scrollPage(-1);
+        return true;
+      }
+      if (heardAny(transcript, ["down"])) {
+        scrollPage(1);
+        return true;
+      }
       if (heardAny(transcript, ["home", "back", "menu"])) {
         onHome();
         return true;

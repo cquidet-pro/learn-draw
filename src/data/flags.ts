@@ -133,7 +133,12 @@ function striped(
     [
       frame(),
       {
-        hint: dir === "v" ? "Add stripes up and down" : "Add stripes across",
+        // Always say how many stripes — "Add 3 stripes across", not a vague
+        // "add the stripes". The count is the number of colour bands.
+        hint:
+          dir === "v"
+            ? `Add ${bands.length} stripes up and down`
+            : `Add ${bands.length} stripes across`,
         color: OUTLINE,
         strokes: dividers,
       },
@@ -268,6 +273,7 @@ const china = (() => {
 
 const usa = (() => {
   // 13 stripes, blue canton, a grid of white stars (simplified).
+  const NAVY = "#3C3B6E";
   const stripeH = H / 13;
   const cantonR = L + W * 0.42;
   const cantonB = T + stripeH * 7;
@@ -302,10 +308,16 @@ const usa = (() => {
     [
       frame(),
       { hint: "Add a box in the corner for the stars", color: OUTLINE, strokes: [canton] },
-      { hint: "Add the stripes across", color: OUTLINE, strokes: stripes },
+      { hint: "Add 13 stripes across", color: OUTLINE, strokes: stripes },
+      // The stars are drawn in the canton's own navy: clearly visible as the
+      // child draws them on the white box, then they vanish into the blue fill
+      // in the finished flag (a dark OUTLINE stroke is too heavy for stars this
+      // tiny — it swallows the white and leaves dark blobs). Same trick the UK
+      // flag uses for its internal guide lines.
+      { hint: "Add 50 little stars ⭐", color: NAVY, strokes: stars },
       colorStep([
         ...stripeFills,
-        { d: canton, color: "#3C3B6E" },
+        { d: canton, color: NAVY },
         ...stars.map((d) => ({ d, color: "#ffffff" })),
       ]),
     ],
@@ -819,7 +831,7 @@ const india = (() => {
     "🇮🇳",
     [
       frame(),
-      { hint: "Add stripes across", color: OUTLINE, strokes: [`M ${L},${n(T + H / 3)} L ${R},${n(T + H / 3)}`, `M ${L},${n(T + (2 * H) / 3)} L ${R},${n(T + (2 * H) / 3)}`] },
+      { hint: "Add 3 stripes across", color: OUTLINE, strokes: [`M ${L},${n(T + H / 3)} L ${R},${n(T + H / 3)}`, `M ${L},${n(T + (2 * H) / 3)} L ${R},${n(T + (2 * H) / 3)}`] },
       { hint: "Draw a wheel in the middle ☸️", color: OUTLINE, strokes: [wheel, ...spokes] },
       colorStep([
         { d: rectPath(L, T, R, T + H / 3), color: "#FF9933" },
@@ -865,7 +877,7 @@ const greece = (() => {
     "🇬🇷",
     [
       frame(),
-      { hint: "Add lots of stripes across", color: OUTLINE, strokes: lines },
+      { hint: "Add 9 stripes across", color: OUTLINE, strokes: lines },
       { hint: "Add a cross in the corner ➕", color: OUTLINE, strokes: [canton, crossOutline] },
       colorStep([
         ...stripes,
@@ -886,7 +898,7 @@ const uae = (() => {
     [
       frame(),
       { hint: "Add a line down for the red bar", color: OUTLINE, strokes: [`M ${n(barR)},${T} L ${n(barR)},${B}`] },
-      { hint: "Add stripes across the rest", color: OUTLINE, strokes: [`M ${n(barR)},${n(T + H / 3)} L ${R},${n(T + H / 3)}`, `M ${n(barR)},${n(T + (2 * H) / 3)} L ${R},${n(T + (2 * H) / 3)}`] },
+      { hint: "Add 3 stripes across the rest", color: OUTLINE, strokes: [`M ${n(barR)},${n(T + H / 3)} L ${R},${n(T + H / 3)}`, `M ${n(barR)},${n(T + (2 * H) / 3)} L ${R},${n(T + (2 * H) / 3)}`] },
       colorStep([
         { d: rectPath(L, T, barR, B), color: "#FF0000" },
         { d: rectPath(barR, T, R, T + H / 3), color: "#009639" },
