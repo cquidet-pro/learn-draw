@@ -130,13 +130,20 @@ export function App() {
     }
   }, []);
 
-  // Deep link: the per-drawing SEO landing pages (/draw/<id>/) link into the app
-  // as /?d=<id> to open that drawing directly. Handle it once on mount.
+  // Deep link: the per-drawing SEO landing pages link into the app — /?d=<id>
+  // opens a drawing directly, and /?go=paintings|flags|facts opens a section.
+  // Handle it once on mount.
   const deepLinkedRef = useRef(false);
   useEffect(() => {
     if (deepLinkedRef.current) return;
     deepLinkedRef.current = true;
-    const id = new URLSearchParams(window.location.search).get("d");
+    const params = new URLSearchParams(window.location.search);
+    const go = params.get("go");
+    if (go === "paintings" || go === "flags" || go === "facts") {
+      push({ kind: go });
+      return;
+    }
+    const id = params.get("d");
     if (!id) return;
     const animal =
       getAnimal(id) ??
