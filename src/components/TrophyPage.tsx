@@ -1,7 +1,8 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { Animal } from "../data/animals";
 import { drawingsForLevel } from "../data/animals";
 import { masterpieces } from "../data/masterpieces";
+import { flags } from "../data/flags";
 import { rewardTiers } from "../data/rewards";
 import { FRIEND_DRAWINGS } from "../data/friends";
 import { DrawingThumb } from "./DrawingThumb";
@@ -13,6 +14,8 @@ interface Props {
   onHome: () => void;
   /** Ids of drawings the child has finished. */
   completed: Set<string>;
+  /** Ids of finished flags (tracked apart from the milestone set). */
+  completedFlags: Set<string>;
   /** Clear every earned sticker and start the shelf over. */
   onReset: () => void;
   /** Start drawing one of the not-yet-done pictures. */
@@ -29,16 +32,29 @@ const bySubject = (items: Animal[]): Animal[] =>
     return (ia === -1 ? Infinity : ia) - (ib === -1 ? Infinity : ib);
   });
 
-// The sticker shelf is grouped the same way the child browses drawings.
-const GROUPS: { title: string; items: Animal[] }[] = [
+// The groups that drive the "animal friend" reward shelf — the leveled drawings
+// plus the paintings. Flags are shown on the shelf too (added per-render below)
+// but kept OUT of these, so they don't move the reward milestones.
+const REWARD_GROUPS: { title: string; items: Animal[] }[] = [
   { title: "🌱 Easy", items: bySubject(drawingsForLevel(5)) },
   { title: "🌳 Medium", items: bySubject(drawingsForLevel(7)) },
   { title: "⭐ Harder", items: bySubject(drawingsForLevel(10)) },
   { title: "🖼️ Paintings", items: masterpieces },
 ];
 
-export function TrophyPage({ onHome, completed, onReset, onPick }: Props) {
+export function TrophyPage({ onHome, completed, completedFlags, onReset, onPick }: Props) {
   const [confirming, setConfirming] = useState(false);
+
+  // Every sticker section, each paired with the set that tracks its completion
+  // (flags use their own set). The flags group is shown but not part of the
+  // reward math.
+  const groups = useMemo(
+    () => [
+      ...REWARD_GROUPS.map((g) => ({ ...g, done: completed })),
+      { title: "🏳️ Flags", items: flags, done: completedFlags },
+    ],
+    [completed, completedFlags],
+  );
 
   const onCommand = useCallback(
     (transcript: string): boolean => {
@@ -55,9 +71,9 @@ export function TrophyPage({ onHome, completed, onReset, onPick }: Props) {
         return true;
       }
       // Saying a drawing's name starts it — but only for ones not done yet.
-      for (const g of GROUPS) {
+      for (const g of groups) {
         for (const a of g.items) {
-          if (completed.has(a.id)) continue;
+          if (g.done.has(a.id)) continue;
           if (heardAny(transcript, [a.name.toLowerCase()])) {
             onPick(a);
             return true;
@@ -66,19 +82,27 @@ export function TrophyPage({ onHome, completed, onReset, onPick }: Props) {
       }
       return false;
     },
-    [onHome, onPick, completed],
+    [onHome, onPick, groups],
   );
   useVoiceControl(onCommand);
 
-  const doneIn = (items: Animal[]) =>
-    items.filter((a) => completed.has(a.id)).length;
-  const totalDone = GROUPS.reduce((n, g) => n + doneIn(g.items), 0);
-  const totalAll = GROUPS.reduce((n, g) => n + g.items.length, 0);
-  const allDone = totalAll > 0 && totalDone === totalAll;
+  // Reward shelf progress (animal friends) — leveled drawings + paintings only.
+  const rewardDone = REWARD_GROUPS.reduce(
+    (n, g) => n + g.items.filter((a) => completed.has(a.id)).length,
+    0,
+  );
+  const rewardAll = REWARD_GROUPS.reduce((n, g) => n + g.items.length, 0);
+  const rewards = rewardTiers(rewardAll);
+  const rewardsEarned = rewards.filter((r) => rewardDone >= r.need).length;
+  const nextReward = rewards.find((r) => rewardDone < r.need);
 
-  const rewards = rewardTiers(totalAll);
-  const rewardsEarned = rewards.filter((r) => totalDone >= r.need).length;
-  const nextReward = rewards.find((r) => totalDone < r.need);
+  // Sticker tally — every section, flags included.
+  const totalDone = groups.reduce(
+    (n, g) => n + g.items.filter((a) => g.done.has(a.id)).length,
+    0,
+  );
+  const totalAll = groups.reduce((n, g) => n + g.items.length, 0);
+  const allDone = totalAll > 0 && totalDone === totalAll;
 
   return (
     <div className="facts-page trophy-page">
@@ -147,7 +171,7 @@ export function TrophyPage({ onHome, completed, onReset, onPick }: Props) {
         <p className="reward-blurb">
           {nextReward
             ? `A new animal friend every 5 drawings — ${
-                nextReward.need - totalDone
+                nextReward.need - rewardDone
               } more to unlock the ${nextReward.name}! ${nextReward.emoji}`
             : "Wow! You collected every animal friend! 🦕🎉"}
         </p>
@@ -158,7 +182,7 @@ export function TrophyPage({ onHome, completed, onReset, onPick }: Props) {
         )}
         <div className="reward-grid">
           {rewards.map((r) => {
-            const earned = totalDone >= r.need;
+            const earned = rewardDone >= r.need;
             const inner = (
               <>
                 <span
@@ -198,8 +222,8 @@ export function TrophyPage({ onHome, completed, onReset, onPick }: Props) {
         </div>
       </section>
 
-      {GROUPS.map((g) => {
-        const done = doneIn(g.items);
+      {groups.map((g) => {
+        const done = g.items.filter((a) => g.done.has(a.id)).length;
         const pct = g.items.length ? Math.round((done / g.items.length) * 100) : 0;
         return (
           <section className="trophy-group" key={g.title}>
@@ -220,7 +244,7 @@ export function TrophyPage({ onHome, completed, onReset, onPick }: Props) {
             </div>
             <div className="sticker-grid">
               {g.items.map((a) => {
-                const earned = completed.has(a.id);
+                const earned = g.done.has(a.id);
                 const inner = (
                   <>
                     <DrawingThumb animal={a} className="sticker-art" />
