@@ -269,11 +269,17 @@ const china = (() => {
 const usa = (() => {
   // 13 stripes, blue canton, a grid of white stars (simplified).
   const stripeH = H / 13;
-  const stripes: string[] = [];
-  for (let i = 1; i < 13; i++) stripes.push(`M ${L},${n(T + i * stripeH)} L ${R},${n(T + i * stripeH)}`);
   const cantonR = L + W * 0.42;
   const cantonB = T + stripeH * 7;
   const canton = rectPath(L, T, cantonR, cantonB);
+  // Draw the canton first, then the stripes — but the top stripes must NOT cut
+  // through the canton, so those dividers start at the canton's right edge (the
+  // first 7 stripe-rows are behind the canton; divider i=7 is its bottom edge).
+  const stripes: string[] = [];
+  for (let i = 1; i < 13; i++) {
+    const y = n(T + i * stripeH);
+    stripes.push(`M ${i < 7 ? n(cantonR) : L},${y} L ${R},${y}`);
+  }
   const stripeFills = [];
   for (let i = 0; i < 13; i++)
     stripeFills.push({ d: rectPath(L, T + i * stripeH, R, T + (i + 1) * stripeH), color: i % 2 === 0 ? "#B22234" : "#ffffff" });
@@ -295,8 +301,8 @@ const usa = (() => {
     "🇺🇸",
     [
       frame(),
-      { hint: "Add the stripes across", color: OUTLINE, strokes: stripes },
       { hint: "Add a box in the corner for the stars", color: OUTLINE, strokes: [canton] },
+      { hint: "Add the stripes across", color: OUTLINE, strokes: stripes },
       colorStep([
         ...stripeFills,
         { d: canton, color: "#3C3B6E" },
