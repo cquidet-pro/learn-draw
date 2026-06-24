@@ -204,11 +204,21 @@ For a UI/preview build use `npx vite build` (skips tsc) + `npm run preview`.
   whole UK Union Jack — both formed entirely during colouring). Fix: draw the
   emblem's structure as line-art in the badge/detail step. Guide strokes that
   shouldn't show as dark lines use the vanishing-colour trick below (Portugal's
-  sphere is dark line-art around the shield; the UK's red cross + saltire are drawn
-  as **red** strokes that vanish into the red fills). White regions are the
-  exception — they can't be drawn on the white box, so the white saltire/cross
-  still form as the navy fills around them; that's fine, it's the *coloured* shapes
-  that must be pre-drawn.
+  sphere is dark line-art around the shield). White regions are the exception —
+  they can't be drawn on the white box, so a white saltire/cross stays as the
+  paper gaps between the coloured shapes; it's the *coloured* shapes that must be
+  pre-drawn.
+- **A busy emblem is DECOMPOSED into its real colour regions, one outline + one
+  fill each — don't layer broad fills.** The Union Jack (UK flag + the Australia/
+  NZ cantons, `unionJack` in `flags.ts`) is the worked example: instead of a navy
+  rectangle with white/red painted over (impossible to "colour" — everything
+  appears at once), it's cut into **8 blue triangles + 1 red cross + 4 thin red
+  diagonals**, each outlined in its own colour (so the guide line vanishes into its
+  fill), with the white saltire/cross left as paper gaps. The steps then read
+  frame → red cross → 8 triangles → 4 diagonals → colour blue → colour red — a
+  child can follow each one. Use the `clipHalfPlane`/`clipPoly` helpers to carve
+  the regions. `expandColorSteps` orders the two colour steps by geometry; here it
+  lands blue-then-red on its own.
 - **Outline strokes are drawn ON TOP of the fills in the final picture** (pass 2).
   Any dark guide line you add for the animation stays visible over the colours.
   - For a border it's fine. For *internal* guide lines that shouldn't appear in
