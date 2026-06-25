@@ -834,7 +834,11 @@ const brazil = (() => {
       frame(),
       { hint: "Draw a big diamond 💎", color: OUTLINE, strokes: [diamond] },
       { hint: "Draw a circle inside ⭕", color: OUTLINE, strokes: [disc] },
-      { hint: "Add a curvy band and stars ⭐", color: OUTLINE, strokes: [band] },
+      { hint: "Add a curvy band 🎀", color: OUTLINE, strokes: [band] },
+      // Outline the stars before colouring (like the USA flag) — drawn in the
+      // globe's own blue so they show on the still-white globe while the child
+      // draws them, then vanish into the blue fill leaving clean white stars.
+      { hint: "Add the stars ⭐", color: "#002776", strokes: stars },
       colorStep([
         { d: RECT, color: "#009C3B" },
         { d: diamond, color: "#FFDF00" },
