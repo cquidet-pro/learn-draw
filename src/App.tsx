@@ -4,7 +4,7 @@ import { drawingsForLevel, drawingLevel, getAnimal } from "./data/animals";
 import { masterpieces, isMasterpiece } from "./data/masterpieces";
 import { isFriendOnly, earnedFriendPool, friendPool } from "./data/friends";
 import { flags } from "./data/flags";
-import { worldCupFlags, isFlag, isWorldCupFlag } from "./data/worldcup";
+import { worldCupItems, isFlag, isWorldCupFlag } from "./data/worldcup";
 import { HomePage } from "./components/HomePage";
 import { OfflineGuard } from "./components/OfflineGuard";
 import { DrawingPlayer } from "./components/DrawingPlayer";
@@ -184,7 +184,7 @@ export function App() {
       friendPool.find((f) => f.id === id) ??
       masterpieces.find((m) => m.id === id) ??
       flags.find((f) => f.id === id) ??
-      worldCupFlags.find((f) => f.id === id);
+      worldCupItems.find((f) => f.id === id);
     if (!animal) return;
     // Match the level so auto-advance stays within the right pool.
     if (getAnimal(id)) setLevel(drawingLevel(animal));
@@ -210,7 +210,7 @@ export function App() {
       : isMasterpiece(animal.id)
         ? masterpieces
         : cameFromWorldCup || (isWorldCupFlag(animal.id) && !isFlag(animal.id))
-          ? worldCupFlags
+          ? worldCupItems
           : isFlag(animal.id)
             ? flags
             : drawingsForLevel(drawingLevel(animal));
