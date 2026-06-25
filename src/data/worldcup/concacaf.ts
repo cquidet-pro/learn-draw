@@ -33,10 +33,11 @@ const curacao = (() => {
   const sty0 = T + (H * 2) / 3 + 6; // top edge of the yellow band
   const stripe = rectPath(L, sty0, R, sty0 + H / 6);
   void stripeTop;
-  // Two white stars in the upper-left: a bigger one, then a smaller one tucked
-  // up and to the right of it.
-  const bigStar = star(48, 78, 13);
-  const smallStar = star(74, 64, 8);
+  // Two white stars in the upper-hoist (upper-left), matching the official
+  // layout: the SMALL star sits up-and-to-the-LEFT, and the BIGGER star sits
+  // down-and-to-the-RIGHT of it. Mapped from the real flag's star centres.
+  const smallStar = star(30, 60, 10);
+  const bigStar = star(50, 80, 13);
   return flag(
     "flag-curacao",
     "Curaçao",

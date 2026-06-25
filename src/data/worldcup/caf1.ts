@@ -53,12 +53,19 @@ const algeria = (() => {
 })();
 
 const capeVerde = (() => {
-  // Blue field with a horizontal white/red/white band across the lower-middle.
-  // Band centre sits a little below middle, like the real flag (at 3/8 from the
-  // bottom). White stripes are thin; the red is the main band.
-  const bandCy = T + H * 0.625;
-  const redHalf = 6; // half-height of the red middle stripe
-  const whiteH = 6; // thickness of each thin white stripe
+  // Blue field with a horizontal white/red/white band, and a ring of 10 yellow
+  // stars. Per the official flag the ring centre sits LEFT of centre and BELOW
+  // mid-height, with the stripe band passing through that same centre and the
+  // ring reaching almost to the bottom edge. Ring centre (74, 124): left of the
+  // x=100 midline and well below the T..B middle (100); the lowest star's bottom
+  // lands at y=158, nearly touching the bottom (B=160).
+  const ringCx = 74;
+  const ringCy = 124;
+  const ringR = 28;
+  // Stripe band is centred on the ring centre (the stripes pass through it).
+  const bandCy = ringCy;
+  const redHalf = 5; // half-height of the red middle stripe
+  const whiteH = 10; // thickness of each white stripe
   const redTop = bandCy - redHalf;
   const redBot = bandCy + redHalf;
   const whiteTop0 = redTop - whiteH;
@@ -67,13 +74,10 @@ const capeVerde = (() => {
   const lines = [whiteTop0, redTop, redBot, whiteBot1].map(
     (y) => `M ${L},${n(y)} L ${R},${n(y)}`,
   );
-  // A ring of 10 small yellow stars centred a bit above the band centre.
-  const ringCx = 100;
-  const ringCy = bandCy - 4;
-  const ringR = 22;
+  // A ring of 10 small yellow stars on the circle (one star points straight up).
   const stars = Array.from({ length: 10 }, (_, i) => {
     const a = (-90 + i * 36) * (Math.PI / 180);
-    return star(ringCx + ringR * Math.cos(a), ringCy + ringR * Math.sin(a), 6.5);
+    return star(ringCx + ringR * Math.cos(a), ringCy + ringR * Math.sin(a), 6);
   });
   return flag(
     "flag-cape-verde",
@@ -83,9 +87,10 @@ const capeVerde = (() => {
       frame(),
       { hint: "Add a band across the bottom half", color: OUTLINE, strokes: lines },
       // Stars drawn in the field's own blue so they show on the still-white
-      // canvas while the child draws, then vanish into the blue fill leaving
-      // clean yellow stars. Thin stroke keeps their points crisp.
-      { hint: "Add 10 little stars in a circle ⭐", color: "#003893", strokes: stars, strokeWidth: 0.7 },
+      // canvas while the child draws, then vanish into the YELLOW star fill
+      // (some stars sit on the white stripes, where a blue guide would show — so
+      // the guide is drawn in the stars' own yellow). Thin stroke keeps them crisp.
+      { hint: "Add 10 little stars in a circle ⭐", color: "#F7D116", strokes: stars, strokeWidth: 0.7 },
       colorStep([
         { d: RECT, color: "#003893" },
         { d: rectPath(L, whiteTop0, R, redTop), color: "#ffffff" },
