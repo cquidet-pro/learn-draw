@@ -22,14 +22,17 @@ export const newWorldCupFlags: Animal[] = [
   ...concacafFlags,
   ...conmebolFlags,
   ...uefaFlags,
-].map(withName);
+]
+  .map(withName)
+  .sort((a, b) => a.name.localeCompare(b.name));
 
 const newFlags = newWorldCupFlags;
 
 const byId = (id: string): Animal | undefined =>
   flags.find((f) => f.id === id) ?? newFlags.find((f) => f.id === id);
 
-// The 48 qualifiers, grouped by confederation in the order published.
+// The 48 qualifiers (listed by confederation just for readability; the section
+// itself is sorted alphabetically by country name below).
 const WC_ORDER = [
   // AFC
   "flag-australia", "flag-iran", "flag-iraq", "flag-japan", "flag-jordan",
@@ -50,9 +53,9 @@ const WC_ORDER = [
   "flag-switzerland", "flag-turkey",
 ];
 
-export const worldCupFlags: Animal[] = WC_ORDER.map(byId).filter(
-  (f): f is Animal => Boolean(f),
-);
+export const worldCupFlags: Animal[] = WC_ORDER.map(byId)
+  .filter((f): f is Animal => Boolean(f))
+  .sort((a, b) => a.name.localeCompare(b.name));
 
 const wcIds = new Set(worldCupFlags.map((f) => f.id));
 
@@ -65,4 +68,26 @@ export function isFlag(id: string): boolean {
 
 export function isWorldCupFlag(id: string): boolean {
   return wcIds.has(id);
+}
+
+// "Football Cups" — a separate set of trophies you win ONLY by drawing World Cup
+// flags (distinct from the animal-friend rewards earned across all drawings).
+// They're earned trophies (shown on the sticker shelf), not drawings themselves.
+export interface FootballCup {
+  emoji: string;
+  name: string;
+  /** World Cup flags you must finish to win it. */
+  need: number;
+}
+export const FOOTBALL_CUPS: FootballCup[] = [
+  { emoji: "⚽", name: "Kickoff Cup", need: 10 },
+  { emoji: "🥉", name: "Bronze Cup", need: 20 },
+  { emoji: "🥈", name: "Silver Cup", need: 30 },
+  { emoji: "🥇", name: "Gold Cup", need: 40 },
+  { emoji: "🏆", name: "Champions Cup", need: worldCupFlags.length },
+];
+
+/** How many World Cup flags the child has finished — drives the football cups. */
+export function worldCupDone(completed: Set<string>): number {
+  return worldCupFlags.reduce((sum, f) => sum + (completed.has(f.id) ? 1 : 0), 0);
 }
