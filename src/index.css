@@ -38,6 +38,9 @@
 [data-theme="dark"] .flags-pick {
   background: #233329;
 }
+[data-theme="dark"] .worldcup-pick {
+  background: #233044;
+}
 [data-theme="dark"] .voice-legend-pop {
   background: #262636;
   color: var(--ink);
@@ -1067,6 +1070,11 @@ kbd {
 .flags-pick {
   background: #eafbf0;
   border-color: #06d6a0;
+}
+
+.worldcup-pick {
+  background: #e9f3ff;
+  border-color: #2e86c1;
 }
 
 

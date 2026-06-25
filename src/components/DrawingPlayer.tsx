@@ -2,7 +2,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import type { Animal } from "../data/animals";
 import { chooseNext, chooseNextInLevels } from "../data/animals";
 import { isMasterpiece } from "../data/masterpieces";
-import { isFlag } from "../data/flags";
+import { isFlag } from "../data/worldcup";
 import { isFriendOnly } from "../data/friends";
 import { expandColorSteps } from "../data/expandColor";
 import { rewardJustUnlocked } from "../data/rewards";

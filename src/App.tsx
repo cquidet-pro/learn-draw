@@ -3,13 +3,15 @@ import type { Animal, Level } from "./data/animals";
 import { drawingsForLevel, drawingLevel, getAnimal } from "./data/animals";
 import { masterpieces, isMasterpiece } from "./data/masterpieces";
 import { isFriendOnly, earnedFriendPool, friendPool } from "./data/friends";
-import { flags, isFlag } from "./data/flags";
+import { flags } from "./data/flags";
+import { worldCupFlags, isFlag, isWorldCupFlag } from "./data/worldcup";
 import { HomePage } from "./components/HomePage";
 import { OfflineGuard } from "./components/OfflineGuard";
 import { DrawingPlayer } from "./components/DrawingPlayer";
 import { FactsPage } from "./components/FactsPage";
 import { PaintingsPage } from "./components/PaintingsPage";
 import { FlagsPage } from "./components/FlagsPage";
+import { WorldCupPage } from "./components/WorldCupPage";
 import { PrivacyPage } from "./components/PrivacyPage";
 import { ContactPage } from "./components/ContactPage";
 import { TermsPage } from "./components/TermsPage";
@@ -55,6 +57,7 @@ type Route =
   | { kind: "home" }
   | { kind: "paintings" }
   | { kind: "flags" }
+  | { kind: "worldcup" }
   | { kind: "facts" }
   | { kind: "privacy" }
   | { kind: "contact" }
@@ -164,7 +167,13 @@ export function App() {
     deepLinkedRef.current = true;
     const params = new URLSearchParams(window.location.search);
     const go = params.get("go");
-    if (go === "paintings" || go === "flags" || go === "facts" || go === "contact") {
+    if (
+      go === "paintings" ||
+      go === "flags" ||
+      go === "worldcup" ||
+      go === "facts" ||
+      go === "contact"
+    ) {
       push({ kind: go });
       return;
     }
@@ -174,7 +183,8 @@ export function App() {
       getAnimal(id) ??
       friendPool.find((f) => f.id === id) ??
       masterpieces.find((m) => m.id === id) ??
-      flags.find((f) => f.id === id);
+      flags.find((f) => f.id === id) ??
+      worldCupFlags.find((f) => f.id === id);
     if (!animal) return;
     // Match the level so auto-advance stays within the right pool.
     if (getAnimal(id)) setLevel(drawingLevel(animal));
@@ -188,32 +198,40 @@ export function App() {
     // to match (the paintings/flags gallery, the sticker shelf, or home).
     const cameFromPaintings = previous?.kind === "paintings";
     const cameFromFlags = previous?.kind === "flags";
+    const cameFromWorldCup = previous?.kind === "worldcup";
     const cameFromTrophies = previous?.kind === "trophies";
     // Auto-advance stays within the collection the drawing came from. Drawing
     // from the sticker shelf (or a friend-only sticker) cycles among the
-    // stickers the child has actually EARNED — never one still locked.
+    // stickers the child has actually EARNED — never one still locked. A flag
+    // opened from the World Cup section cycles among the World Cup flags.
     const inStickers = cameFromTrophies || isFriendOnly(animal.id);
     const pool = inStickers
       ? earnedFriendPool(completed.size)
       : isMasterpiece(animal.id)
         ? masterpieces
-        : isFlag(animal.id)
-          ? flags
-          : drawingsForLevel(drawingLevel(animal));
+        : cameFromWorldCup || (isWorldCupFlag(animal.id) && !isFlag(animal.id))
+          ? worldCupFlags
+          : isFlag(animal.id)
+            ? flags
+            : drawingsForLevel(drawingLevel(animal));
     const homeLabel = cameFromPaintings
       ? "🖼️ Paintings"
       : cameFromFlags
         ? "🏳️ Flags"
-        : cameFromTrophies
-          ? "🏆 Stickers"
-          : "🏠 Home";
+        : cameFromWorldCup
+          ? "⚽ World Cup"
+          : cameFromTrophies
+            ? "🏆 Stickers"
+            : "🏠 Home";
     const homeAria = cameFromPaintings
       ? "Back to paintings"
       : cameFromFlags
         ? "Back to flags"
-        : cameFromTrophies
-          ? "Back to my stickers"
-          : "Back to home";
+        : cameFromWorldCup
+          ? "Back to the World Cup flags"
+          : cameFromTrophies
+            ? "Back to my stickers"
+            : "Back to home";
     screen = (
       <DrawingPlayer
         key={animal.id}
@@ -239,6 +257,14 @@ export function App() {
   } else if (current.kind === "flags") {
     screen = (
       <FlagsPage
+        onPick={(animal) => push({ kind: "drawing", animal })}
+        onHome={goBack}
+        completed={completed}
+      />
+    );
+  } else if (current.kind === "worldcup") {
+    screen = (
+      <WorldCupPage
         onPick={(animal) => push({ kind: "drawing", animal })}
         onHome={goBack}
         completed={completed}
@@ -271,6 +297,7 @@ export function App() {
         onOpenFacts={() => push({ kind: "facts" })}
         onOpenPaintings={() => push({ kind: "paintings" })}
         onOpenFlags={() => push({ kind: "flags" })}
+        onOpenWorldCup={() => push({ kind: "worldcup" })}
         onOpenTrophies={() => push({ kind: "trophies" })}
         onOpenPrivacy={() => push({ kind: "privacy" })}
         onOpenContact={() => push({ kind: "contact" })}
