@@ -55,6 +55,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
   const resultIdxRef = useRef(-1); // which recognition result we're tracking
   const processedRef = useRef(0); // how many words of it we've already handled
   const prevFinalRef = useRef(true); // did the previous result end an utterance?
+  const prevTextRef = useRef(""); // the previous transcript (lowercased)
   // Suppresses the same command repeated within a short sliding window, so a
   // quick "next next" only fires once. See dedupe.ts to tune the window.
   const deduperRef = useRef(new CommandDeduper());
@@ -62,17 +63,24 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
   const onResult = useCallback(
     (transcript: string, isFinal: boolean, resultIndex: number) => {
       const text = transcript.trim();
-      const words = text.toLowerCase().split(/\s+/).filter(Boolean);
+      const lower = text.toLowerCase();
+      const words = lower.split(/\s+/).filter(Boolean);
 
-      // Start fresh on a new utterance: either a new recognition result, or the
-      // previous one finalized. Checking the final flag too means a word is
-      // never dropped when the recognizer silently restarts (its result index
-      // resets to 0, which would otherwise look like the same ongoing phrase).
-      if (resultIndex !== resultIdxRef.current || prevFinalRef.current) {
-        processedRef.current = 0;
-      }
+      // Decide whether this is the SAME interim utterance still growing, or a
+      // fresh one we should process from scratch. A fresh utterance is: a new
+      // recognition result, the previous one finalized, OR a transcript that no
+      // longer extends what we already consumed (the engine often restarts and
+      // reuses index 0 with a brand-new phrase — e.g. you say "flags", then
+      // "home"; without this check "home" lands at the same index mid-stream and
+      // gets silently dropped, so saying "home" did nothing).
+      const continues =
+        resultIndex === resultIdxRef.current &&
+        !prevFinalRef.current &&
+        lower.startsWith(prevTextRef.current);
+      if (!continues) processedRef.current = 0;
       resultIdxRef.current = resultIndex;
       prevFinalRef.current = isFinal;
+      prevTextRef.current = lower;
 
       // The recognizer sometimes revises a phrase shorter; don't skip words.
       if (words.length < processedRef.current) processedRef.current = words.length;
@@ -112,6 +120,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
       resultIdxRef.current = -1;
       processedRef.current = 0;
       prevFinalRef.current = true;
+      prevTextRef.current = "";
       deduperRef.current.reset();
     }
   }, [listening]);
