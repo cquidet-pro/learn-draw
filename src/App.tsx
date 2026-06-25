@@ -19,10 +19,10 @@ import { SoundProvider } from "./sound/SoundProvider";
 import { TimeLimitProvider } from "./parental/TimeLimitProvider";
 
 const COMPLETED_KEY = "learn-draw:completed";
-// Flags are tracked separately from `completed`: they show on the sticker shelf
-// and drive flag auto-advance, but deliberately DON'T count toward the level
-// progress or the "animal friend" reward milestones (which stay on `completed`).
-const COMPLETED_FLAGS_KEY = "learn-draw:completed-flags";
+// Flags used to live in their own set; they now count like any other drawing.
+// We still read the old key ONCE to migrate finished flags into `completed`,
+// then drop it (see the migration effect on mount).
+const LEGACY_FLAGS_KEY = "learn-draw:completed-flags";
 const LEVEL_KEY = "learn-draw:level";
 
 function loadSet(key: string): Set<string> {
@@ -32,6 +32,14 @@ function loadSet(key: string): Set<string> {
   } catch {
     return new Set();
   }
+}
+
+/** Finished drawings — flags included. Folds in any flags saved under the old
+ *  separate key so existing progress carries over. */
+function loadCompleted(): Set<string> {
+  const all = loadSet(COMPLETED_KEY);
+  for (const id of loadSet(LEGACY_FLAGS_KEY)) all.add(id);
+  return all;
 }
 
 function loadLevel(): Level {
@@ -55,13 +63,21 @@ type Route =
   | { kind: "drawing"; animal: Animal };
 
 export function App() {
-  // Animals the child has finished — shown with a green check on the home page.
-  const [completed, setCompleted] = useState<Set<string>>(() => loadSet(COMPLETED_KEY));
-  // Finished flags, tracked apart from the milestone-counting `completed` set.
-  const [completedFlags, setCompletedFlags] = useState<Set<string>>(() =>
-    loadSet(COMPLETED_FLAGS_KEY),
-  );
+  // Drawings the child has finished (flags included) — shown with a green check.
+  const [completed, setCompleted] = useState<Set<string>>(loadCompleted);
   const [level, setLevelState] = useState<Level>(loadLevel);
+
+  // One-time migration: fold any flags saved under the old separate key into the
+  // main set's storage, then drop the old key.
+  useEffect(() => {
+    if (localStorage.getItem(LEGACY_FLAGS_KEY) == null) return;
+    try {
+      localStorage.setItem(COMPLETED_KEY, JSON.stringify([...loadCompleted()]));
+      localStorage.removeItem(LEGACY_FLAGS_KEY);
+    } catch {
+      /* ignore storage errors */
+    }
+  }, []);
 
   const [stack, setStack] = useState<Route[]>([{ kind: "home" }]);
   const current = stack[stack.length - 1];
@@ -105,23 +121,9 @@ export function App() {
   }, []);
 
   const markCompleted = useCallback((id: string) => {
-    // Reward-only "friend" drawings are just for fun and aren't tracked.
+    // Reward-only "friend" drawings are just for fun and aren't tracked. Every
+    // other finished drawing — flags included — counts the same.
     if (isFriendOnly(id)) return;
-    // Flags ARE tracked (sticker shelf + auto-advance) but in their own set, so
-    // they never count toward the level/reward milestones on `completed`.
-    if (isFlag(id)) {
-      setCompletedFlags((prev) => {
-        if (prev.has(id)) return prev;
-        const next = new Set(prev).add(id);
-        try {
-          localStorage.setItem(COMPLETED_FLAGS_KEY, JSON.stringify([...next]));
-        } catch {
-          /* ignore storage errors */
-        }
-        return next;
-      });
-      return;
-    }
     setCompleted((prev) => {
       if (prev.has(id)) return prev;
       const next = new Set(prev).add(id);
@@ -136,10 +138,9 @@ export function App() {
 
   const resetCompleted = useCallback(() => {
     setCompleted(new Set());
-    setCompletedFlags(new Set());
     try {
       localStorage.removeItem(COMPLETED_KEY);
-      localStorage.removeItem(COMPLETED_FLAGS_KEY);
+      localStorage.removeItem(LEGACY_FLAGS_KEY);
     } catch {
       /* ignore storage errors */
     }
@@ -218,9 +219,7 @@ export function App() {
         key={animal.id}
         animal={animal}
         pool={pool}
-        // Flags track their own completion set, so a finished flag is skipped by
-        // the flag auto-advance (and the reward count stays flag-free).
-        completed={isFlag(animal.id) ? completedFlags : completed}
+        completed={completed}
         onHome={goBack}
         homeLabel={homeLabel}
         homeAria={homeAria}
@@ -242,7 +241,7 @@ export function App() {
       <FlagsPage
         onPick={(animal) => push({ kind: "drawing", animal })}
         onHome={goBack}
-        completed={completedFlags}
+        completed={completed}
       />
     );
   } else if (current.kind === "facts") {
@@ -258,7 +257,6 @@ export function App() {
       <TrophyPage
         onHome={goBack}
         completed={completed}
-        completedFlags={completedFlags}
         onReset={resetCompleted}
         onPick={(animal) => push({ kind: "drawing", animal })}
       />

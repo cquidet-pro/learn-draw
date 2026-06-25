@@ -12,10 +12,8 @@ import { heardAny } from "../voice/match";
 
 interface Props {
   onHome: () => void;
-  /** Ids of drawings the child has finished. */
+  /** Ids of drawings the child has finished (flags included). */
   completed: Set<string>;
-  /** Ids of finished flags (tracked apart from the milestone set). */
-  completedFlags: Set<string>;
   /** Clear every earned sticker and start the shelf over. */
   onReset: () => void;
   /** Start drawing one of the not-yet-done pictures. */
@@ -32,28 +30,22 @@ const bySubject = (items: Animal[]): Animal[] =>
     return (ia === -1 ? Infinity : ia) - (ib === -1 ? Infinity : ib);
   });
 
-// The groups that drive the "animal friend" reward shelf — the leveled drawings
-// plus the paintings. Flags are shown on the shelf too (added per-render below)
-// but kept OUT of these, so they don't move the reward milestones.
-const REWARD_GROUPS: { title: string; items: Animal[] }[] = [
+// Every sticker section — the leveled drawings, paintings AND flags. Flags now
+// count toward the trophies like any other drawing, so they're a full group.
+const GROUPS: { title: string; items: Animal[] }[] = [
   { title: "🌱 Easy", items: bySubject(drawingsForLevel(5)) },
   { title: "🌳 Medium", items: bySubject(drawingsForLevel(7)) },
   { title: "⭐ Harder", items: bySubject(drawingsForLevel(10)) },
   { title: "🖼️ Paintings", items: masterpieces },
+  { title: "🏳️ Flags", items: flags },
 ];
 
-export function TrophyPage({ onHome, completed, completedFlags, onReset, onPick }: Props) {
+export function TrophyPage({ onHome, completed, onReset, onPick }: Props) {
   const [confirming, setConfirming] = useState(false);
 
-  // Every sticker section, each paired with the set that tracks its completion
-  // (flags use their own set). The flags group is shown but not part of the
-  // reward math.
   const groups = useMemo(
-    () => [
-      ...REWARD_GROUPS.map((g) => ({ ...g, done: completed })),
-      { title: "🏳️ Flags", items: flags, done: completedFlags },
-    ],
-    [completed, completedFlags],
+    () => GROUPS.map((g) => ({ ...g, done: completed })),
+    [completed],
   );
 
   const onCommand = useCallback(
@@ -86,23 +78,18 @@ export function TrophyPage({ onHome, completed, completedFlags, onReset, onPick 
   );
   useVoiceControl(onCommand);
 
-  // Reward shelf progress (animal friends) — leveled drawings + paintings only.
-  const rewardDone = REWARD_GROUPS.reduce(
-    (n, g) => n + g.items.filter((a) => completed.has(a.id)).length,
-    0,
-  );
-  const rewardAll = REWARD_GROUPS.reduce((n, g) => n + g.items.length, 0);
-  const rewards = rewardTiers(rewardAll);
-  const rewardsEarned = rewards.filter((r) => rewardDone >= r.need).length;
-  const nextReward = rewards.find((r) => rewardDone < r.need);
-
-  // Sticker tally — every section, flags included.
+  // Sticker tally across every section (flags included) — and the same totals
+  // drive the "animal friend" reward shelf, since flags now count toward it.
   const totalDone = groups.reduce(
     (n, g) => n + g.items.filter((a) => g.done.has(a.id)).length,
     0,
   );
   const totalAll = groups.reduce((n, g) => n + g.items.length, 0);
   const allDone = totalAll > 0 && totalDone === totalAll;
+
+  const rewards = rewardTiers(totalAll);
+  const rewardsEarned = rewards.filter((r) => totalDone >= r.need).length;
+  const nextReward = rewards.find((r) => totalDone < r.need);
 
   return (
     <div className="facts-page trophy-page">
@@ -171,7 +158,7 @@ export function TrophyPage({ onHome, completed, completedFlags, onReset, onPick 
         <p className="reward-blurb">
           {nextReward
             ? `A new animal friend every 5 drawings — ${
-                nextReward.need - rewardDone
+                nextReward.need - totalDone
               } more to unlock the ${nextReward.name}! ${nextReward.emoji}`
             : "Wow! You collected every animal friend! 🦕🎉"}
         </p>
@@ -182,7 +169,7 @@ export function TrophyPage({ onHome, completed, completedFlags, onReset, onPick 
         )}
         <div className="reward-grid">
           {rewards.map((r) => {
-            const earned = rewardDone >= r.need;
+            const earned = totalDone >= r.need;
             const inner = (
               <>
                 <span

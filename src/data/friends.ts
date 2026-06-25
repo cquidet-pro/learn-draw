@@ -14,6 +14,11 @@ import { pig } from "./drawings/pig";
 import { cow } from "./drawings/cow";
 import { elephant } from "./drawings/elephant";
 import { whale } from "./drawings/whale";
+import { frog } from "./drawings/frog";
+import { duck } from "./drawings/duck";
+import { penguin } from "./drawings/penguin";
+import { lion } from "./drawings/lion";
+import { bear } from "./drawings/bear";
 
 void dinosaur; // (kept for reference — the dino friend now uses a blue variant)
 
@@ -44,15 +49,20 @@ const dinosaurBlue = recolorFills(
 // simple friend-only drawings.
 export const FRIEND_DRAWINGS: Record<string, Animal> = {
   Mouse: mouse,
+  Frog: frog,
   Hamster: hamster,
+  Duck: duck,
   Bunny: bunny,
   Cat: cat,
   Fox: fox,
   Dog: dog,
+  Penguin: penguin,
   Pig: pig,
   Pony: horse,
   Cow: cow,
+  Lion: lion,
   Horse: horse10,
+  Bear: bear,
   Elephant: elephant,
   Whale: whale,
   Dinosaur: dinosaurBlue,
@@ -61,7 +71,22 @@ export const FRIEND_DRAWINGS: Record<string, Animal> = {
 // Drawings that exist ONLY as reward friends (not in the home grid, levels or
 // progress). Completing one of these must not change level totals or the reward
 // count, so it's never added to the persisted `completed` set.
-const FRIEND_ONLY = [mouse, hamster, bunny, fox, pig, cow, elephant, whale, dinosaurBlue];
+const FRIEND_ONLY = [
+  mouse,
+  frog,
+  hamster,
+  duck,
+  bunny,
+  fox,
+  pig,
+  penguin,
+  cow,
+  lion,
+  bear,
+  elephant,
+  whale,
+  dinosaurBlue,
+];
 const FRIEND_ONLY_IDS = new Set(FRIEND_ONLY.map((a) => a.id));
 
 export function isFriendOnly(id: string): boolean {
