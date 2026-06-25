@@ -50,7 +50,7 @@ export function WorldCupPage({ onPick, onHome, completed }: Props) {
         <button className="home-btn" onClick={onHome} aria-label="Back to home">
           🏠 Home
         </button>
-        <h1>⚽ World Cup Flags</h1>
+        <h1>⚽ World Cup FIFA 2026</h1>
       </header>
       <p className="subtitle">Draw a flag from the 2026 World Cup! 🖍️</p>
 

@@ -1126,7 +1126,9 @@ function withName(a: Animal): Animal {
 }
 
 // ---------------------------------------------------------------------------
-// The collection — in the order requested (the FIDI top-30, Denmark once).
+// The collection — sorted alphabetically by country name (easier to browse and
+// a tidier order for the per-flag SEO pages). The `.sort` below does the
+// ordering, so the list here can stay grouped however is convenient.
 // ---------------------------------------------------------------------------
 export const flags: Animal[] = [
   switzerland,
@@ -1157,7 +1159,9 @@ export const flags: Animal[] = [
   brazil,
   greece,
   striped("flag-ireland", "Ireland", "🇮🇪", "v", [{ color: "#169B62" }, { color: "#ffffff" }, { color: "#FF883E" }], "Ireland's flag is green, white and orange."),
-].map(withName);
+]
+  .map(withName)
+  .sort((a, b) => a.name.localeCompare(b.name));
 
 export function isFlag(id: string): boolean {
   return flags.some((f) => f.id === id);

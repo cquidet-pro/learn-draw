@@ -3,7 +3,7 @@ import type { Animal } from "../data/animals";
 import { drawingsForLevel } from "../data/animals";
 import { masterpieces } from "../data/masterpieces";
 import { flags } from "../data/flags";
-import { newWorldCupFlags } from "../data/worldcup";
+import { newWorldCupFlags, FOOTBALL_CUPS, worldCupDone } from "../data/worldcup";
 import { rewardTiers } from "../data/rewards";
 import { FRIEND_DRAWINGS } from "../data/friends";
 import { DrawingThumb } from "./DrawingThumb";
@@ -96,6 +96,11 @@ export function TrophyPage({ onHome, completed, onReset, onPick }: Props) {
   const rewards = rewardTiers(totalAll);
   const rewardsEarned = rewards.filter((r) => totalDone >= r.need).length;
   const nextReward = rewards.find((r) => totalDone < r.need);
+
+  // Football cups — won only by finishing World Cup flags.
+  const wcDone = worldCupDone(completed);
+  const cupsEarned = FOOTBALL_CUPS.filter((c) => wcDone >= c.need).length;
+  const nextCup = FOOTBALL_CUPS.find((c) => wcDone < c.need);
 
   return (
     <div className="facts-page trophy-page">
@@ -209,6 +214,47 @@ export function TrophyPage({ onHome, completed, onReset, onPick }: Props) {
                 title={`${r.name} — draw ${r.need} to unlock`}
               >
                 {inner}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="trophy-group reward-group">
+        <div className="trophy-group-head">
+          <h2>⚽ Football Cups</h2>
+          <span className="trophy-count">
+            {cupsEarned} / {FOOTBALL_CUPS.length} 🏆
+          </span>
+        </div>
+        <p className="reward-blurb">
+          {nextCup
+            ? `Win a cup for drawing World Cup flags — ${
+                nextCup.need - wcDone
+              } more for the ${nextCup.name}! ${nextCup.emoji}`
+            : "Champion! You won every football cup! 🏆🎉"}
+        </p>
+        <div className="reward-grid">
+          {FOOTBALL_CUPS.map((c, i) => {
+            const earned = wcDone >= c.need;
+            return (
+              <div
+                className={earned ? "reward earned" : "reward locked"}
+                key={c.name}
+                title={
+                  earned ? c.name : `${c.name} — draw ${c.need} World Cup flags to win`
+                }
+              >
+                <span
+                  className="reward-emoji"
+                  aria-hidden="true"
+                  style={{ fontSize: `${1.8 + i * 0.2}rem` }}
+                >
+                  {earned ? c.emoji : "❓"}
+                </span>
+                <span className="reward-name">
+                  {earned ? c.name : `${c.need} flags`}
+                </span>
               </div>
             );
           })}
