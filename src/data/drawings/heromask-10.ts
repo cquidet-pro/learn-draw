@@ -5,14 +5,12 @@ import { nameStep } from "../handwriting";
 // first, colored in last. The harder version also brews a little storm cloud
 // on the right (the hero's name is "Super-Stormy").
 const OUTLINE = "#4f3a2c";
-const RAIN = "#3aa6d8";
+const STORM_GREY = "#90a0ad"; // a proper dark storm-cloud grey
 
-// A small storm in the upper-right: fluffy cloud, lightning bolt and raindrops.
+// A big storm down the right side: a fat cloud and a long bold lightning bolt.
 const STORM_CLOUD =
-  "M 159,80 Q 150,80 151,71 Q 148,61 158,62 Q 160,51 171,54 Q 179,47 187,56 Q 193,64 185,73 Q 183,80 174,79 Z";
-const STORM_BOLT = "M 172,80 L 164,96 L 174,96 L 166,112";
-const STORM_RAIN =
-  "M 155,86 L 152,96 M 184,86 L 181,96 M 159,101 L 156,110 M 180,101 L 177,110";
+  "M 154,80 Q 144,80 145,67 Q 141,51 155,53 Q 158,38 171,41 Q 181,32 190,44 Q 197,54 188,66 Q 185,80 173,79 Z";
+const STORM_BOLT = "M 186,80 L 168,112 L 185,112 L 167,156";
 
 export const heromask10: Animal = {
   id: "heromask-10",
@@ -91,21 +89,17 @@ export const heromask10: Animal = {
       strokes: [STORM_CLOUD],
     },
     {
-      hint: "Add a zig-zag lightning bolt! ⚡",
+      hint: "Add a big zig-zag lightning bolt! ⚡",
       color: "#f4b400",
+      strokeWidth: 5,
       strokes: [STORM_BOLT],
-    },
-    {
-      hint: "Add some falling raindrops 💧",
-      color: RAIN,
-      strokes: [STORM_RAIN],
     },
     {
       hint: "Now color it all in! 🖍️",
       color: OUTLINE,
       strokes: [],
       fills: [
-        { d: STORM_CLOUD, color: "#dbe4ec" },
+        { d: STORM_CLOUD, color: STORM_GREY },
         { d: "M 78,116 L 44,148 L 38,186 L 86,158 Z", color: "#e63946" },
         { d: "M 122,116 L 156,148 L 162,186 L 114,158 Z", color: "#e63946" },
         { d: "M 80,116 Q 100,126 120,116 L 132,186 L 68,186 Z", color: "#2a6fd6" },
