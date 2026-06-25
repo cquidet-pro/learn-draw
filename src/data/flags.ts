@@ -311,7 +311,7 @@ const usa = (() => {
     const count = even ? 6 : 5;
     for (let i = 0; i < count; i++) {
       const col = even ? i * 2 : i * 2 + 1; // 0..10 across 11 slots
-      stars.push(star(L + (cw * (col + 1)) / 12, T + (chh * (row + 1)) / 10, 2.1));
+      stars.push(star(L + (cw * (col + 1)) / 12, T + (chh * (row + 1)) / 10, 2.7));
     }
   }
   return flag(
@@ -326,8 +326,9 @@ const usa = (() => {
       // child draws them on the white box, then they vanish into the blue fill
       // in the finished flag (a dark OUTLINE stroke is too heavy for stars this
       // tiny — it swallows the white and leaves dark blobs). Same trick the UK
-      // flag uses for its internal guide lines.
-      { hint: "Add 50 little stars ⭐", color: NAVY, strokes: stars },
+      // flag uses for its internal guide lines. A thin stroke keeps plenty of
+      // white inside each little star.
+      { hint: "Add 50 little stars ⭐", color: NAVY, strokes: stars, strokeWidth: 0.7 },
       colorStep([
         ...stripeFills,
         { d: canton, color: NAVY },
@@ -819,7 +820,7 @@ const brazil = (() => {
   // units) — the six big stars from each cluster, the Southern Cross, and the
   // lone Sigma Octantis — dropping the tiny ones that just clutter at our size.
   const SZ: Record<string, number> = { a: 31.5, b: 26.25, f: 21, h: 15, i: 10.5 };
-  const V = 1.7; // scaled up so the little stars read at our size
+  const V = 2.4; // scaled up so the little stars read (and hold white) at our size
   const starData: [number, number, string][] = [
     [-600, -132, "a"], [-535, 177, "a"], [228, -228, "a"], [515, 258, "a"], [0, 330, "a"], [-295, 390, "a"],
     [0, 118, "b"], [85, 184, "b"], [-74, 184, "f"], [-37, 235, "h"], // Southern Cross
@@ -837,8 +838,10 @@ const brazil = (() => {
       { hint: "Add a curvy band 🎀", color: OUTLINE, strokes: [band] },
       // Outline the stars before colouring (like the USA flag) — drawn in the
       // globe's own blue so they show on the still-white globe while the child
-      // draws them, then vanish into the blue fill leaving clean white stars.
-      { hint: "Add the stars ⭐", color: "#002776", strokes: stars },
+      // draws them, then vanish into the blue fill leaving clean white stars. A
+      // thin stroke keeps real white inside these tiny stars (a fat outline
+      // swallowed them to faint dots).
+      { hint: "Add the stars ⭐", color: "#002776", strokes: stars, strokeWidth: 0.5 },
       colorStep([
         { d: RECT, color: "#009C3B" },
         { d: diamond, color: "#FFDF00" },
