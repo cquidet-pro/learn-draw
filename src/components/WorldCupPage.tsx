@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import type { Animal } from "../data/animals";
-import { worldCupItems } from "../data/worldcup";
+import { worldCupFlags } from "../data/worldcup";
 import { AnimalCard } from "./AnimalCard";
 import { useVoiceControl, VoiceButton } from "../voice/VoiceProvider";
 import { scrollPage } from "../lib/scroll";
@@ -12,9 +12,9 @@ interface Props {
   completed: Set<string>;
 }
 
-// "World Cup FIFA 2026" — the 48 qualified countries' flags, plus non-flag
-// football drawings (the player jersey), all drawn the same way. (We use an
-// original soccer-ball icon, not the trademarked tournament emblem.)
+// "World Cup Flags" — the 48 countries that qualified for the 2026 FIFA World
+// Cup, drawn the same way as the other flags. (We use an original soccer-ball
+// icon, not the trademarked tournament emblem.)
 export function WorldCupPage({ onPick, onHome, completed }: Props) {
   const onCommand = useCallback(
     (transcript: string): boolean => {
@@ -32,7 +32,7 @@ export function WorldCupPage({ onPick, onHome, completed }: Props) {
         scrollPage(1);
         return true;
       }
-      for (const f of worldCupItems) {
+      for (const f of worldCupFlags) {
         if (heardAny(transcript, [f.name.toLowerCase()])) {
           onPick(f);
           return true;
@@ -52,14 +52,14 @@ export function WorldCupPage({ onPick, onHome, completed }: Props) {
         </button>
         <h1>⚽ World Cup FIFA 2026</h1>
       </header>
-      <p className="subtitle">Draw a 2026 World Cup flag or jersey! 🖍️</p>
+      <p className="subtitle">Draw a flag from the 2026 World Cup! 🖍️</p>
 
       <div className="control-bar">
         <VoiceButton />
       </div>
 
       <div className="card-grid">
-        {worldCupItems.map((f) => (
+        {worldCupFlags.map((f) => (
           <AnimalCard
             key={f.id}
             animal={f}

@@ -1,6 +1,5 @@
 import type { Animal } from "./animals";
 import { flags, withName, isFlag as isRegularFlag } from "./flags";
-import { jerseyMbappe } from "./jersey";
 import { afcFlags } from "./worldcup/afc";
 import { caf1Flags } from "./worldcup/caf1";
 import { caf2Flags } from "./worldcup/caf2";
@@ -58,16 +57,7 @@ export const worldCupFlags: Animal[] = WC_ORDER.map(byId)
   .filter((f): f is Animal => Boolean(f))
   .sort((a, b) => a.name.localeCompare(b.name));
 
-// Non-flag World Cup drawings (e.g. the player jersey). They live in the same
-// section and animate like everything else, but aren't flags — so they don't
-// count toward the football cups (which are for the flags).
-export const worldCupExtras: Animal[] = [jerseyMbappe];
-
-// Everything shown in the World Cup section, jerseys first, then the flags.
-// This drives the gallery grid, the auto-advance pool and the deep links.
-export const worldCupItems: Animal[] = [...worldCupExtras, ...worldCupFlags];
-
-const wcIds = new Set(worldCupItems.map((f) => f.id));
+const wcIds = new Set(worldCupFlags.map((f) => f.id));
 
 /** A flag for the player's purposes — either a regular flag or a World Cup one
  *  (so new World-Cup-only countries still animate, auto-advance and count like
