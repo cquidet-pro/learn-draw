@@ -115,10 +115,7 @@ export function DrawingPlayer({
   // Skipped on replays, so it only fires the moment a milestone is crossed.
   const reward = useMemo(
     () =>
-      celebrating &&
-      !wasDoneBefore.current &&
-      !isFriendOnly(animal.id) &&
-      !isFlag(animal.id)
+      celebrating && !wasDoneBefore.current && !isFriendOnly(animal.id)
         ? rewardJustUnlocked(completed.size)
         : undefined,
     [celebrating, completed, animal.id],

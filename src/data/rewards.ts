@@ -1,5 +1,6 @@
 import { animals } from "./animals";
 import { masterpieces } from "./masterpieces";
+import { flags } from "./flags";
 
 export interface Reward {
   emoji: string;
@@ -8,18 +9,24 @@ export interface Reward {
 
 // Milestone "animal friend" rewards: a new companion every 5 drawings, growing
 // from a tiny mouse all the way up to an enormous dinosaur. Listed smallest →
-// biggest so they visibly grow.
+// biggest so they visibly grow. Each name maps to a drawable friend in
+// FRIEND_DRAWINGS (friends.ts).
 export const REWARDS: Reward[] = [
   { emoji: "🐭", name: "Mouse" },
+  { emoji: "🐸", name: "Frog" },
   { emoji: "🐹", name: "Hamster" },
+  { emoji: "🦆", name: "Duck" },
   { emoji: "🐰", name: "Bunny" },
   { emoji: "🐱", name: "Cat" },
   { emoji: "🦊", name: "Fox" },
   { emoji: "🐶", name: "Dog" },
+  { emoji: "🐧", name: "Penguin" },
   { emoji: "🐷", name: "Pig" },
   { emoji: "🐴", name: "Pony" },
   { emoji: "🐮", name: "Cow" },
+  { emoji: "🦁", name: "Lion" },
   { emoji: "🐎", name: "Horse" },
+  { emoji: "🐻", name: "Bear" },
   { emoji: "🐘", name: "Elephant" },
   { emoji: "🐳", name: "Whale" },
   { emoji: "🦕", name: "Dinosaur" },
@@ -28,8 +35,9 @@ export const REWARDS: Reward[] = [
 // How many drawings between each new animal friend.
 export const REWARD_EVERY = 5;
 
-// Every drawing the child can complete (all levels + the famous paintings).
-export const TOTAL_DRAWINGS = animals.length + masterpieces.length;
+// Every drawing the child can complete (all levels + the famous paintings +
+// the flags, which now count toward the trophies like any other drawing).
+export const TOTAL_DRAWINGS = animals.length + masterpieces.length + flags.length;
 
 export interface RewardTier extends Reward {
   /** Drawings needed to unlock. The biggest friend is capped at the whole
