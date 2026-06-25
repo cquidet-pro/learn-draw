@@ -41,34 +41,38 @@ const BOX: Pt[] = [
 // edge, and a diagonal line of small white stars along the hypotenuse.
 // ---------------------------------------------------------------------------
 const bosnia = (() => {
-  const midX = (L + R) / 2; // 100
-  // Triangle: top-left of hypotenuse at (midX,T), then along the top to (R,T),
-  // down the fly to (R,B). Hypotenuse runs (R,T) -> (midX,B... ) — actually
-  // top-right down to bottom-left, from (midX,T) to (R,B).
+  // Authentic geometry (from the official SVG): yellow right-triangle with its
+  // top-left point at (58,T), along the top to (148,T), down to (148,B). The
+  // right side sits at x=148, so a blue strip stays on the right (the rightmost
+  // ~quarter) — as on the real flag. Hypotenuse runs (58,T) → (148,B).
   const triangle = toPath([
-    [midX, T],
-    [R, T],
-    [R, B],
+    [58, T],
+    [148, T],
+    [148, B],
   ]);
-  // Stars run along the hypotenuse from top-right (R,T) down to bottom-left
-  // (midX,B). Place ~7 evenly, letting the end ones spill past so they read as
-  // clipped (as on the real flag).
-  const stars: string[] = [];
-  const N = 7;
-  for (let i = 0; i < N; i++) {
-    const f = (i + 0.5) / N; // 0..1 along the hypotenuse
-    const sx = R + f * (midX - R);
-    const sy = T + f * (B - T);
-    stars.push(star(sx, sy, 6));
-  }
+  // Nine white stars running ALONG the hypotenuse from top-left to bottom-right,
+  // on the BLUE side just lower-left of the line (official offset), evenly spaced
+  // and all fully inside the flag.
+  const starCentres: Pt[] = [
+    [47, 47],
+    [57, 60],
+    [67, 74],
+    [77, 87],
+    [87, 100],
+    [97, 113],
+    [107, 126],
+    [117, 140],
+    [127, 153],
+  ];
+  const stars: string[] = starCentres.map(([sx, sy]) => star(sx, sy, 6));
   return flag(
     "flag-bosnia-and-herzegovina",
     "Bosnia and Herzegovina",
     "🇧🇦",
     [
       frame(),
-      { hint: "Draw a big yellow triangle along the top 🔺", color: OUTLINE, strokes: [triangle] },
-      { hint: "Add a line of little stars ⭐", color: OUTLINE, strokes: stars, strokeWidth: 0.7 },
+      { hint: "Draw a big yellow triangle 🔺", color: OUTLINE, strokes: [triangle] },
+      { hint: "Add a line of little stars ⭐", color: "#ffffff", strokes: stars, strokeWidth: 0.6 },
       colorStep([
         { d: RECT, color: "#002395" },
         { d: triangle, color: "#FECB00" },

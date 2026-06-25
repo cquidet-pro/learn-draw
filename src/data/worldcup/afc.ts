@@ -97,6 +97,18 @@ const jordan = (() => {
   const midY = (T + B) / 2;
   const midX = (L + R) / 2;
   const triangle = `M ${L},${T} L ${n(midX)},${n(midY)} L ${L},${B} Z`;
+  // The two horizontal band-dividers must NOT cross the red triangle (it sits on
+  // top and its dark guide edge would show over the red in the finished flag).
+  // So each divider STARTS where it meets the triangle's slanted (hypotenuse)
+  // edge and runs to the fly — the triangle's own edge is the only line on its
+  // boundary. The top divider meets the upper hypotenuse (L,T)→(midX,midY); the
+  // bottom one meets the lower hypotenuse (midX,midY)→(L,B).
+  const hypX = (y: number) =>
+    y <= midY
+      ? L + ((midX - L) * (y - T)) / (midY - T)
+      : midX + ((L - midX) * (y - midY)) / (B - midY);
+  const x1 = hypX(t1),
+    x2 = hypX(t2);
   // Small white 7-pointed star centred in the triangle (toward the hoist).
   const cx = L + W * 0.18,
     cy = midY;
@@ -107,7 +119,7 @@ const jordan = (() => {
     "🇯🇴",
     [
       frame(),
-      { hint: "Add 3 stripes across", color: OUTLINE, strokes: [`M ${L},${n(t1)} L ${R},${n(t1)}`, `M ${L},${n(t2)} L ${R},${n(t2)}`] },
+      { hint: "Add 3 stripes across", color: OUTLINE, strokes: [`M ${n(x1)},${n(t1)} L ${R},${n(t1)}`, `M ${n(x2)},${n(t2)} L ${R},${n(t2)}`] },
       { hint: "Draw a triangle on the left 🔺", color: OUTLINE, strokes: [triangle] },
       { hint: "Add a star with seven points ⭐", color: "#CE1126", strokes: [st], strokeWidth: 0.7 },
       colorStep([
@@ -177,13 +189,23 @@ const uzbekistan = (() => {
   const cmx = 44,
     cmy = T + H / 6; // centre of the blue band, hoist side
   const cres = crescent(cmx, cmy, 11, 6, 9.5);
-  // A small cluster of 5 white stars beside the crescent's opening.
+  // Twelve white stars to the right of the crescent, in three rows of 3, 4 and
+  // 5 (top→bottom) — the real flag's arrangement. Positions mapped from the
+  // official SVG's star grid (rows at y −9 / 0 / +9 about the crescent centre;
+  // columns 7.2px apart), nudged right of the crescent so none overlap it.
   const starPts: [number, number][] = [
-    [62, cmy - 6],
-    [62, cmy + 6],
-    [72, cmy - 9],
-    [72, cmy + 9],
-    [72, cmy],
+    [66.8, 50.9],
+    [74, 50.9],
+    [81.2, 50.9],
+    [59.6, 60],
+    [66.8, 60],
+    [74, 60],
+    [81.2, 60],
+    [52.4, 69.1],
+    [59.6, 69.1],
+    [66.8, 69.1],
+    [74, 69.1],
+    [81.2, 69.1],
   ];
   const stars = starPts.map(([x, y]) => star(x, y, 3));
   return flag(
