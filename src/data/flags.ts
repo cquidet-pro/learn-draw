@@ -22,7 +22,7 @@ const n = (x: number) => Math.round(x * 10) / 10;
 function frame(rect = RECT): DrawStep {
   return { hint: "Draw the flag's box 🏁", color: OUTLINE, strokes: [rect] };
 }
-function colorStep(fills: { d: string; color: string }[]): DrawStep {
+function colorStep(fills: NonNullable<DrawStep["fills"]>): DrawStep {
   return { hint: "Now colour the flag in! 🖍️", color: OUTLINE, strokes: [], fills };
 }
 function flag(
@@ -844,7 +844,12 @@ const brazil = (() => {
         // A distinct dark green (not the field green) so the colour-step splitter
         // gives the text its OWN, last step — painted on TOP of the white band
         // instead of being hidden/flashed when the band (paper) fills after it.
-        { d: bandText, color: "#064d1f" },
+        // Its hint names the real motto rather than the generic "next colour".
+        {
+          d: bandText,
+          color: "#064d1f",
+          hint: 'Write the words "Ordem e Progresso" — "Order and Progress"! ✍️',
+        },
       ]),
     ],
     "Brazil's flag has a starry blue globe.",

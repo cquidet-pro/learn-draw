@@ -18,7 +18,7 @@ import type { Animal, DrawStep } from "./animals";
 // colour's step so the child colours around it; a background white (e.g. a
 // flag's white field) is simply dropped — the canvas already is the paper.
 
-type Fill = { d: string; color: string; paper?: boolean };
+type Fill = { d: string; color: string; paper?: boolean; hint?: string };
 
 type Box = { x: number; y: number; w: number; h: number; bottom: number; area: number };
 function measureBoxes(ds: string[]): Box[] {
@@ -240,10 +240,10 @@ export function expandColorSteps(animal: Animal): Animal {
     for (let k = 0; k < N; k++) if (!order.includes(k)) order.push(k); // cycle safety
 
     const orderedClusters = order.map((k) => clusters[k]);
-    const stepItems: { d: string; color: string; i: number; paper: boolean }[][] =
+    const stepItems: { d: string; color: string; i: number; paper: boolean; hint?: string }[][] =
       orderedClusters.map((cl) => {
         const col = dominant(cl);
-        return cl.items.map((x) => ({ d: x.f.d, color: col, i: x.i, paper: false }));
+        return cl.items.map((x) => ({ d: x.f.d, color: col, i: x.i, paper: false, hint: x.f.hint }));
       });
     const stepOfIndex = new Map<number, number>();
     orderedClusters.forEach((cl, si) => cl.items.forEach((x) => stepOfIndex.set(x.i, si)));
@@ -270,8 +270,11 @@ export function expandColorSteps(animal: Animal): Animal {
       // Restore authored order WITHIN the step so stacking is preserved — e.g. a
       // white band stays under the maple leaf, the white cross under the red one.
       items.sort((a, b) => a.i - b.i);
+      // A fill can name its own colour step (e.g. Brazil's band text); otherwise
+      // the first step keeps the authored hint and the rest say "next colour".
+      const customHint = items.find((it) => it.hint)?.hint;
       steps.push({
-        hint: si === 0 ? step.hint : NEXT_COLOR_HINT,
+        hint: customHint ?? (si === 0 ? step.hint : NEXT_COLOR_HINT),
         color: step.color,
         strokes: [],
         fills: items.map((it) =>
