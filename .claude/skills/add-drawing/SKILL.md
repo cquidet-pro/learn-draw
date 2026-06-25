@@ -219,6 +219,12 @@ For a UI/preview build use `npx vite build` (skips tsc) + `npm run preview`.
   child can follow each one. Use the `clipHalfPlane`/`clipPoly` helpers to carve
   the regions. `expandColorSteps` orders the two colour steps by geometry; here it
   lands blue-then-red on its own.
+  - **The 4 thin red diagonals must STOP at the white St George border, not run
+    across the central red cross.** Clip each diagonal to its own corner
+    rectangle (the same corners the blue triangles use), not just to the
+    centre-apex counterchange triangle — otherwise it ploughs through the cross,
+    which is confusing to draw and bleeds red into the white fimbriation. (Fixed
+    on the UK + AU/NZ cantons; the corner clip is in `unionJack`.)
 - **Outline strokes are drawn ON TOP of the fills in the final picture** (pass 2).
   Any dark guide line you add for the animation stays visible over the colours.
   - For a border it's fine. For *internal* guide lines that shouldn't appear in
@@ -232,8 +238,18 @@ For a UI/preview build use `npx vite build` (skips tsc) + `npm run preview`.
     the child draws them, then vanish into that region's fill in the finished
     flag, leaving the clean white star shapes. A heavy dark `OUTLINE` stroke over
     a tiny star swallows the white and leaves dark blobs.
+  - **Stars (and other tiny emblems) must read clearly — the white inside has to
+    be visible, not a speck.** The same-colour outline sits ON TOP of the white
+    fill (pass 2), so a fat stroke eats the white from the edge inward. The
+    default **1.5px is as wide as a tiny star's radius** and leaves almost no
+    white (USA stars looked thin; Brazil's shrank to faint dots). Fix BOTH levers
+    until there's obvious white: **set a thin `strokeWidth` on the star step**
+    (USA 0.7, Brazil 0.5) **and make the stars big enough** (USA r 2.1→2.7,
+    Brazil size ×1.7→×2.4). Always zoom into the canton/emblem in a render to
+    check the white actually shows — don't judge from the thumbnail.
   - `flag()` already thins every flag's strokes to **1.5px** (flat colour
-    regions read cleanest crisp, not bold). Don't override unless needed.
+    regions read cleanest crisp, not bold). Don't override unless needed — except
+    for tiny stars/emblems, which need an even thinner stroke (above).
 - **Crosses: draw ONE plus-shaped outline, never two overlapping rectangles.**
   Two bar rectangles each get outlined, leaving a black-outlined **square where
   they cross** (hit Switzerland, Denmark, the Greek canton). Use `plusOutline(…)`
