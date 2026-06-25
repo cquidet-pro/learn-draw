@@ -79,7 +79,11 @@ export interface DrawStep {
    * outline — that uses only `strokes` — so filled drawings should also include
    * outline strokes for every shape worth tracing/coloring.
    */
-  fills?: { d: string; color: string; paper?: boolean }[];
+  /** A fill may carry its own `hint`: when the colour-step splitter
+   *  (`expandColorSteps`) puts it in its own colour step, that step shows this
+   *  hint instead of the generic "Now the next colour!" (e.g. Brazil's
+   *  "Ordem e Progresso" band text). */
+  fills?: { d: string; color: string; paper?: boolean; hint?: string }[];
   /** Optional stroke width for this step's strokes (default 4). Thinner reads
    *  better for small lettering, e.g. the "write the name" finale. */
   strokeWidth?: number;
