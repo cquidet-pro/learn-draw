@@ -15,16 +15,18 @@ interface Props {
 export function PaintingsPage({ onPick, onHome, completed }: Props) {
   const onCommand = useCallback(
     (transcript: string): boolean => {
+      // Navigation wins over scrolling, so a "home" grouped with a "down" the
+      // child said while browsing isn't swallowed by the scroll command.
+      if (heardAny(transcript, ["home", "back", "menu"])) {
+        onHome();
+        return true;
+      }
       if (heardAny(transcript, ["up"])) {
         scrollPage(-1);
         return true;
       }
       if (heardAny(transcript, ["down"])) {
         scrollPage(1);
-        return true;
-      }
-      if (heardAny(transcript, ["home", "back", "menu"])) {
-        onHome();
         return true;
       }
       for (const m of masterpieces) {

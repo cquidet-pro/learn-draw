@@ -50,16 +50,18 @@ export function TrophyPage({ onHome, completed, onReset, onPick }: Props) {
 
   const onCommand = useCallback(
     (transcript: string): boolean => {
+      // Navigation wins over scrolling, so a "home" grouped with a "down" the
+      // child said while browsing isn't swallowed by the scroll command.
+      if (heardAny(transcript, ["home", "back", "menu"])) {
+        onHome();
+        return true;
+      }
       if (heardAny(transcript, ["up"])) {
         scrollPage(-1);
         return true;
       }
       if (heardAny(transcript, ["down"])) {
         scrollPage(1);
-        return true;
-      }
-      if (heardAny(transcript, ["home", "back", "menu"])) {
-        onHome();
         return true;
       }
       // Saying a drawing's name starts it — but only for ones not done yet.

@@ -15,16 +15,19 @@ interface Props {
 export function FlagsPage({ onPick, onHome, completed }: Props) {
   const onCommand = useCallback(
     (transcript: string): boolean => {
+      // Navigation wins over scrolling: if a phrase contains both (e.g. the
+      // recognizer groups a "down" you said while browsing with "home"), going
+      // home is the real intent — checking scroll first would swallow "home".
+      if (heardAny(transcript, ["home", "back", "menu"])) {
+        onHome();
+        return true;
+      }
       if (heardAny(transcript, ["up"])) {
         scrollPage(-1);
         return true;
       }
       if (heardAny(transcript, ["down"])) {
         scrollPage(1);
-        return true;
-      }
-      if (heardAny(transcript, ["home", "back", "menu"])) {
-        onHome();
         return true;
       }
       for (const f of flags) {
