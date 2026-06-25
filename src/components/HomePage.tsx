@@ -46,6 +46,7 @@ interface Props {
   onOpenFacts: () => void;
   onOpenPaintings: () => void;
   onOpenFlags: () => void;
+  onOpenWorldCup: () => void;
   onOpenTrophies: () => void;
   onOpenPrivacy: () => void;
   onOpenContact: () => void;
@@ -60,6 +61,7 @@ export function HomePage({
   onOpenFacts,
   onOpenPaintings,
   onOpenFlags,
+  onOpenWorldCup,
   onOpenTrophies,
   onOpenPrivacy,
   onOpenContact,
@@ -97,6 +99,10 @@ export function HomePage({
       }
       if (heardAny(transcript, ["paintings", "painting", "art", "famous"])) {
         onOpenPaintings();
+        return true;
+      }
+      if (heardAny(transcript, ["world cup", "worldcup", "soccer", "football"])) {
+        onOpenWorldCup();
         return true;
       }
       if (heardAny(transcript, ["flags", "flag"])) {
@@ -145,6 +151,7 @@ export function HomePage({
       onOpenFacts,
       onOpenPaintings,
       onOpenFlags,
+      onOpenWorldCup,
       onOpenTrophies,
       onOpenPrivacy,
       onOpenContact,
@@ -184,6 +191,16 @@ export function HomePage({
               🏳️
             </span>
             <span className="level-label">Flags</span>
+          </button>
+          <button
+            className="level-btn worldcup-pick"
+            onClick={onOpenWorldCup}
+            aria-label="World Cup flags"
+          >
+            <span className="level-icon" aria-hidden="true">
+              ⚽
+            </span>
+            <span className="level-label">World Cup</span>
           </button>
           <button
             className="level-btn trophies-pick"

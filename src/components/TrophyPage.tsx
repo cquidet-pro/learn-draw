@@ -3,6 +3,7 @@ import type { Animal } from "../data/animals";
 import { drawingsForLevel } from "../data/animals";
 import { masterpieces } from "../data/masterpieces";
 import { flags } from "../data/flags";
+import { newWorldCupFlags } from "../data/worldcup";
 import { rewardTiers } from "../data/rewards";
 import { FRIEND_DRAWINGS } from "../data/friends";
 import { DrawingThumb } from "./DrawingThumb";
@@ -38,6 +39,9 @@ const GROUPS: { title: string; items: Animal[] }[] = [
   { title: "⭐ Harder", items: bySubject(drawingsForLevel(10)) },
   { title: "🖼️ Paintings", items: masterpieces },
   { title: "🏳️ Flags", items: flags },
+  // Only the NEW World Cup countries — the 18 already in "Flags" aren't repeated,
+  // so nothing is double-counted in the tally or reward shelf.
+  { title: "⚽ World Cup", items: newWorldCupFlags },
 ];
 
 export function TrophyPage({ onHome, completed, onReset, onPick }: Props) {

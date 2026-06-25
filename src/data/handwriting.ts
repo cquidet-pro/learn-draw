@@ -38,7 +38,9 @@ const GLYPHS: Record<string, Glyph> = {
   S: { wf: 0.6, s: [[["M", 0.9, 0.2], ["Q", 0.68, 0, 0.4, 0.05], ["Q", 0.06, 0.12, 0.16, 0.36], ["Q", 0.26, 0.52, 0.6, 0.56], ["Q", 0.96, 0.62, 0.84, 0.86], ["Q", 0.66, 1.02, 0.1, 0.84]]] },
   T: { wf: 0.62, s: [[["M", 0, 0], ["L", 1, 0]], [["M", 0.5, 0], ["L", 0.5, 1]]] },
   U: { wf: 0.68, s: [[["M", 0, 0], ["L", 0, 0.68], ["Q", 0, 1, 0.5, 1], ["Q", 1, 1, 1, 0.68], ["L", 1, 0]]] },
+  V: { wf: 0.64, s: [[["M", 0, 0], ["L", 0.5, 1], ["L", 1, 0]]] },
   W: { wf: 0.86, s: [[["M", 0, 0], ["L", 0.25, 1], ["L", 0.5, 0.4], ["L", 0.75, 1], ["L", 1, 0]]] },
+  X: { wf: 0.64, s: [[["M", 0, 0], ["L", 1, 1]], [["M", 1, 0], ["L", 0, 1]]] },
   Y: { wf: 0.62, s: [[["M", 0, 0], ["L", 0.5, 0.55], ["L", 1, 0]], [["M", 0.5, 0.55], ["L", 0.5, 1]]] },
   Z: { wf: 0.62, s: [[["M", 0, 0], ["L", 1, 0], ["L", 0, 1], ["L", 1, 1]]] },
 };
@@ -86,7 +88,8 @@ interface NameOpts {
  * the hint so a grown-up (or the voice) can read them aloud.
  */
 export function nameStep(word: string, opts: NameOpts = {}): DrawStep {
-  const text = word.toUpperCase();
+  // Strip accents so e.g. Curaçao → CURACAO (we only have plain A–Z glyphs).
+  const text = word.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
   const { cx = 100, baseline = 192, height = 20, maxWidth = 184, gap = GAP, color = "#118ab2", hint } = opts;
   const chars = [...text];
 

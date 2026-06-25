@@ -1075,6 +1075,36 @@ const DEMONYMS: Record<string, string> = {
   Brazil: "Brazilian",
   Greece: "Greek",
   Ireland: "Irish",
+  // 2026 World Cup qualifiers (the ones not already listed above).
+  Iran: "Iranian",
+  Iraq: "Iraqi",
+  Jordan: "Jordanian",
+  "Saudi Arabia": "Saudi",
+  Uzbekistan: "Uzbek",
+  Algeria: "Algerian",
+  "Cape Verde": "Cape Verdean",
+  "DR Congo": "Congolese",
+  Egypt: "Egyptian",
+  Ghana: "Ghanaian",
+  "Ivory Coast": "Ivorian",
+  Morocco: "Moroccan",
+  Senegal: "Senegalese",
+  "South Africa": "South African",
+  Tunisia: "Tunisian",
+  Haiti: "Haitian",
+  Mexico: "Mexican",
+  Panama: "Panamanian",
+  Argentina: "Argentine",
+  Colombia: "Colombian",
+  Ecuador: "Ecuadorian",
+  Paraguay: "Paraguayan",
+  Uruguay: "Uruguayan",
+  "Bosnia and Herzegovina": "Bosnian",
+  Croatia: "Croatian",
+  "Czech Republic": "Czech",
+  England: "English",
+  Scotland: "Scottish",
+  Turkey: "Turkish",
 };
 
 /** Heading subject for a flag, e.g. "French flag" or "New Zealand flag". */
@@ -1132,3 +1162,31 @@ export const flags: Animal[] = [
 export function isFlag(id: string): boolean {
   return flags.some((f) => f.id === id);
 }
+
+// Building blocks reused by the World Cup flag files (src/data/worldcup/*).
+// flags.ts itself never imports those, so there's no circular dependency.
+export {
+  OUTLINE,
+  L,
+  R,
+  T,
+  B,
+  W,
+  H,
+  RECT,
+  n,
+  frame,
+  colorStep,
+  flag,
+  rectPath,
+  plusOutline,
+  star,
+  circle,
+  crescent,
+  striped,
+  nordic,
+  clipPoly,
+  diagBand,
+  withName,
+};
+export type { Pt, Band };
