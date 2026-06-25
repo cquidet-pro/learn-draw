@@ -485,13 +485,21 @@ const unionJack = (cL: number, cT: number, cR: number, cB: number) => {
   // Red St George cross (width 8, inside the width-10 white border).
   const redCross = mp(plus(21, 29, 11, 19));
   // Red St Patrick saltire (width 4), counterchanged into 4 pieces by the official
-  // clip triangles so it sits on one side of each white diagonal arm.
+  // clip triangles so it sits on one side of each white diagonal arm. Each piece
+  // is ALSO clipped to its corner rectangle, so the diagonal stops at the white
+  // St George border instead of running across the central red cross.
   const T1: Pt[] = [[25, 15], [50, 15], [50, 30]];
   const T2: Pt[] = [[25, 15], [25, 30], [0, 30]];
   const T3: Pt[] = [[25, 15], [0, 15], [0, 0]];
   const T4: Pt[] = [[25, 15], [25, 0], [50, 0]];
-  const redDiagonals = ([[D1, T3], [D1, T1], [D2, T4], [D2, T2]] as [[Pt, Pt], Pt[]][])
-    .map(([[a, b], T]) => clipPoly(diagBand(a, b, 2), T))
+  const redDiagSpec: [[Pt, Pt], Pt[], Pt[]][] = [
+    [D1, T3, rectP(0, 0, 20, 10)], // top-left
+    [D1, T1, rectP(30, 20, 50, 30)], // bottom-right
+    [D2, T4, rectP(30, 0, 50, 10)], // top-right
+    [D2, T2, rectP(0, 20, 20, 30)], // bottom-left
+  ];
+  const redDiagonals = redDiagSpec
+    .map(([[a, b], T, corner]) => clipPoly(clipPoly(diagBand(a, b, 2), T), corner))
     .filter((p) => p.length >= 3)
     .map(mp);
 
