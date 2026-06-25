@@ -43,6 +43,7 @@ const GLYPHS: Record<string, Glyph> = {
   X: { wf: 0.64, s: [[["M", 0, 0], ["L", 1, 1]], [["M", 1, 0], ["L", 0, 1]]] },
   Y: { wf: 0.62, s: [[["M", 0, 0], ["L", 0.5, 0.55], ["L", 1, 0]], [["M", 0.5, 0.55], ["L", 0.5, 1]]] },
   Z: { wf: 0.62, s: [[["M", 0, 0], ["L", 1, 0], ["L", 0, 1], ["L", 1, 1]]] },
+  "-": { wf: 0.5, s: [[["M", 0.12, 0.54], ["L", 0.6, 0.54]]] },
 };
 
 const GAP = 0.18; // default space between letters, as a fraction of cap height
