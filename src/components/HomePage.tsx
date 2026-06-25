@@ -35,6 +35,9 @@ const ALIASES: Record<string, string[]> = {
   car: ["car", "truck", "vehicle"],
   family: ["family", "people"],
   princess: ["princess"],
+  heromask: ["super stormy", "superstormy", "stormy", "superhero", "super hero", "hero"],
+  "heromask-7": ["super stormy", "superstormy", "stormy", "superhero", "super hero", "hero"],
+  "heromask-10": ["super stormy", "superstormy", "stormy", "superhero", "super hero", "hero"],
 };
 
 interface Props {

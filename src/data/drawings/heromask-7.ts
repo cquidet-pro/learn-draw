@@ -6,7 +6,7 @@ const OUTLINE = "#4f3a2c";
 
 export const heromask7: Animal = {
   id: "heromask-7",
-  name: "Superhero",
+  name: "Super-Stormy",
   emoji: "🦸",
   level: 7,
   color: OUTLINE,
