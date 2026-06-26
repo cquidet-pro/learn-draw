@@ -2,6 +2,7 @@ import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 
 // After the build, list everything worth precaching and bake it (plus a version
 // hash derived from the content-hashed filenames) into dist/sw.js, so the app
@@ -43,13 +44,16 @@ function precacheSW(): Plugin {
       walk(root);
       files.sort();
 
-      // Version hash from the filenames (each already carries a content hash).
-      let h = 0;
-      const joined = files.join("|");
-      for (let i = 0; i < joined.length; i++) {
-        h = (Math.imul(h, 31) + joined.charCodeAt(i)) >>> 0;
+      // Version hash from each file's CONTENT (not just its name). Most assets
+      // carry a content hash in their filename, but fixed-name files like
+      // jersey.steps.js, jersey-preview.html and index.html do not — hashing
+      // names alone left the service worker stale whenever only those changed.
+      const hash = crypto.createHash("sha1");
+      for (const f of files) {
+        hash.update(f);
+        hash.update(fs.readFileSync(path.join(root, f)));
       }
-      const version = h.toString(16);
+      const version = hash.digest("hex").slice(0, 12);
       const list = files.map((f) => `"./${f}"`).join(",");
 
       let sw = fs.readFileSync(swPath, "utf8");
