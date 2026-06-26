@@ -11,6 +11,7 @@ import { ThemeButton } from "../theme/ThemeButton";
 import { applyTheme } from "../theme/theme";
 import { scrollPage } from "../lib/scroll";
 import { heardAny } from "../voice/match";
+import { worldCupVisible } from "../preview";
 import { TimeLimitSettings } from "../parental/TimeLimitSettings";
 import { useTimeLimit } from "../parental/TimeLimitProvider";
 import gearIcon from "../assets/gear.png";
@@ -104,7 +105,10 @@ export function HomePage({
         onOpenPaintings();
         return true;
       }
-      if (heardAny(transcript, ["world cup", "worldcup", "soccer", "football"])) {
+      if (
+        worldCupVisible() &&
+        heardAny(transcript, ["world cup", "worldcup", "soccer", "football"])
+      ) {
         onOpenWorldCup();
         return true;
       }
@@ -195,16 +199,18 @@ export function HomePage({
             </span>
             <span className="level-label">Flags</span>
           </button>
-          <button
-            className="level-btn worldcup-pick"
-            onClick={onOpenWorldCup}
-            aria-label="World Cup flags"
-          >
-            <span className="level-icon" aria-hidden="true">
-              ⚽
-            </span>
-            <span className="level-label">World Cup</span>
-          </button>
+          {worldCupVisible() && (
+            <button
+              className="level-btn worldcup-pick"
+              onClick={onOpenWorldCup}
+              aria-label="World Cup flags"
+            >
+              <span className="level-icon" aria-hidden="true">
+                ⚽
+              </span>
+              <span className="level-label">World Cup</span>
+            </button>
+          )}
           <button
             className="level-btn trophies-pick"
             onClick={onOpenTrophies}

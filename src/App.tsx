@@ -5,6 +5,7 @@ import { masterpieces, isMasterpiece } from "./data/masterpieces";
 import { isFriendOnly, earnedFriendPool, friendPool } from "./data/friends";
 import { flags } from "./data/flags";
 import { worldCupFlags, isFlag, isWorldCupFlag } from "./data/worldcup";
+import { worldCupVisible } from "./preview";
 import { HomePage } from "./components/HomePage";
 import { OfflineGuard } from "./components/OfflineGuard";
 import { DrawingPlayer } from "./components/DrawingPlayer";
@@ -170,7 +171,7 @@ export function App() {
     if (
       go === "paintings" ||
       go === "flags" ||
-      go === "worldcup" ||
+      (go === "worldcup" && worldCupVisible()) ||
       go === "facts" ||
       go === "contact"
     ) {

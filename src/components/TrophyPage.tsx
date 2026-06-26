@@ -4,6 +4,7 @@ import { drawingsForLevel } from "../data/animals";
 import { masterpieces } from "../data/masterpieces";
 import { flags } from "../data/flags";
 import { newWorldCupFlags, FOOTBALL_CUPS, worldCupDone } from "../data/worldcup";
+import { worldCupVisible } from "../preview";
 import { rewardTiers } from "../data/rewards";
 import { FRIEND_DRAWINGS } from "../data/friends";
 import { DrawingThumb } from "./DrawingThumb";
@@ -47,9 +48,15 @@ const GROUPS: { title: string; items: Animal[] }[] = [
 export function TrophyPage({ onHome, completed, onReset, onPick }: Props) {
   const [confirming, setConfirming] = useState(false);
 
+  // The World Cup group is still in progress — hidden unless the private preview
+  // link has been used (see src/preview.ts).
+  const wcVisible = worldCupVisible();
   const groups = useMemo(
-    () => GROUPS.map((g) => ({ ...g, done: completed })),
-    [completed],
+    () =>
+      GROUPS.filter(
+        (g) => wcVisible || g.title !== "⚽ World Cup",
+      ).map((g) => ({ ...g, done: completed })),
+    [completed, wcVisible],
   );
 
   const onCommand = useCallback(
@@ -220,7 +227,8 @@ export function TrophyPage({ onHome, completed, onReset, onPick }: Props) {
         </div>
       </section>
 
-      <section className="trophy-group reward-group">
+      {wcVisible && (
+        <section className="trophy-group reward-group">
         <div className="trophy-group-head">
           <h2>⚽ Football Cups</h2>
           <span className="trophy-count">
@@ -259,7 +267,8 @@ export function TrophyPage({ onHome, completed, onReset, onPick }: Props) {
             );
           })}
         </div>
-      </section>
+        </section>
+      )}
 
       {groups.map((g) => {
         const done = g.items.filter((a) => g.done.has(a.id)).length;
