@@ -13,9 +13,9 @@
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:16px;color:#3a2f55;}
   h1{margin:4px 0 0;font-size:1.4rem;}
   .tag{font-size:.78rem;color:#8a7fa0;margin:0;}
-  /* Taller-than-wide frame (problem 1): 200x240 viewBox, ~5:6 portrait card. */
-  .stage{width:min(82vw,330px);}
-  svg{width:100%;height:auto;background:#fff;border-radius:22px;box-shadow:0 6px 22px #0002;display:block;aspect-ratio:200/240;}
+  /* Taller-than-wide frame, zoomed onto the jersey so it fills more screen. */
+  .stage{width:min(94vw,440px);}
+  svg{width:100%;height:auto;background:#fff;border-radius:22px;box-shadow:0 6px 22px #0002;display:block;aspect-ratio:188/226;}
   .hint{font-size:1.12rem;font-weight:700;min-height:1.5em;text-align:center;margin:6px 12px;color:#4a3d6b;}
   .count{font-size:.95rem;font-weight:700;color:#6a5d8b;letter-spacing:.02em;}
   .row{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:2px;}
@@ -78,7 +78,7 @@ function render(i, animate){
   ZORDER.forEach(k=>{ if(revealAt[k]!==undefined && revealAt[k]<=i) revealed.add(k); });
   const freshFills=[];
   ZORDER.forEach(k=>{
-    if(!revealed.has(k)) return;
+    if(!revealed.has(k) || k==="name-white") return;   // name-white painted last
     (J.fills[k]||[]).forEach(f=>{
       const p=document.createElementNS(NS,"path");
       p.setAttribute("d",f.d);
@@ -105,6 +105,16 @@ function render(i, animate){
         p.style.strokeDasharray=String(L); p.style.strokeDashoffset=String(L);
         fresh.push({p,L});
       }
+    });
+  }
+  // 2b) white name overlay — painted ON TOP of the navy letter outlines
+  if(revealed.has("name-white")){
+    (J.fills["name-white"]||[]).forEach(f=>{
+      const p=document.createElementNS(NS,"path");
+      p.setAttribute("d",f.d); p.setAttribute("class","stroke");
+      p.setAttribute("stroke",f.stroke); p.setAttribute("stroke-width",f.width||2); p.setAttribute("fill","none");
+      if(animate && revealAt["name-white"]===i){ p.style.opacity="0"; freshFills.push(p); }
+      art.appendChild(p);
     });
   }
   // 3) animate the new content of step i
