@@ -10,7 +10,9 @@ const GREEN = "#5bbf63";
 const BODY = "M 60,130 a 46,28 0 1,0 92,0 a 46,28 0 1,0 -92,0";
 // Neck: two lines that START on the body's top edge and rise straight UP to the
 // head — they never dip back down inside the green body.
-const NECK_L = "M 74,112 L 70,82 L 73,54";
+// The left line stops at the head's underside (y62) instead of poking up inside
+// the green head; the green NECK_FILL still reaches the head so there's no gap.
+const NECK_L = "M 74,112 L 70,82 L 72,62";
 const NECK_R = "M 92,104 L 91,80 L 90,52";
 // The green column BETWEEN the two neck lines, so the neck colours in (it used to
 // be left white). Closes NECK_L's path across the top into NECK_R's path.
