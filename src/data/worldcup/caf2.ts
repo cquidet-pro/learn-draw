@@ -193,9 +193,14 @@ const southAfrica = (() => {
     "🇿🇦",
     [
       frame(),
-      // The Y-shaped band (outline its outer white edge) and the gold-rimmed
-      // black triangle at the hoist.
-      { hint: "Draw a sideways Y across the flag", color: "#3a3a55", strokes: [whitePall] },
+      // Outline the GREEN Y itself first — drawn in its own green so the guide
+      // line vanishes into the final green fill (no stray dark outline on the
+      // stripe). It's the NARROWER pall (hw 12); the thin white fimbriation is the
+      // 8-unit paper rim left between this green and the red/blue field (and the
+      // gold rim on the hoist side), revealed automatically at colour time. So the
+      // green stripes are drawn as line-art up front instead of only appearing
+      // when colouring.
+      { hint: "Draw a sideways green Y across the flag", color: "#007749", strokes: [greenPall] },
       { hint: "Draw a triangle at the left edge 🔺", color: "#3a3a55", strokes: [blackTri] },
       colorStep([
         { d: redRegion, color: "#E03C31" }, // top band (above the Y)

@@ -12,6 +12,9 @@ const BODY = "M 60,130 a 46,28 0 1,0 92,0 a 46,28 0 1,0 -92,0";
 // head — they never dip back down inside the green body.
 const NECK_L = "M 74,112 L 70,82 L 73,54";
 const NECK_R = "M 92,104 L 91,80 L 90,52";
+// The green column BETWEEN the two neck lines, so the neck colours in (it used to
+// be left white). Closes NECK_L's path across the top into NECK_R's path.
+const NECK_FILL = "M 74,112 L 70,82 L 73,54 L 90,52 L 91,80 L 92,104 Z";
 // Long T-rex head with an open toothy mouth, snout pointing left. One closed
 // blob (upper skull/snout + lower jaw joined at the back) so it fills green; the
 // open mouth and teeth are drawn on top.
@@ -25,16 +28,19 @@ const EYE = "M 64,35 a 3.2,3.2 0 1,0 6.4,0 a 3.2,3.2 0 1,0 -6.4,0";
 // Tail: a proper closed loop (teardrop) starting at the body's right edge, so
 // it colors cleanly instead of being a thin line.
 const TAIL = "M 150,123 Q 178,123 186,148 Q 172,140 150,137 Z";
-// Four chunky legs, each flaring into a real foot with little toe claws along a
-// flat bottom. They hang naturally below the body (no ground line at this level).
+// Four chunky legs. Each is an OPEN path: it starts a couple of units INSIDE the
+// body's lower edge (so it joins with no gap and no dark line cuts across the
+// belly), runs down one side, makes three little toes along a flat foot, then
+// back up the other side — also starting inside the body. They hang naturally
+// below the body (no ground line at this level).
 const LEG_1 =
-  "M 73,150 L 73,164 Q 70,173 66,174 Q 66,176 74.0,176 Q 74.0,173.5 74.0,176 Q 82.0,176 82.0,176 Q 82.0,173.5 82.0,176 Q 90,176 90,173 Q 89,173 87,164 L 87,150 Z";
+  "M 72,146.9 L 72,171 L 70,176 L 74,176 L 75,173 L 77,176 L 78,173 L 80,176 L 84,176 L 84,152.6";
 const LEG_2 =
-  "M 94,154 L 94,164 Q 91,173 87,174 Q 87,176 95.0,176 Q 95.0,173.5 95.0,176 Q 103.0,176 103.0,176 Q 103.0,173.5 103.0,176 Q 111,176 111,173 Q 110,173 108,164 L 108,154 Z";
+  "M 90,154.3 L 90,171 L 88,176 L 92,176 L 93,173 L 95,176 L 96,173 L 98,176 L 102,176 L 102,155.9";
 const LEG_3 =
-  "M 114,154 L 114,164 Q 111,173 107,174 Q 107,176 115.0,176 Q 115.0,173.5 115.0,176 Q 123.0,176 123.0,176 Q 123.0,173.5 123.0,176 Q 131,176 131,173 Q 130,173 128,164 L 128,154 Z";
+  "M 108,156 L 108,171 L 106,176 L 110,176 L 111,173 L 113,176 L 114,173 L 116,176 L 120,176 L 120,154.7";
 const LEG_4 =
-  "M 135,150 L 135,164 Q 132,173 128,174 Q 128,176 136.0,176 Q 136.0,173.5 136.0,176 Q 144.0,176 144.0,176 Q 144.0,173.5 144.0,176 Q 152,176 152,173 Q 151,173 149,164 L 149,150 Z";
+  "M 126,153.2 L 126,171 L 124,176 L 128,176 L 129,173 L 131,176 L 132,173 L 134,176 L 138,176 L 138,148.1";
 
 export const dinosaur: Animal = {
   id: "dinosaur",
@@ -81,6 +87,7 @@ export const dinosaur: Animal = {
       // white paper, the mouth a soft dark, and the eye dark.
       fills: [
         { d: BODY, color: GREEN },
+        { d: NECK_FILL, color: GREEN },
         { d: TAIL, color: GREEN },
         { d: LEG_1, color: GREEN },
         { d: LEG_2, color: GREEN },

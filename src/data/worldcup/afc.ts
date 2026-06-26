@@ -119,8 +119,11 @@ const jordan = (() => {
     "🇯🇴",
     [
       frame(),
-      { hint: "Add 3 stripes across", color: OUTLINE, strokes: [`M ${n(x1)},${n(t1)} L ${R},${n(t1)}`, `M ${n(x2)},${n(t2)} L ${R},${n(t2)}`] },
+      // Triangle first (the enclosed hoist region), then the band dividers drawn
+      // AROUND it — each starts at the triangle's hypotenuse, so no line crosses
+      // the red triangle and the child draws it the natural way.
       { hint: "Draw a triangle on the left 🔺", color: OUTLINE, strokes: [triangle] },
+      { hint: "Add 3 stripes across", color: OUTLINE, strokes: [`M ${n(x1)},${n(t1)} L ${R},${n(t1)}`, `M ${n(x2)},${n(t2)} L ${R},${n(t2)}`] },
       { hint: "Add a star with seven points ⭐", color: "#CE1126", strokes: [st], strokeWidth: 0.7 },
       colorStep([
         { d: rectPath(L, T, R, t1), color: "#000000" },
