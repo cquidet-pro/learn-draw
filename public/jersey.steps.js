@@ -17,9 +17,10 @@
   const WHITE = "#ffffff";
 
   const steps = [
-    // 1 — body outline (fitted: widest at the chest, TIGHT waist, slim hem)
+    // 1 — body outline: widest at the chest, narrow WAIST in the middle, then
+    // flares back OUT so the hem (bottom) is wider than the waist.
     { hint: "Draw the body — two sides and the bottom.", strokes: [
-      "M 66,50 C 60,100 72,142 72,170 C 72,198 71,216 71,226 Q 100,231 129,226 C 129,216 128,198 128,170 C 128,142 140,100 134,50"
+      "M 66,50 C 59,100 71,135 71,162 C 71,188 66,212 66,224 Q 100,230 134,224 C 134,212 129,188 129,162 C 129,135 141,100 134,50"
     ] },
     // 2 — sleeve tops
     { hint: "Add the top of each sleeve.", strokes: [
@@ -36,10 +37,10 @@
       "M 66,50 Q 82,45 88,44 Q 100,39 112,44 Q 118,45 134,50",
       "M 88,45 Q 100,51 112,45"
     ] },
-    // 5 — side panel seam lines (inner edge of the red side stripes)
-    { hint: "Add a line down each side.", strokes: [
-      "M 77,120 C 80,150 80,185 79,224",
-      "M 123,120 C 120,150 120,185 121,224"
+    // 5 — side accent lines (inner edge of the red flashes, upper sides only)
+    { hint: "Add a short line on each upper side.", strokes: [
+      "M 73,114 C 74,128 72,142 70,152",
+      "M 127,114 C 126,128 128,142 130,152"
     ] },
     // 6 — bottom hem line
     { hint: "Draw the hem line near the bottom.", strokes: [
@@ -110,9 +111,9 @@
   // navy letter outlines, so the name reads as white letters with a thin edge.
   const fills = {
     red: [
-      // side panels — stripe between the outer body edge and the seam line
-      { d: "M 65,116 C 70,145 72,170 71,224 L 79,224 C 80,185 80,150 77,120 Z", color: RED },
-      { d: "M 135,116 C 130,145 128,170 129,224 L 121,224 C 120,185 120,150 123,120 Z", color: RED },
+      // side flashes — tapered accents on the upper sides; they do NOT reach the hem
+      { d: "M 61,112 C 63,132 67,145 70,152 C 73,142 74,126 73,114 C 68,111 64,111 61,112 Z", color: RED },
+      { d: "M 139,112 C 137,132 133,145 130,152 C 127,142 126,126 127,114 C 132,111 136,111 139,112 Z", color: RED },
       // cuffs
       { d: "M 30,74 Q 38,98 50,112 L 52,110 Q 42,98 36,82 Z", color: RED },
       { d: "M 170,74 Q 162,98 150,112 L 148,110 Q 158,98 164,82 Z", color: RED }
@@ -122,7 +123,7 @@
       { d: "M 134,50 Q 153,54 170,74 Q 162,98 150,112 Q 144,114 137,108 Z", color: BLUE }
     ],
     "blue-body": [
-      { d: "M 66,50 Q 82,45 88,44 Q 100,39 112,44 Q 118,45 134,50 C 140,100 128,142 128,170 C 128,198 129,216 129,226 Q 100,231 71,226 C 71,216 72,198 72,170 C 72,142 60,100 66,50 Z", color: BLUE }
+      { d: "M 66,50 Q 82,45 88,44 Q 100,39 112,44 Q 118,45 134,50 C 141,100 129,135 129,162 C 129,188 134,212 134,224 Q 100,230 66,224 C 66,212 71,188 71,162 C 71,135 59,100 66,50 Z", color: BLUE }
     ],
     white: [
       // number faces, painted before colour so blue fills around them
@@ -131,12 +132,12 @@
     ],
     // Painted LAST (on top of the navy outlines) -> white letters, thin dark edge.
     "name-white": [
-      { d: "M 68,72 L 68,54 L 73,62 L 78,54 L 78,72", stroke: WHITE, width: 2.4 },
-      { d: "M 79,72 L 79,54 L 86,54 Q 90,58 86,62 L 79,62 M 79,62 L 87,62 Q 91,67 86,72 L 79,72", stroke: WHITE, width: 2.4 },
-      { d: "M 90,72 L 94.5,54 L 99,72 M 91.5,66 L 97.5,66", stroke: WHITE, width: 2.4 },
-      { d: "M 101,72 L 101,54 L 108,54 Q 112,58 108,62 L 101,62", stroke: WHITE, width: 2.4 },
-      { d: "M 112,72 L 112,54 L 119,54 Q 123,58 119,62 L 112,62", stroke: WHITE, width: 2.4 },
-      { d: "M 130,54 L 123,54 L 123,72 L 130,72 M 123,63 L 129,63", stroke: WHITE, width: 2.4 }
+      { d: "M 68,72 L 68,54 L 73,62 L 78,54 L 78,72", stroke: WHITE, width: 2.8 },
+      { d: "M 79,72 L 79,54 L 86,54 Q 90,58 86,62 L 79,62 M 79,62 L 87,62 Q 91,67 86,72 L 79,72", stroke: WHITE, width: 2.8 },
+      { d: "M 90,72 L 94.5,54 L 99,72 M 91.5,66 L 97.5,66", stroke: WHITE, width: 2.8 },
+      { d: "M 101,72 L 101,54 L 108,54 Q 112,58 108,62 L 101,62", stroke: WHITE, width: 2.8 },
+      { d: "M 112,72 L 112,54 L 119,54 Q 123,58 119,62 L 112,62", stroke: WHITE, width: 2.8 },
+      { d: "M 130,54 L 123,54 L 123,72 L 130,72 M 123,63 L 129,63", stroke: WHITE, width: 2.8 }
     ]
   };
 
