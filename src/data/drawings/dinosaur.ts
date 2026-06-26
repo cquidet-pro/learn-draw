@@ -10,10 +10,12 @@ const GREEN = "#5bbf63";
 const BODY = "M 60,130 a 46,28 0 1,0 92,0 a 46,28 0 1,0 -92,0";
 // Neck: two lines that START on the body's top edge and rise straight UP to the
 // head — they never dip back down inside the green body.
-// The left line stops at the lower jaw's underside (y67) so it doesn't poke up
-// into the jaw / open mouth; the green NECK_FILL still reaches the head, no gap.
-const NECK_L = "M 74,112 L 70,82 L 72,67";
-const NECK_R = "M 92,104 L 91,80 L 90,52";
+// The neck lines bottom out exactly ON the body's top outline (109.9 / 103.3) so
+// their round caps merge into it instead of poking a knob into the green body;
+// the top of the left line stops at the lower jaw's underside (y67) so it doesn't
+// poke into the open mouth. NECK_FILL still reaches inside, no gap.
+const NECK_L = "M 74,109.9 L 70,82 L 72,67";
+const NECK_R = "M 92,103.3 L 91,80 L 90,52";
 // The green column BETWEEN the two neck lines, so the neck colours in (it used to
 // be left white). Closes NECK_L's path across the top into NECK_R's path.
 const NECK_FILL = "M 74,112 L 70,82 L 73,54 L 90,52 L 91,80 L 92,104 Z";
@@ -36,19 +38,19 @@ const EYE = "M 64,35 a 3.2,3.2 0 1,0 6.4,0 a 3.2,3.2 0 1,0 -6.4,0";
 // Tail: a proper closed loop (teardrop) starting at the body's right edge, so
 // it colors cleanly instead of being a thin line.
 const TAIL = "M 150,123 Q 178,123 186,148 Q 172,140 150,137 Z";
-// Four chunky legs. Each is an OPEN path: it starts a couple of units INSIDE the
-// body's lower edge (so it joins with no gap and no dark line cuts across the
-// belly), runs down one side, makes three little toes along a flat foot, then
-// back up the other side — also starting inside the body. They hang naturally
-// below the body (no ground line at this level).
+// Four chunky legs. Each is an OPEN path whose two top endpoints sit exactly ON
+// the body's lower outline (so the round caps merge into it — no knob in the
+// belly, no white gap), runs down one side, makes three little toes along a flat
+// foot, then back up the other side. They hang naturally below the body (no
+// ground line at this level).
 const LEG_1 =
-  "M 72,146.9 L 72,171 L 70,176 L 74,176 L 75,173 L 77,176 L 78,173 L 80,176 L 84,176 L 84,152.6";
+  "M 72,148.9 L 72,171 L 70,176 L 74,176 L 75,173 L 77,176 L 78,173 L 80,176 L 84,176 L 84,154.6";
 const LEG_2 =
-  "M 90,154.3 L 90,171 L 88,176 L 92,176 L 93,173 L 95,176 L 96,173 L 98,176 L 102,176 L 102,155.9";
+  "M 90,156.3 L 90,171 L 88,176 L 92,176 L 93,173 L 95,176 L 96,173 L 98,176 L 102,176 L 102,157.9";
 const LEG_3 =
-  "M 108,156 L 108,171 L 106,176 L 110,176 L 111,173 L 113,176 L 114,173 L 116,176 L 120,176 L 120,154.7";
+  "M 108,158 L 108,171 L 106,176 L 110,176 L 111,173 L 113,176 L 114,173 L 116,176 L 120,176 L 120,156.7";
 const LEG_4 =
-  "M 126,153.2 L 126,171 L 124,176 L 128,176 L 129,173 L 131,176 L 132,173 L 134,176 L 138,176 L 138,148.1";
+  "M 126,155.2 L 126,171 L 124,176 L 128,176 L 129,173 L 131,176 L 132,173 L 134,176 L 138,176 L 138,150.1";
 
 export const dinosaur: Animal = {
   id: "dinosaur",
