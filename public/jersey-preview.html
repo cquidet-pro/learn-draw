@@ -58,12 +58,12 @@ const N=J.steps.length;
 art.setAttribute("viewBox", J.viewBox);
 
 // Fill paint order, bottom -> top, independent of the reveal order.
-const ZORDER=["blue-body","blue-sleeves","red","white"];
+const ZORDER=["blue-body","blue-sleeves","red","white","name-white"];
 // Which step index first reveals each fill group (white shows with the first colour step).
 const revealAt={};
 let firstColour=-1;
 J.steps.forEach((st,i)=>{ if(st.fills){ if(firstColour<0)firstColour=i; if(revealAt[st.fills]===undefined)revealAt[st.fills]=i; }});
-if(firstColour>=0) revealAt.white=firstColour;
+if(firstColour>=0){ revealAt.white=firstColour; revealAt["name-white"]=firstColour; }
 
 let cur=0, anims=[], timers=[], playing=false;
 function clearTimers(){ anims.forEach(a=>{try{a.cancel();}catch(e){}}); anims=[]; timers.forEach(clearTimeout); timers=[]; }
@@ -81,8 +81,14 @@ function render(i, animate){
     if(!revealed.has(k)) return;
     (J.fills[k]||[]).forEach(f=>{
       const p=document.createElementNS(NS,"path");
-      p.setAttribute("d",f.d); p.setAttribute("class","fill"); p.setAttribute("fill",f.color);
-      if(f.evenodd) p.setAttribute("fill-rule","evenodd");
+      p.setAttribute("d",f.d);
+      if(f.stroke){ // stroke overlay (e.g. white name on top of navy outline)
+        p.setAttribute("class","stroke"); p.setAttribute("stroke",f.stroke);
+        p.setAttribute("stroke-width",f.width||2); p.setAttribute("fill","none");
+      } else {
+        p.setAttribute("class","fill"); p.setAttribute("fill",f.color);
+        if(f.evenodd) p.setAttribute("fill-rule","evenodd");
+      }
       const justNow = revealAt[k]===i;
       if(animate && justNow){ p.style.opacity="0"; freshFills.push(p); }
       art.appendChild(p);
