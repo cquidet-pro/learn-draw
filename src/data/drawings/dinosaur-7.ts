@@ -14,13 +14,18 @@ const NECK_L = "M 74,112 L 70,82 L 72,62";
 const NECK_R = "M 92,104 L 91,80 L 90,52";
 // Green column between the two neck lines so the neck colours in (was left white).
 const NECK_FILL = "M 74,112 L 70,82 L 73,54 L 90,52 L 91,80 L 92,104 Z";
-// Long T-rex head (snout pointing left), filled green; the open toothy mouth is
-// drawn on top.
-const HEAD =
-  "M 90,44 Q 94,32 84,28 Q 70,22 56,28 Q 42,34 34,42 Q 30,46 34,49 L 60,47 L 90,44 L 62,51 L 40,53 Q 35,53 36,57 L 46,60 Q 68,66 88,56 Q 93,52 90,44 Z";
-const MOUTH = "M 34,49 L 60,47 L 86,45 L 62,51 L 40,53 Q 35,52 35,50 Z";
-const UTEETH = "M 42,47.5 L 45,52 L 48,47 Z M 52,47 L 55,51.5 L 58,46.5 Z";
-const LTEETH = "M 45,52 L 48,48 L 51,52 Z M 56,51.5 L 59,47.5 L 62,51 Z";
+// Long T-rex head, snout pointing left, mouth GAPING OPEN: upper skull/snout and
+// the dropped lower jaw are two green shapes joined solid at the back, with a
+// dark cavity between them and big sharp teeth on each jaw.
+const HEAD_UPPER =
+  "M 31,46 L 76,51 L 90,50 Q 95,40 88,30 Q 72,23 54,24 Q 40,26 32,32 Q 26,38 26,42 Q 26,45 31,46 Z";
+const HEAD_LOWER =
+  "M 76,53 L 37,61 Q 32,63 35,66 Q 50,71 70,67 Q 86,64 91,57 L 90,51 Z";
+const MOUTH = "M 76,51 L 31,46 L 37,61 L 76,53 Z";
+const UTEETH =
+  "M 33.4,46.3 L 39.4,46.9 L 36.4,53.1 Z M 44.8,47.5 L 49.6,48.1 L 47.2,53.1 Z M 56.2,48.8 L 59.8,49.2 L 58,53.1 Z";
+const LTEETH =
+  "M 41.3,60.1 L 46.8,59 L 44,53.6 Z M 51.9,57.9 L 56.4,57 L 54.2,52.6 Z M 61.8,55.9 L 65.3,55.2 L 63.5,51.8 Z";
 const EYE = "M 64,35 a 3.2,3.2 0 1,0 6.4,0 a 3.2,3.2 0 1,0 -6.4,0";
 const TAIL = "M 150,123 Q 178,123 186,148 Q 172,140 150,137 Z";
 // Four chunky legs. Each is an OPEN path starting a couple of units INSIDE the
@@ -59,12 +64,18 @@ export const dinosaur7: Animal = {
     {
       hint: "Add a long neck and a big head",
       color: OUTLINE,
-      strokes: [NECK_L, NECK_R, HEAD],
+      strokes: [NECK_L, NECK_R, HEAD_UPPER, HEAD_LOWER],
     },
     {
-      hint: "Open its mouth with pointy teeth! 🦷",
+      hint: "Open its mouth wide 🦖",
       color: OUTLINE,
-      strokes: [MOUTH, UTEETH, LTEETH],
+      strokes: [MOUTH],
+    },
+    {
+      hint: "Add big sharp teeth! 🦷",
+      color: OUTLINE,
+      strokes: [UTEETH, LTEETH],
+      strokeWidth: 0.8,
     },
     {
       hint: "Add a long swishy tail",
@@ -98,7 +109,8 @@ export const dinosaur7: Animal = {
         { d: LEG_2, color: GREEN },
         { d: LEG_3, color: GREEN },
         { d: LEG_4, color: GREEN },
-        { d: HEAD, color: GREEN },
+        { d: HEAD_UPPER, color: GREEN },
+        { d: HEAD_LOWER, color: GREEN },
         { d: PLATES_FILL, color: GREEN },
         { d: SPOT_1, color: "#3a9e48" },
         { d: SPOT_2, color: "#3a9e48" },
