@@ -4,10 +4,11 @@
 // add no strokes — they reveal colour fills in waves (red, then blue x2).
 // Shared by the clickable preview page and the dev grid renderer.
 //
-// Geometry (matches the hand-drawn reference: wide body + full cap sleeves):
-//   shoulders L(55,58) R(145,58) · hem corners L(64,208) R(136,208)
-//   underarms L(56,108) R(144,108) · sleeve tips L(12,86) R(188,86)
-//   number "10" centred ~x100, fits between the red side stripes (x75..125)
+// Geometry traced from the hand-drawn reference (measured on a coordinate grid):
+// the jersey is SLENDER — ~139 units wide, centred on x100. Sleeve tips reach
+// x31 / x169; shoulders x68 / x132; body tapers to a 52-wide hem. The "10" sits
+// high (y82..138) and fits inside the body with margin to the red side stripes;
+// the name sits just under the collar (y60..74).
 (function (root) {
   const OUTLINE = "#15173a";
   const BLUE = "#1f47c2";
@@ -17,82 +18,82 @@
   const steps = [
     // 1 — body outline (sides + bottom, top open)
     { hint: "Draw the body — two sides and the bottom.", strokes: [
-      "M 55,58 C 52,112 57,175 64,208 Q 100,221 136,208 C 143,175 148,112 145,58"
+      "M 68,52 C 63,90 64,150 74,212 Q 100,221 126,212 C 136,150 137,90 132,52"
     ] },
     // 2 — sleeve tops
     { hint: "Add the top of each sleeve.", strokes: [
-      "M 55,58 Q 34,62 12,86",
-      "M 145,58 Q 166,62 188,86"
+      "M 68,52 Q 48,56 31,74",
+      "M 132,52 Q 152,56 169,74"
     ] },
     // 3 — sleeve undersides (close the sleeves)
     { hint: "Close the sleeves underneath.", strokes: [
-      "M 12,86 Q 20,104 32,110 Q 45,113 56,108",
-      "M 188,86 Q 180,104 168,110 Q 155,113 144,108"
+      "M 31,74 Q 40,96 52,108 Q 60,110 64,104",
+      "M 169,74 Q 160,96 148,108 Q 140,110 136,104"
     ] },
     // 4 — back collar
     { hint: "Draw the collar at the neck.", strokes: [
-      "M 55,58 Q 70,54 78,53 Q 100,47 122,53 Q 130,54 145,58",
-      "M 78,54 Q 100,60 122,54"
+      "M 68,52 Q 82,48 88,47 Q 100,43 112,47 Q 118,48 132,52",
+      "M 88,48 Q 100,53 112,48"
     ] },
     // 5 — side panel seam lines (inner edge of the red side stripes)
     { hint: "Add a line down each side.", strokes: [
-      "M 76,110 C 74,150 76,182 78,205",
-      "M 124,110 C 126,150 124,182 122,205"
+      "M 74,110 C 72,150 74,185 78,210",
+      "M 126,110 C 128,150 126,185 122,210"
     ] },
     // 6 — bottom hem line
     { hint: "Draw the hem line near the bottom.", strokes: [
-      "M 70,202 Q 100,214 130,202"
+      "M 78,206 Q 100,215 122,206"
     ] },
     // 7 — sleeve cuff bands
     { hint: "Add the cuff on each sleeve.", strokes: [
-      "M 22,90 Q 28,102 38,109",
-      "M 178,90 Q 172,102 162,109"
+      "M 38,80 Q 44,94 54,106",
+      "M 162,80 Q 156,94 146,106"
     ] },
     // 8 — number "1" front face
     { hint: 'Write a big "1".', strokes: [
-      "M 79,128 L 92,114 L 92,172 L 98,172 L 98,179 L 77,179 L 77,172 L 86,172 L 86,126 L 81,129 Z"
+      "M 79,93 L 90,81 L 90,132 L 96,132 L 96,138 L 76,138 L 76,132 L 84,132 L 84,91 L 80,94 Z"
     ] },
     // 9 — "1" 3-D side
     { hint: 'Give the "1" a 3-D side.', strokes: [
-      "M 92,114 L 96,118 L 96,174 L 92,172 Z",
-      "M 98,179 L 102,183 L 81,183 L 77,179 Z"
+      "M 90,81 L 94,85 L 94,134 L 90,132 Z",
+      "M 96,138 L 100,142 L 80,142 L 76,138 Z"
     ] },
     // 10 — number "0" front (outer ring)
     { hint: 'Now write the "0".', strokes: [
-      "M 97,142 a 13,30 0 1,0 26,0 a 13,30 0 1,0 -26,0"
+      "M 98,110 a 12,28 0 1,0 24,0 a 12,28 0 1,0 -24,0"
     ] },
     // 11 — "0" 3-D side (thin shadow hugging the lower-right of the ring)
     { hint: 'Give the "0" a 3-D side.', strokes: [
-      "M 122,149 a 13,30 0 0,1 -8,23 l 4,4 a 15,32 0 0,0 8,-25 Z"
+      "M 121,116 a 12,28 0 0,1 -7,21 l 4,4 a 14,30 0 0,0 7,-23 Z"
     ] },
     // 12 — "0" inner hole
     { hint: 'Open the middle of the "0".', strokes: [
-      "M 103.5,142 a 6.5,16 0 1,0 13,0 a 6.5,16 0 1,0 -13,0"
+      "M 104,110 a 6,15 0 1,0 12,0 a 6,15 0 1,0 -12,0"
     ] },
     // 13 — name letters M, B
     { hint: 'Start the name: "M" "B".', strokes: [
-      "M 55,102 L 55,88 L 60,95 L 66,88 L 66,102",
-      "M 70,102 L 70,88 L 78,88 Q 82,91 78,94 L 70,94 M 70,94 L 79,94 Q 83,98 78,102 L 70,102"
+      "M 70,76 L 70,58 L 75,66 L 80,58 L 80,76",
+      "M 81,76 L 81,58 L 88,58 Q 92,62 88,66 L 81,66 M 81,66 L 89,66 Q 93,71 88,76 L 81,76"
     ] },
     // 14 — name letters A, P
     { hint: 'Keep going: "A" "P".', strokes: [
-      "M 85,102 L 90,88 L 96,102 M 87,97 L 94,97",
-      "M 100,102 L 100,88 L 108,88 Q 112,91 108,95 L 100,95"
+      "M 92,76 L 96.5,58 L 101,76 M 93.5,70 L 99.5,70",
+      "M 103,76 L 103,58 L 110,58 Q 114,62 110,66 L 103,66"
     ] },
     // 15 — name letters P, E
     { hint: 'Finish the name: "P" "E".', strokes: [
-      "M 115,102 L 115,88 L 123,88 Q 127,91 123,95 L 115,95",
-      "M 141,88 L 130,88 L 130,102 L 141,102 M 130,95 L 139,95"
+      "M 114,76 L 114,58 L 121,58 Q 125,62 121,66 L 114,66",
+      "M 132,58 L 125,58 L 125,76 L 132,76 M 125,67 L 131,67"
     ] },
     // 16 — inner collar trim
     { hint: "Add the inside of the collar.", strokes: [
-      "M 80,58 Q 100,64 120,58"
+      "M 80,52 Q 100,57 120,52"
     ] },
     // 17 — shoulder seams + neck tag
     { hint: "Add the shoulder seams.", strokes: [
-      "M 78,54 L 64,59",
-      "M 122,54 L 136,59",
-      "M 96,61 L 104,61 L 104,65 L 96,65 Z"
+      "M 88,48 L 74,53",
+      "M 112,48 L 126,53",
+      "M 96,55 L 104,55 L 104,59 L 96,59 Z"
     ] },
     // 18 — colour: red trim
     { hint: "Colour the red parts! 🔴", strokes: [], fills: "red" },
@@ -106,33 +107,33 @@
   // renderer's z-order: blue-body, blue-sleeves, red, white (number), name-white.
   const fills = {
     red: [
-      // side panels — bold stripe between the outer edge and the seam line
-      { d: "M 55,108 C 54,150 60,182 64,205 L 78,205 C 76,182 74,150 76,110 Z", color: RED },
-      { d: "M 145,108 C 146,150 140,182 136,205 L 122,205 C 124,182 126,150 124,110 Z", color: RED },
+      // side panels — stripe between the outer body edge and the seam line
+      { d: "M 64,104 C 63,150 70,185 74,210 L 78,210 C 74,185 72,150 74,110 Z", color: RED },
+      { d: "M 136,104 C 137,150 130,185 126,210 L 122,210 C 126,185 128,150 126,110 Z", color: RED },
       // cuffs
-      { d: "M 12,86 Q 20,104 32,110 L 38,109 Q 28,102 22,90 Z", color: RED },
-      { d: "M 188,86 Q 180,104 168,110 L 162,109 Q 172,102 178,90 Z", color: RED }
+      { d: "M 31,74 Q 40,96 52,108 L 54,106 Q 44,94 38,80 Z", color: RED },
+      { d: "M 169,74 Q 160,96 148,108 L 146,106 Q 156,94 162,80 Z", color: RED }
     ],
     "blue-sleeves": [
-      { d: "M 55,58 Q 34,62 12,86 Q 20,104 32,110 Q 45,113 56,108 Z", color: BLUE },
-      { d: "M 145,58 Q 166,62 188,86 Q 180,104 168,110 Q 155,113 144,108 Z", color: BLUE }
+      { d: "M 68,52 Q 48,56 31,74 Q 40,96 52,108 Q 60,110 64,104 Z", color: BLUE },
+      { d: "M 132,52 Q 152,56 169,74 Q 160,96 148,108 Q 140,110 136,104 Z", color: BLUE }
     ],
     "blue-body": [
-      { d: "M 55,58 Q 70,54 78,53 Q 100,47 122,53 Q 130,54 145,58 C 148,112 143,175 136,208 Q 100,221 64,208 C 57,175 52,112 55,58 Z", color: BLUE }
+      { d: "M 68,52 Q 82,48 88,47 Q 100,43 112,47 Q 118,48 132,52 C 137,90 136,150 126,212 Q 100,221 74,212 C 64,150 63,90 68,52 Z", color: BLUE }
     ],
     white: [
       // number faces, painted before colour so blue fills around them
-      { d: "M 79,128 L 92,114 L 92,172 L 98,172 L 98,179 L 77,179 L 77,172 L 86,172 L 86,126 L 81,129 Z", color: WHITE },
-      { d: "M 97,142 a 13,30 0 1,0 26,0 a 13,30 0 1,0 -26,0 M 103.5,142 a 6.5,16 0 1,1 13,0 a 6.5,16 0 1,1 -13,0", color: WHITE, evenodd: true }
+      { d: "M 79,93 L 90,81 L 90,132 L 96,132 L 96,138 L 76,138 L 76,132 L 84,132 L 84,91 L 80,94 Z", color: WHITE },
+      { d: "M 98,110 a 12,28 0 1,0 24,0 a 12,28 0 1,0 -24,0 M 104,110 a 6,15 0 1,1 12,0 a 6,15 0 1,1 -12,0", color: WHITE, evenodd: true }
     ],
     // White name on top of the navy letter outlines -> white letters, thin dark edge.
     "name-white": [
-      { d: "M 55,102 L 55,88 L 60,95 L 66,88 L 66,102", stroke: WHITE, width: 1.9 },
-      { d: "M 70,102 L 70,88 L 78,88 Q 82,91 78,94 L 70,94 M 70,94 L 79,94 Q 83,98 78,102 L 70,102", stroke: WHITE, width: 1.9 },
-      { d: "M 85,102 L 90,88 L 96,102 M 87,97 L 94,97", stroke: WHITE, width: 1.9 },
-      { d: "M 100,102 L 100,88 L 108,88 Q 112,91 108,95 L 100,95", stroke: WHITE, width: 1.9 },
-      { d: "M 115,102 L 115,88 L 123,88 Q 127,91 123,95 L 115,95", stroke: WHITE, width: 1.9 },
-      { d: "M 141,88 L 130,88 L 130,102 L 141,102 M 130,95 L 139,95", stroke: WHITE, width: 1.9 }
+      { d: "M 70,76 L 70,58 L 75,66 L 80,58 L 80,76", stroke: WHITE, width: 2.4 },
+      { d: "M 81,76 L 81,58 L 88,58 Q 92,62 88,66 L 81,66 M 81,66 L 89,66 Q 93,71 88,76 L 81,76", stroke: WHITE, width: 2.4 },
+      { d: "M 92,76 L 96.5,58 L 101,76 M 93.5,70 L 99.5,70", stroke: WHITE, width: 2.4 },
+      { d: "M 103,76 L 103,58 L 110,58 Q 114,62 110,66 L 103,66", stroke: WHITE, width: 2.4 },
+      { d: "M 114,76 L 114,58 L 121,58 Q 125,62 121,66 L 114,66", stroke: WHITE, width: 2.4 },
+      { d: "M 132,58 L 125,58 L 125,76 L 132,76 M 125,67 L 131,67", stroke: WHITE, width: 2.4 }
     ]
   };
 
