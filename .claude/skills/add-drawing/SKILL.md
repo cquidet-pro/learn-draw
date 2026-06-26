@@ -18,6 +18,15 @@ A drawing is **data, not code**. Each one is an `Animal` object (the name is
 historical — it really means "a drawing"). You author SVG path data; the app
 animates it. Read `CLAUDE.md` first — this skill assumes its conventions.
 
+> **Always start here, and verify the COLOURED result.** Author every new or
+> edited drawing through this skill — the football jersey shipped wrong because it
+> skipped these conventions ("Have you used the skills?"). And pin down scope
+> before you merge: *"merge so I can preview"* is **not** *"make it live"* —
+> confirm whether a change goes into the live app or stays an unlisted preview.
+> Almost every bug this repo has shipped was invisible in the line-art and only
+> appeared once the picture was **filled in** — so always render the final
+> coloured state and zoom into the joins, never judge from the outline alone.
+
 ## 1. The data model
 
 Defined in `src/data/animals.ts`:
@@ -139,10 +148,68 @@ point inside 0–200 or it vanishes.**
   Family, the Rainbow). The animator reveals colour from the coloring step
   onward (see `afterReveal` in `AnimatedDrawing.tsx`).
 
+### Drawings (non-flag) — the pitfalls that actually bit us
+
+The Dinosaur alone shipped wrong about six times in a row — white neck, white
+spikes, a detached back foot, a neck line poking into the skull, then the same
+line poking into the open mouth, an invisible-toothed mouth. **Every one was
+invisible in the line-art and only showed once the picture was filled in.** So
+author each region's stroke and fill as a pair, then render the **coloured**
+result and zoom into the joins.
+
+- **Every region you want coloured needs its own CLOSED `fills` entry — an
+  outline stroke does NOT fill it.** `strokes` and `fills` are two separate lists.
+  A neck drawn as two open lines, or back spikes drawn as an open zig-zag, animate
+  fine and then stay **white** at colour time because nothing filled them. For any
+  enclosed area that should take colour, add a closed path to `fills` (close the
+  outline into a polygon — the two neck lines joined across the top into one quad;
+  each spike `Z`-closed into a triangle). After colouring, scan for **white gaps**
+  where you expected colour. This is the mirror of the flag rule "colour never
+  conjures a shape": there a fill had no guide stroke; here the guide stroke had
+  no fill. A region needs **both**.
+
+- **A dark stroke that ends INSIDE another filled shape shows on top of it
+  (strokes paint in pass 2). Stop the stroke at that shape's edge; bridge the
+  colour with a FILL underneath.** The neck's left line poked up into the head
+  *twice* — into the skull, then (after the mouth opened) into the lower jaw. Both
+  times the fix was identical: shorten the visible stroke so its tip lands ON the
+  boundary it meets (compute that boundary's y at the stroke's x), and let a
+  separate fill overlap underneath so there's no white gap. Never let a
+  limb / neck / tail guide line run *past* the outline of the part it joins.
+
+- **Legs on an ellipse body: the OUTER / back leg is the one that floats.** A pure
+  ellipse curves up at the sides, so legs hung at a fixed y leave a gap at the
+  outer ones (the dino's back foot detached). Compute the body's lower-edge y at
+  each leg's x — `cy + ry*sqrt(1 - ((x-cx)/rx)^2)` — and start each leg ~2 units
+  **inside** that. Author legs as **open** paths (down one side, toes along a flat
+  foot, up the other side, with **no top edge**) so they fill as a solid leg but
+  draw without a dark line slicing across the belly. For a "standing" level every
+  foot must reach the **same ground line**; for a hanging level they end at a
+  consistent y in mid-air. A throwaway generator that computes the joins and prints
+  the path strings beats hand-tweaking coordinates (that's how the legs/teeth were
+  finally right).
+
+- **Tiny white details (teeth, eye sparkles, claws) need a thin `strokeWidth` —
+  the same trap as flag stars.** At the default drawing stroke (~4) the dark
+  outline eats the white fill and the detail is a dark blob. Set `strokeWidth:
+  0.8`-ish on that step AND keep the shape big enough, then zoom in to confirm the
+  white actually shows. (The T-rex teeth were invisible at width 4, crisp at 0.8.)
+
+- **Don't add a step the earlier steps already imply.** Once both jaws were drawn,
+  a separate "open the mouth" outline step was redundant — the open mouth already
+  existed, and the user asked for it gone. Each step should introduce something
+  genuinely new; collapse or drop steps that re-draw what's already on screen.
+
+- **Decide paper-vs-colour for each interior on purpose.** A cavity like an open
+  mouth can be left **white** (paper) — don't reflexively fill hollows dark. White
+  teeth on a white interior still read via their thin outlines.
+
 ### Standard motifs — draw these the same way every time
 
 - **Sun ☀️** — a filled disc with **eight short rays** evenly around it (N, NE,
   E, SE, S, SW, W, NW), like the emoji — never a bare circle or a 4-spoke cross.
+  Copy the recipe verbatim; don't eyeball the angles or lengths — the Family sun
+  shipped lopsided and missing rays when it was freehanded.
   Recipe for centre `cx,cy`, disc radius `r`, rays from `r+3` out to `r+10`
   (diagonals use the `0.71` factor). Draw the disc as one stroke and the eight
   rays as one stroke (eight `M…L` sub-paths), then fill the disc `#ffd23f` /
@@ -182,11 +249,11 @@ the thumbnail): **orientation** (which way does the crescent/swirl/leaf face?),
 **no overlap** between separate elements, **symmetry**, **count** (50 stars? 5
 stars? 13 stripes?), and **colours**. Tick each one against the reference.
 
-**Rendering a flag to compare (the build trick that actually works):**
-`npm run build` fails locally at `tsc` (a pre-existing `vite.config.ts` node
-types error), so it never produces `dist`. To see a flag, bundle just the data
-with esbuild and render the *final* state (all `fills`, then the outline
-`strokes` at their `strokeWidth`):
+**Rendering a flag to compare:** `npm run build` (`tsc -b && vite build`) now
+completes in this checkout and writes `dist/`. But the fast way to eyeball a flag
+is to bundle just the data with esbuild and render the *final* state (all `fills`,
+then the outline `strokes` at their `strokeWidth` — ~1.5 for flags, ~4 for
+drawings):
 ```bash
 npx esbuild src/data/flags.ts --bundle --format=esm --outfile=/tmp/flags.mjs
 # tiny node script: import {flags}, build an <svg> = fills (stroke none) + strokes
@@ -207,7 +274,9 @@ For a UI/preview build use `npx vite build` (skips tsc) + `npm run preview`.
   sphere is dark line-art around the shield). White regions are the exception —
   they can't be drawn on the white box, so a white saltire/cross stays as the
   paper gaps between the coloured shapes; it's the *coloured* shapes that must be
-  pre-drawn.
+  pre-drawn. (South Africa: the green Y must be outlined as a guide step in its
+  **own green** before colouring — leaving the thin white fimbriation as the paper
+  rim between it and the field — or the whole Y just materialises at colour time.)
 - **A busy emblem is DECOMPOSED into its real colour regions, one outline + one
   fill each — don't layer broad fills.** The Union Jack (UK flag + the Australia/
   NZ cantons, `unionJack` in `flags.ts`) is the worked example: instead of a navy
@@ -238,6 +307,11 @@ For a UI/preview build use `npx vite build` (skips tsc) + `npm run preview`.
     the child draws them, then vanish into that region's fill in the finished
     flag, leaving the clean white star shapes. A heavy dark `OUTLINE` stroke over
     a tiny star swallows the white and leaves dark blobs.
+    - If an emblem **straddles several regions** (Cape Verde's ring of stars
+      crosses the blue field *and* the white stripes), draw the guide in the
+      **emblem's own final colour** (yellow) — it vanishes on every region it
+      crosses. Drawing it in one underlying region's colour (blue) left blue
+      outlines on the white stripes.
   - **Stars (and other tiny emblems) must read clearly — the white inside has to
     be visible, not a speck.** The same-colour outline sits ON TOP of the white
     fill (pass 2), so a fat stroke eats the white from the edge inward. The
@@ -272,6 +346,10 @@ For a UI/preview build use `npx vite build` (skips tsc) + `npm run preview`.
   and start each divider that would cross the box at the **box's edge**, not `L`
   (the divider that coincides with the box's far edge can stay full-width). The
   USA flag (`usa` in `flags.ts`) and Greece both follow this pattern — copy it.
+  The same rule covers a **hoist triangle** (Jordan, Czech): draw the triangle
+  right after the frame, then start each band-divider at the triangle's
+  **hypotenuse**, not at `L` — otherwise the divider runs under the triangle and
+  its dark guide line shows across the coloured triangle at the end.
 - **Taegeuk (South Korea) is easy to get rotated 90° or mirrored.** Correct:
   red **on top**, blue on the bottom, split by a **horizontal** S — red dips
   down on the **left**, blue rises up on the **right**. Render candidate
@@ -360,12 +438,13 @@ get right, impossible to forget.
 
 ## 5. Verification checklist — DO ALL OF THESE
 
-**Type-check:** run `npx tsc -b`. On this macOS checkout it also reports two
-pre-existing `vite.config.ts` "Cannot find module 'node:fs'" errors (missing
-`@types/node`) — those are environmental; only care about errors in the file you
-touched. `npm run build` chains `tsc -b && vite build`, so it stops at those tsc
-errors and never builds `dist` locally — use **`npx vite build`** when you need a
-real build (it skips tsc).
+**Type-check & build:** `npm run build` (`tsc -b && vite build`) now completes in
+this checkout and writes `dist/` — run it to type-check. If you ever hit the old
+`vite.config.ts` "Cannot find module 'node:fs'" tsc error (missing `@types/node`),
+it's environmental: use **`npx vite build`** (skips tsc) and only care about
+errors in the file you touched. Don't run `npm run build` from several concurrent
+agents — it writes `dist/` and they race; use the single-file esbuild render
+(method A) for verification instead.
 
 Then verify **visually with headless Chrome** — you cannot judge SVG by reading
 it. Two methods (no playwright in this env; use the system Chrome at
@@ -379,6 +458,9 @@ npx esbuild src/data/flags.ts --bundle --format=esm --outfile=/tmp/x.mjs
 #    ...node script imports {flags}, emits <svg>, then:
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
   --headless=new --screenshot=/tmp/out.png --window-size=400,400 /tmp/x.svg
+#    If a wide multi-card render is over ~2000px, the Read tool rejects it when
+#    several images are already in context — shrink first: `sips --resampleWidth
+#    640 /tmp/out.png`. Give each concurrent render a UNIQUE /tmp name.
 
 # B. Drive the real app / run logic that needs the DOM (e.g. expandColorSteps,
 #    getBBox). `npx vite build` then `python3 -m http.server` an HTML page that
@@ -403,6 +485,15 @@ Check each of these:
 - [ ] **Final picture is fully solid & coloured** — on the last step and the
   celebration every stroke is `stroke-final` (not faded) and `fills` show. This
   matters most for fill-less art (paintings, Family, Rainbow).
+- [ ] **No white gaps in the coloured picture** — render the FINAL filled state
+  and zoom into every join (neck↔head, leg↔body, plates, mouth, tail). Every area
+  meant to be coloured has a closed `fills` path; nothing you intended to colour is
+  still white. (White neck and white spikes both shipped this way.)
+- [ ] **No guide line pokes into the wrong region** — limb / neck / tail strokes
+  stop at the outline of the part they join; no dark line crosses into a
+  neighbouring filled shape or slices across the belly.
+- [ ] **Tiny white details show white** — teeth, sparkles, claws use a thin
+  `strokeWidth` so the outline doesn't swallow the fill; zoom in to confirm.
 - [ ] **Colouring splits sensibly** — step through the auto-generated colour
   steps: the counter should grow (one step per colour), each step should add one
   colour bottom-to-top, regions within a step fill one-at-a-time, and visually
