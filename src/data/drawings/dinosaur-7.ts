@@ -21,7 +21,6 @@ const HEAD_UPPER =
   "M 31,46 L 76,51 L 90,50 Q 95,40 88,30 Q 72,23 54,24 Q 40,26 32,32 Q 26,38 26,42 Q 26,45 31,46 Z";
 const HEAD_LOWER =
   "M 76,53 L 37,61 Q 32,63 35,66 Q 50,71 70,67 Q 86,64 91,57 L 90,51 Z";
-const MOUTH = "M 76,51 L 31,46 L 37,61 L 76,53 Z";
 const UTEETH =
   "M 33.4,46.3 L 39.4,46.9 L 36.4,53.1 Z M 44.8,47.5 L 49.6,48.1 L 47.2,53.1 Z M 56.2,48.8 L 59.8,49.2 L 58,53.1 Z";
 const LTEETH =
@@ -67,11 +66,6 @@ export const dinosaur7: Animal = {
       strokes: [NECK_L, NECK_R, HEAD_UPPER, HEAD_LOWER],
     },
     {
-      hint: "Open its mouth wide 🦖",
-      color: OUTLINE,
-      strokes: [MOUTH],
-    },
-    {
       hint: "Add big sharp teeth! 🦷",
       color: OUTLINE,
       strokes: [UTEETH, LTEETH],
@@ -114,7 +108,6 @@ export const dinosaur7: Animal = {
         { d: PLATES_FILL, color: GREEN },
         { d: SPOT_1, color: "#3a9e48" },
         { d: SPOT_2, color: "#3a9e48" },
-        { d: MOUTH, color: "#5a3b2e" },
         { d: UTEETH, color: "#ffffff" },
         { d: LTEETH, color: "#ffffff" },
         { d: EYE, color: "#3a2a20" },
