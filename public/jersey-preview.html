@@ -78,7 +78,7 @@ function render(i, animate){
   ZORDER.forEach(k=>{ if(revealAt[k]!==undefined && revealAt[k]<=i) revealed.add(k); });
   const freshFills=[];
   ZORDER.forEach(k=>{
-    if(!revealed.has(k) || k==="name-white") return;   // name-white painted last
+    if(!revealed.has(k)) return;
     (J.fills[k]||[]).forEach(f=>{
       const p=document.createElementNS(NS,"path");
       p.setAttribute("d",f.d);
@@ -94,27 +94,21 @@ function render(i, animate){
       art.appendChild(p);
     });
   });
-  // 2) strokes for steps 0..i ; steps < i solid, step i animates
+  // 2) strokes for steps 0..i ; steps < i solid, step i animates.
+  // A stroke is a `d` string, or {d, w} for a custom width (thin letter outlines).
   const fresh=[];
   for(let s=0;s<=i;s++){
-    J.steps[s].strokes.forEach(d=>{
+    J.steps[s].strokes.forEach(st=>{
+      const d = typeof st === "string" ? st : st.d;
       const p=document.createElementNS(NS,"path");
-      p.setAttribute("d",d); p.setAttribute("class","stroke"); art.appendChild(p);
+      p.setAttribute("d",d); p.setAttribute("class","stroke");
+      if(st.w) p.setAttribute("stroke-width", st.w);
+      art.appendChild(p);
       if(s===i && animate){
         const L=Math.max(1,(p.getTotalLength&&p.getTotalLength())||120);
         p.style.strokeDasharray=String(L); p.style.strokeDashoffset=String(L);
         fresh.push({p,L});
       }
-    });
-  }
-  // 2b) white name overlay — painted ON TOP of the navy letter outlines
-  if(revealed.has("name-white")){
-    (J.fills["name-white"]||[]).forEach(f=>{
-      const p=document.createElementNS(NS,"path");
-      p.setAttribute("d",f.d); p.setAttribute("class","stroke");
-      p.setAttribute("stroke",f.stroke); p.setAttribute("stroke-width",f.width||2); p.setAttribute("fill","none");
-      if(animate && revealAt["name-white"]===i){ p.style.opacity="0"; freshFills.push(p); }
-      art.appendChild(p);
     });
   }
   // 3) animate the new content of step i
