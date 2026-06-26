@@ -10,10 +10,12 @@ const GREEN = "#5bbf63";
 const BODY = "M 60,128 a 46,28 0 1,0 92,0 a 46,28 0 1,0 -92,0";
 // Neck: two lines rising straight UP from the body top to the head (no dip into
 // the green body).
-// The left line stops at the lower jaw's underside (y67) so it doesn't poke up
-// into the jaw / open mouth; the green NECK_FILL still reaches the head, no gap.
-const NECK_L = "M 74,110 L 70,82 L 72,67";
-const NECK_R = "M 92,102 L 91,80 L 90,52";
+// The neck lines BOTTOM out exactly ON the body's top outline (107.9 / 101.3) so
+// their round caps merge into that outline instead of poking a knob into the
+// green body; the top of the left line stops at the lower jaw's underside (y67)
+// so it doesn't poke into the open mouth. NECK_FILL still reaches inside, no gap.
+const NECK_L = "M 74,107.9 L 70,82 L 72,67";
+const NECK_R = "M 92,101.3 L 91,80 L 90,52";
 // Green column between the two neck lines so the neck colours in (was left white).
 const NECK_FILL = "M 74,110 L 70,82 L 73,54 L 90,52 L 91,80 L 92,102 Z";
 // Long T-rex head, snout pointing left, mouth GAPING OPEN: upper skull/snout and
@@ -30,18 +32,19 @@ const LTEETH =
 const EYE = "M 64,35 a 3.2,3.2 0 1,0 6.4,0 a 3.2,3.2 0 1,0 -6.4,0";
 const TAIL = "M 150,121 Q 178,121 186,146 Q 172,138 150,135 Z";
 const ARM = "M 80,116 Q 70,122 70,130";
-// Four chunky legs. Each is an OPEN path starting a couple of units INSIDE the
-// body's lower edge (joins with no gap, no dark line across the belly), down one
-// side, three little toes along a flat foot at the ground line (y=182), then back
-// up the other side — so every foot, including the back one, touches the floor.
+// Four chunky legs. Each is an OPEN path whose two top endpoints sit exactly ON
+// the body's lower outline (so the round caps merge into that outline with no
+// knob poking into the belly and no white gap), then down one side, three little
+// toes along a flat foot at the ground line (y=182), and up the other side — so
+// every foot, including the back one, touches the floor.
 const LEG_1 =
-  "M 72,144.9 L 72,177 L 70,182 L 74,182 L 75,179 L 77,182 L 78,179 L 80,182 L 84,182 L 84,150.6";
+  "M 72,146.9 L 72,177 L 70,182 L 74,182 L 75,179 L 77,182 L 78,179 L 80,182 L 84,182 L 84,152.6";
 const LEG_2 =
-  "M 90,152.3 L 90,177 L 88,182 L 92,182 L 93,179 L 95,182 L 96,179 L 98,182 L 102,182 L 102,153.9";
+  "M 90,154.3 L 90,177 L 88,182 L 92,182 L 93,179 L 95,182 L 96,179 L 98,182 L 102,182 L 102,155.9";
 const LEG_3 =
-  "M 108,154 L 108,177 L 106,182 L 110,182 L 111,179 L 113,182 L 114,179 L 116,182 L 120,182 L 120,152.7";
+  "M 108,156 L 108,177 L 106,182 L 110,182 L 111,179 L 113,182 L 114,179 L 116,182 L 120,182 L 120,154.7";
 const LEG_4 =
-  "M 126,151.2 L 126,177 L 124,182 L 128,182 L 129,179 L 131,182 L 132,179 L 134,182 L 138,182 L 138,146.1";
+  "M 126,153.2 L 126,177 L 124,182 L 128,182 L 129,179 L 131,182 L 132,179 L 134,182 L 138,182 L 138,148.1";
 // Back plates and dark-green spots (kept from the original level-10 design).
 const PLATES =
   "M 90,104 L 103,86 L 108,102 M 114,102 L 127,85 L 132,107 M 136,109 L 147,95 L 150,122";
