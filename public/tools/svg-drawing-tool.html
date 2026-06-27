@@ -88,9 +88,9 @@
       <div class="toolbar">
         <label>pen <input type="range" id="width" min="1" max="10" step="1" value="4"></label>
         <label title="Smooths shaky lines — higher = steadier curves (freehand only)">smooth
-          <input type="range" id="smooth" min="0" max="5" step="1" value="2"></label>
+          <input type="range" id="smooth" min="0" max="5" step="1" value="5"></label>
         <label title="Fewer points = easier to drag &amp; reshape later. Higher detail keeps more points (freehand only)">detail
-          <input type="range" id="detail" min="1" max="6" step="1" value="3"></label>
+          <input type="range" id="detail" min="1" max="6" step="1" value="2"></label>
         <button id="undo">↶ Undo stroke</button>
         <button id="finish" class="go">✓ Finish step</button>
         <button id="play">▶ Play</button>
@@ -160,7 +160,7 @@ document.getElementById("custom").addEventListener("input",e=>{ color=e.target.v
 document.getElementById("width").addEventListener("input",e=>width=+e.target.value);
 
 // --- tool + smoothing selection ---
-let tool="free", smooth=2, detail=3;
+let tool="free", smooth=5, detail=2;
 const toolsWrap=document.getElementById("tools");
 toolsWrap.addEventListener("click",e=>{ const b=e.target.closest(".tool"); if(!b)return;
   tool=b.dataset.tool;
