@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SVG Tools — Learn 2 Draw</title>
+<style>
+  :root{ --ink:#2a2350; --paper:#fdf6e9; --accent:#2e86c1; }
+  *{ box-sizing:border-box; }
+  body{ margin:0 auto; max-width:880px; min-height:100vh; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif; padding:28px 18px; }
+  h1{ font-size:1.8rem; margin:.1em 0; }
+  .sub{ color:#7a6fa0; line-height:1.5; margin:.3em 0 1.4em; }
+  .cards{ display:grid; gap:16px; }
+  a.card{ display:flex; gap:16px; align-items:flex-start; text-decoration:none; color:inherit;
+    background:#fff; border:3px solid #e3ddf2; border-radius:18px; padding:18px 20px;
+    box-shadow:0 6px 22px #0001; transition:transform .12s, border-color .12s, box-shadow .12s; }
+  a.card:hover{ transform:translateY(-3px); border-color:var(--accent); box-shadow:0 10px 28px #0002; }
+  .ico{ font-size:2.4rem; line-height:1; flex:none; width:54px; text-align:center; }
+  .body h2{ margin:.1em 0 .3em; font-size:1.15rem; }
+  .body p{ margin:0; line-height:1.45; color:#574d77; font-size:.95rem; }
+  .step{ display:inline-block; font-size:.72rem; font-weight:800; letter-spacing:.04em;
+    background:#efe9fb; color:#6a4fb0; border-radius:999px; padding:2px 9px; margin-bottom:6px; text-transform:uppercase; }
+  .flow{ margin-top:26px; padding:14px 18px; background:#fffdf8; border:2px dashed #d7cdf0;
+    border-radius:14px; color:#6a5d8b; font-size:.9rem; line-height:1.6; }
+  code{ background:#efe9fb; padding:1px 5px; border-radius:5px; font-size:.9em; }
+  footer{ margin-top:24px; color:#9a8fc0; font-size:.8rem; text-align:center; }
+  .toolnav{ display:flex; flex-wrap:wrap; gap:8px; margin:0 0 18px; padding-bottom:14px; border-bottom:2px solid #ece7f6; }
+  .toolnav a{ text-decoration:none; font-weight:700; font-size:.9rem; color:#5a4d8b;
+    background:#fff; border:2px solid #e3ddf2; border-radius:999px; padding:6px 14px; transition:border-color .12s,color .12s; }
+  .toolnav a:hover{ border-color:var(--accent); color:#1c5a86; }
+  .toolnav a[aria-current]{ background:var(--accent); border-color:var(--accent); color:#fff; }
+</style>
+</head>
+<body>
+  <nav class="toolnav">
+    <a href="./svg-tools.html" aria-current="page">🎨 Home</a>
+    <a href="./svg-drawing-tool.html">✏️ Draw</a>
+    <a href="./svg-step-editor.html">🛠️ Step Editor</a>
+    <a href="./svg-playground.html">🧪 Playground</a>
+  </nav>
+  <h1>🎨 SVG Tools</h1>
+  <p class="sub">A little workshop for building <b>Learn 2 Draw</b> drawings. Draw a picture,
+    refine it step by step, and learn how the SVG behind it works — then hand the result to Claude.</p>
+
+  <div class="cards">
+    <a class="card" href="./svg-drawing-tool.html">
+      <div class="ico">✏️</div>
+      <div class="body">
+        <span class="step">Step 1 · create</span>
+        <h2>Draw → SVG</h2>
+        <p>Sketch a picture with your mouse (or trace a photo). Every stroke is captured as a smooth
+          SVG path, grouped into steps. Hit <b>Play</b> to watch it draw itself, then copy the result.</p>
+      </div>
+    </a>
+
+    <a class="card" href="./svg-step-editor.html">
+      <div class="ico">🛠️</div>
+      <div class="body">
+        <span class="step">Step 2 · refine</span>
+        <h2>Step Editor</h2>
+        <p>Paste in a drawing's steps and walk through them one at a time. Edit any stroke's SVG live,
+          or turn on <b>drag points</b> to reshape the curves by hand. Then copy it back.</p>
+      </div>
+    </a>
+
+    <a class="card" href="./svg-playground.html">
+      <div class="ico">🧪</div>
+      <div class="body">
+        <span class="step">Learn · how it works</span>
+        <h2>SVG Playground</h2>
+        <p>See how SVG actually works: a circle you control with sliders, a path you can type, and a
+          jersey-body curve whose control points you drag to feel how curves bend.</p>
+      </div>
+    </a>
+  </div>
+
+  <div class="flow">
+    <b>Typical flow:</b> ✏️ <b>Draw</b> a picture &nbsp;→&nbsp; 🛠️ <b>refine</b> each step
+    &nbsp;→&nbsp; 📋 <b>Copy for Claude</b> and paste it back with the name, emoji, level and base
+    colour. New to SVG? Start in the 🧪 <b>Playground</b>.
+  </div>
+
+  <footer>Keep all four files in the same folder so these links work. · Learn 2 Draw</footer>
+</body>
+</html>

@@ -2,6 +2,8 @@
 # including AI search engines and assistant crawlers.
 User-agent: *
 Allow: /
+# Internal authoring tools — usable but not meant for search results.
+Disallow: /tools/
 
 # Explicitly welcome AI / LLM search & assistant crawlers
 User-agent: GPTBot

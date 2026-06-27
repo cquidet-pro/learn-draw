@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SVG Playground</title>
+<style>
+  :root { --ink:#2a2350; --paper:#fdf6e9; --accent:#2e86c1; }
+  * { box-sizing:border-box; }
+  body{ margin:0; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    padding:20px; max-width:920px; margin:0 auto; }
+  h1{ font-size:1.5rem; margin:.2em 0; }
+  h2{ font-size:1.05rem; margin:1.2em 0 .4em; color:#5a4d8b; }
+  p{ line-height:1.5; }
+  .row{ display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start; }
+  .stage{ background:#fff; border-radius:18px; box-shadow:0 6px 22px #0002; padding:10px; }
+  svg{ display:block; width:300px; height:300px; }
+  .grid line{ stroke:#e3ddf2; stroke-width:.5; }
+  .grid .axis{ stroke:#c9bfe6; stroke-width:1; }
+  .controls{ flex:1; min-width:240px; }
+  label{ display:block; font-weight:700; font-size:.9rem; margin:10px 0 2px; }
+  input[type=range]{ width:100%; }
+  .val{ font-family:ui-monospace,Menlo,monospace; color:var(--accent); }
+  textarea{ width:100%; height:80px; font-family:ui-monospace,Menlo,monospace;
+    font-size:13px; border:2px solid #d7cdf0; border-radius:10px; padding:8px; }
+  button{ font:inherit; font-weight:700; cursor:pointer; border:3px solid var(--accent);
+    background:#e9f3ff; color:#1c5a86; border-radius:999px; padding:8px 18px; margin-top:8px; }
+  code{ background:#efe9fb; padding:1px 5px; border-radius:5px; font-size:.9em; }
+  .hint{ font-size:.85rem; color:#7a6fa0; }
+  .toolnav{ display:flex; flex-wrap:wrap; gap:8px; margin:0 0 16px; padding-bottom:12px; border-bottom:2px solid #ece7f6; }
+  .toolnav a{ text-decoration:none; font-weight:700; font-size:.9rem; color:#5a4d8b;
+    background:#fff; border:2px solid #e3ddf2; border-radius:999px; padding:6px 14px; transition:border-color .12s,color .12s; }
+  .toolnav a:hover{ border-color:var(--accent); color:#1c5a86; }
+  .toolnav a[aria-current]{ background:var(--accent); border-color:var(--accent); color:#fff; }
+</style>
+</head>
+<body>
+  <nav class="toolnav">
+    <a href="./svg-tools.html">🎨 Home</a>
+    <a href="./svg-drawing-tool.html">✏️ Draw</a>
+    <a href="./svg-step-editor.html">🛠️ Step Editor</a>
+    <a href="./svg-playground.html" aria-current="page">🧪 Playground</a>
+  </nav>
+  <h1>🎨 SVG Playground</h1>
+  <p>SVG is a picture made of <b>instructions</b>, not pixels. Everything lives on a
+     coordinate grid set by the <code>viewBox</code> — here it's <b>0,0</b> (top-left)
+     to <b>200,200</b> (bottom-right). Drag the sliders and watch the math become a shape.</p>
+
+  <!-- ============ PART 1: a circle you control ============ -->
+  <h2>1 ▸ A circle = center + radius</h2>
+  <div class="row">
+    <div class="stage">
+      <svg id="svg1" viewBox="0 0 200 200">
+        <g class="grid" id="grid1"></g>
+        <!-- cx,cy = the center point;  r = how big;  fill = inside colour -->
+        <circle id="circle" cx="100" cy="100" r="60" fill="#2e86c1" />
+      </svg>
+    </div>
+    <div class="controls">
+      <label>cx (left ⟷ right): <span class="val" id="cxv">100</span></label>
+      <input type="range" id="cx" min="0" max="200" value="100">
+      <label>cy (up ⟷ down): <span class="val" id="cyv">100</span></label>
+      <input type="range" id="cy" min="0" max="200" value="100">
+      <label>r (radius / size): <span class="val" id="rv">60</span></label>
+      <input type="range" id="r" min="5" max="100" value="60">
+      <p class="hint">The live SVG instruction:</p>
+      <code id="circlecode">&lt;circle cx="100" cy="100" r="60" /&gt;</code>
+    </div>
+  </div>
+
+  <!-- ============ PART 2: a path you type ============ -->
+  <h2>2 ▸ A path = pen instructions (this is what the jersey is made of)</h2>
+  <p class="hint">
+    <b>M x,y</b> = move pen (start) · <b>L x,y</b> = line to · <b>C</b> = curve · <b>Z</b> = close shape.
+    Edit the text and it redraws live. Then hit <b>Draw it</b> to watch the line draw itself
+    (the same <code>stroke-dashoffset</code> trick the app uses).
+  </p>
+  <div class="row">
+    <div class="stage">
+      <svg id="svg2" viewBox="0 0 200 200">
+        <g class="grid" id="grid2"></g>
+        <path id="userpath" d="M 40,150 L 100,40 L 160,150 Z"
+              fill="#ffd23f" stroke="#2a2350" stroke-width="4"
+              stroke-linecap="round" stroke-linejoin="round" pathLength="1" />
+      </svg>
+    </div>
+    <div class="controls">
+      <label>Path instructions (the <code>d</code> attribute):</label>
+      <textarea id="dinput">M 40,150 L 100,40 L 160,150 Z</textarea>
+      <button id="draw">▶ Draw it</button>
+      <button id="reset">↺ Reset</button>
+      <p class="hint">Try changing a number, or paste a real jersey stroke like<br>
+        <code>M 66,50 C 60,100 71,135 71,162</code> (it'll be tiny — top-left).</p>
+    </div>
+  </div>
+
+  <!-- ============ PART 3: curves like the jersey body ============ -->
+  <h2>3 ▸ Curves (C) — bend a line like the jersey body</h2>
+  <p class="hint">
+    <code>C</code> draws a smooth curve using two <b>control points</b> that pull the
+    line like magnets — they're not on the line, they <i>tug</i> it. Drag the two
+    orange dots: pull the lower one <b>inward</b> for a tight waist, <b>outward</b>
+    to flare. (The right side mirrors automatically — exactly how the jersey body is built.)
+  </p>
+  <div class="row">
+    <div class="stage">
+      <svg id="svg3" viewBox="0 0 200 200">
+        <g class="grid" id="grid3"></g>
+        <path id="body" fill="#2f4fd0" stroke="#15173a" stroke-width="3"
+              stroke-linejoin="round" />
+        <g id="handles"></g>
+      </svg>
+    </div>
+    <div class="controls">
+      <p class="hint">The dashed orange lines are the "magnet pulls". The live path
+        (note the two <code>C</code> curves — left side, then right side):</p>
+      <code id="bodycode" style="display:block;white-space:pre-wrap;line-height:1.6"></code>
+    </div>
+  </div>
+
+<script>
+// --- draw the faint coordinate grid (every 20 units, axes at 0) ---
+function makeGrid(g){
+  const NS="http://www.w3.org/2000/svg";
+  for(let i=0;i<=200;i+=20){
+    for(const [x1,y1,x2,y2,axis] of [[i,0,i,200,i===0],[0,i,200,i,i===0]]){
+      const l=document.createElementNS(NS,"line");
+      l.setAttribute("x1",x1);l.setAttribute("y1",y1);l.setAttribute("x2",x2);l.setAttribute("y2",y2);
+      if(axis) l.setAttribute("class","axis");
+      g.appendChild(l);
+    }
+  }
+}
+makeGrid(document.getElementById("grid1"));
+makeGrid(document.getElementById("grid2"));
+
+// --- Part 1: sliders update the circle live ---
+const circle=document.getElementById("circle");
+for(const k of ["cx","cy","r"]){
+  const inp=document.getElementById(k), out=document.getElementById(k+"v");
+  inp.addEventListener("input",()=>{
+    circle.setAttribute(k,inp.value); out.textContent=inp.value;
+    document.getElementById("circlecode").textContent =
+      `<circle cx="${cx.value}" cy="${cy.value}" r="${r.value}" />`;
+  });
+}
+
+// --- Part 2: typing updates the path live; button animates the draw ---
+const path=document.getElementById("userpath"), dinput=document.getElementById("dinput");
+dinput.addEventListener("input",()=>{ try{ path.setAttribute("d", dinput.value); }catch(e){} });
+
+function drawIt(){
+  // the stroke-dashoffset trick: hide the whole line, then slide it in 1 -> 0
+  path.style.transition="none";
+  path.style.strokeDasharray="1"; path.style.strokeDashoffset="1";
+  void path.getBoundingClientRect(); // force a reflow so the reset takes effect
+  path.style.transition="stroke-dashoffset 1.6s ease";
+  path.style.strokeDashoffset="0";
+}
+document.getElementById("draw").addEventListener("click",drawIt);
+document.getElementById("reset").addEventListener("click",()=>{
+  dinput.value="M 40,150 L 100,40 L 160,150 Z";
+  path.setAttribute("d",dinput.value);
+  path.style.transition="none"; path.style.strokeDasharray="none"; path.style.strokeDashoffset="0";
+});
+drawIt(); // draw on load
+
+// --- Part 3: drag the curve control points (like the jersey body waist) ---
+makeGrid(document.getElementById("grid3"));
+const svg3=document.getElementById("svg3"), body=document.getElementById("body"),
+      handles=document.getElementById("handles"), bodycode=document.getElementById("bodycode");
+const TOP=45, BOT=178, LX=72, RX=128;          // shoulders + hem anchors (left/right)
+const mirror=x=>200-x;                          // right side is a mirror of the left
+const cps=[{x:60,y:95},{x:82,y:150}];           // [chest control (out), waist control (in)]
+
+function buildBody(){
+  const [c1,c2]=cps;
+  const d=`M ${LX},${TOP} C ${c1.x},${c1.y} ${c2.x},${c2.y} ${LX},${BOT} `
+        + `L ${RX},${BOT} `
+        + `C ${mirror(c2.x)},${c2.y} ${mirror(c1.x)},${c1.y} ${RX},${TOP} Z`;
+  body.setAttribute("d", d);
+  bodycode.textContent = d;
+  drawHandles();
+}
+function drawHandles(){
+  handles.innerHTML="";
+  const NS="http://www.w3.org/2000/svg";
+  const anchors=[{x:LX,y:TOP},{x:LX,y:BOT}];     // each control "pulls" from its anchor
+  cps.forEach((c,i)=>{
+    const line=document.createElementNS(NS,"line");
+    line.setAttribute("x1",anchors[i].x); line.setAttribute("y1",anchors[i].y);
+    line.setAttribute("x2",c.x);          line.setAttribute("y2",c.y);
+    line.setAttribute("stroke","#e07b1a"); line.setAttribute("stroke-width","1");
+    line.setAttribute("stroke-dasharray","3 2");
+    handles.appendChild(line);
+    const dot=document.createElementNS(NS,"circle");
+    dot.setAttribute("cx",c.x); dot.setAttribute("cy",c.y); dot.setAttribute("r","6");
+    dot.setAttribute("fill","#e07b1a"); dot.setAttribute("stroke","#fff"); dot.setAttribute("stroke-width","1.5");
+    dot.style.cursor="grab"; dot.dataset.i=i;
+    handles.appendChild(dot);
+  });
+}
+let dragging=null;
+function toVB(e){
+  const r=svg3.getBoundingClientRect();
+  return { x:(e.clientX-r.left)/r.width*200, y:(e.clientY-r.top)/r.height*200 };
+}
+svg3.addEventListener("pointerdown",e=>{
+  if(e.target.dataset && e.target.dataset.i!==undefined){
+    dragging=+e.target.dataset.i; svg3.setPointerCapture(e.pointerId); e.preventDefault();
+  }
+});
+svg3.addEventListener("pointermove",e=>{
+  if(dragging===null) return;
+  const p=toVB(e);
+  cps[dragging]={ x:Math.round(Math.max(2,Math.min(198,p.x))), y:Math.round(Math.max(2,Math.min(198,p.y))) };
+  buildBody();
+});
+svg3.addEventListener("pointerup",()=>{ dragging=null; });
+buildBody();
+</script>
+</body>
+</html>
