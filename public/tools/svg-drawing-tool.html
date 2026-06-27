@@ -89,6 +89,8 @@
         <label>pen <input type="range" id="width" min="1" max="10" step="1" value="4"></label>
         <label title="Smooths shaky lines — higher = steadier curves (freehand only)">smooth
           <input type="range" id="smooth" min="0" max="5" step="1" value="2"></label>
+        <label title="Fewer points = easier to drag &amp; reshape later. Higher detail keeps more points (freehand only)">detail
+          <input type="range" id="detail" min="1" max="6" step="1" value="3"></label>
         <button id="undo">↶ Undo stroke</button>
         <button id="finish" class="go">✓ Finish step</button>
         <button id="play">▶ Play</button>
@@ -158,12 +160,21 @@ document.getElementById("custom").addEventListener("input",e=>{ color=e.target.v
 document.getElementById("width").addEventListener("input",e=>width=+e.target.value);
 
 // --- tool + smoothing selection ---
-let tool="free", smooth=2;
+let tool="free", smooth=2, detail=3;
 const toolsWrap=document.getElementById("tools");
 toolsWrap.addEventListener("click",e=>{ const b=e.target.closest(".tool"); if(!b)return;
   tool=b.dataset.tool;
   [...toolsWrap.querySelectorAll(".tool")].forEach(t=>t.classList.toggle("on",t===b)); });
 document.getElementById("smooth").addEventListener("input",e=>smooth=+e.target.value);
+document.getElementById("detail").addEventListener("input",e=>detail=+e.target.value);
+
+// reduce points (Ramer–Douglas–Peucker) so freehand strokes are easy to reshape later
+function perpDist(p,a,b){ const dx=b.x-a.x,dy=b.y-a.y,L=Math.hypot(dx,dy)||1;
+  return Math.abs((p.x-a.x)*dy-(p.y-a.y)*dx)/L; }
+function rdp(pts,eps){ if(eps<=0||pts.length<3) return pts.slice();
+  let dm=0,idx=0; const a=pts[0],b=pts[pts.length-1];
+  for(let i=1;i<pts.length-1;i++){ const d=perpDist(pts[i],a,b); if(d>dm){dm=d;idx=i;} }
+  return dm>eps ? rdp(pts.slice(0,idx+1),eps).slice(0,-1).concat(rdp(pts.slice(idx),eps)) : [a,b]; }
 
 // --- data: steps -> { name, strokes:[{d,color,width}] } ---
 let steps=[{name:"",strokes:[]}], cur=0;
@@ -216,7 +227,7 @@ pad.addEventListener("pointermove",e=>{ if(!drawing)return; const p=toVB(e); las
   else { live.setAttribute("d", shapeD(tool,start,p)); } });
 function endStroke(){ if(!drawing)return; drawing=false;
   let d="";
-  if(tool==="free"){ if(pts.length>=1) d=pathFrom(smoothPts(pts,smooth)); }
+  if(tool==="free"){ if(pts.length>=1) d=pathFrom(rdp(smoothPts(pts,smooth),(6-detail)*0.6)); }
   else if(lastPos && Math.hypot(lastPos.x-start.x,lastPos.y-start.y)>2) d=shapeD(tool,start,lastPos);
   if(d) steps[cur].strokes.push({d, color, width});
   live.removeAttribute("d"); pts=[]; start=null; lastPos=null; renderAll(); }

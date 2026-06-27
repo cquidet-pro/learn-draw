@@ -98,6 +98,7 @@
         <b style="color:#1c5a86">stroke ▸</b>
         <label>colour <input type="color" id="selcol"></label>
         <label>size <input type="range" id="selw" min="1" max="12" step="1" style="vertical-align:middle"></label>
+        <button class="sm" id="selsimp" title="Reduce the number of points so it's easier to drag &amp; reshape (click again for fewer)">⌇ fewer points</button>
         <button class="sm" id="seldup">⧉ copy</button>
         <button class="sm warn" id="seldel">✕ delete</button>
         <button class="sm" id="seldone">done</button>
@@ -387,6 +388,27 @@ $("selcol").addEventListener("input",e=>{ if(sel===null)return;
   steps[cur].strokes[sel].color=e.target.value; renderPreview(false); buildEditor(); renderExport(); });
 $("selw").addEventListener("input",e=>{ if(sel===null)return;
   steps[cur].strokes[sel].w=+e.target.value; renderPreview(false); buildEditor(); renderExport(); });
+// --- reduce a stroke's points (Ramer–Douglas–Peucker), so it's easier to reshape ---
+function perpDist(p,a,b){ const dx=b.x-a.x,dy=b.y-a.y,L=Math.hypot(dx,dy)||1;
+  return Math.abs((p.x-a.x)*dy-(p.y-a.y)*dx)/L; }
+function rdp(pts,eps){ if(pts.length<3) return pts.slice();
+  let dm=0,idx=0; const a=pts[0],b=pts[pts.length-1];
+  for(let i=1;i<pts.length-1;i++){ const d=perpDist(pts[i],a,b); if(d>dm){dm=d;idx=i;} }
+  return dm>eps ? rdp(pts.slice(0,idx+1),eps).slice(0,-1).concat(rdp(pts.slice(idx),eps)) : [a,b]; }
+// sample ANY path (curves, arcs, lines) into a polyline, simplify, rebuild smooth
+function simplifyD(d,eps){
+  const tmp=document.createElementNS(NS,"path"); tmp.setAttribute("d",d);
+  let L=0; try{ L=tmp.getTotalLength(); }catch(e){ return d; }
+  if(!L) return d;
+  const n=Math.min(600,Math.max(8,Math.round(L)));           // sample density
+  const pts=[]; for(let i=0;i<=n;i++){ const q=tmp.getPointAtLength(L*i/n); pts.push({x:q.x,y:q.y}); }
+  const simp=rdp(pts,eps); if(simp.length<2) return d;
+  return pathFrom(simp);
+}
+$("selsimp").onclick=()=>{ if(sel===null)return;
+  const eps=Math.max(0.6, vbParts()[2]/120);                 // tolerance scales with the viewBox
+  steps[cur].strokes[sel].d=simplifyD(steps[cur].strokes[sel].d,eps);
+  renderPreview(false); renderNodes(); buildEditor(); renderExport(); };
 $("seldup").onclick=()=>{ if(sel===null)return;
   steps[cur].strokes.splice(sel+1,0,{...steps[cur].strokes[sel]}); sel++; renderAll(); };
 $("seldel").onclick=()=>{ if(sel===null)return; steps[cur].strokes.splice(sel,1); sel=null; renderAll(); };
