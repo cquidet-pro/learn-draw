@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Step Editor (for Learn 2 Draw)</title>
+<style>
+  :root{ --ink:#2a2350; --paper:#fdf6e9; --accent:#2e86c1; }
+  *{ box-sizing:border-box; }
+  body{ margin:0 auto; max-width:1060px; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif; padding:18px; }
+  h1{ font-size:1.4rem; margin:.1em 0; }
+  h2{ font-size:1rem; color:#5a4d8b; margin:14px 0 6px; }
+  p{ line-height:1.45; }
+  .hint{ font-size:.85rem; color:#7a6fa0; }
+  button{ font:inherit; font-weight:700; cursor:pointer; border:3px solid var(--accent);
+    background:#e9f3ff; color:#1c5a86; border-radius:999px; padding:6px 13px; }
+  button:active{ transform:translateY(1px); }
+  button:disabled{ opacity:.4; cursor:default; }
+  button.go{ border-color:#3a9d5d; background:#e9fbef; color:#1c6e3a; }
+  button.warn{ border-color:#c0556e; background:#ffeef2; color:#9c2547; }
+  button.sm{ padding:3px 9px; border-width:2px; font-size:.82rem; }
+  textarea{ width:100%; font-family:ui-monospace,Menlo,monospace; font-size:12px;
+    border:2px solid #d7cdf0; border-radius:10px; padding:8px; background:#fffdf8; }
+  input[type=text]{ font:inherit; border:2px solid #d7cdf0; border-radius:8px; padding:5px 8px; }
+  code{ background:#efe9fb; padding:1px 5px; border-radius:5px; font-size:.9em; }
+  .wrap{ display:flex; gap:22px; flex-wrap:wrap; align-items:flex-start; }
+  .stage{ background:#fff; border-radius:18px; box-shadow:0 6px 22px #0002; padding:10px; }
+  svg{ display:block; width:420px; height:420px; max-width:88vw; touch-action:none; border-radius:10px; }
+  .grid line{ stroke:#ece7f6; stroke-width:.5; } .grid .axis{ stroke:#d3cbea; stroke-width:1; }
+  .side{ flex:1; min-width:320px; }
+  .bar{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:8px 0; }
+  .count{ font-weight:700; color:#6a5d8b; }
+  .stk{ border:2px solid #e3ddf2; border-radius:10px; padding:8px; margin:8px 0; background:#fff; }
+  .stk .top{ display:flex; gap:8px; align-items:center; margin-bottom:5px; }
+  .stk textarea{ height:54px; }
+  .swatch{ width:22px; height:22px; border-radius:50%; border:2px solid #fff; box-shadow:0 0 0 1.5px #bbb; }
+  label{ font-weight:700; font-size:.82rem; }
+  path.draw{ animation:draw 1.4s ease forwards; }
+  @keyframes draw{ from{stroke-dashoffset:var(--len)} to{stroke-dashoffset:0} }
+  .toolnav{ display:flex; flex-wrap:wrap; gap:8px; margin:0 0 16px; padding-bottom:12px; border-bottom:2px solid #ece7f6; }
+  .toolnav a{ text-decoration:none; font-weight:700; font-size:.9rem; color:#5a4d8b;
+    background:#fff; border:2px solid #e3ddf2; border-radius:999px; padding:6px 14px; transition:border-color .12s,color .12s; }
+  .toolnav a:hover{ border-color:var(--accent); color:#1c5a86; }
+  .toolnav a[aria-current]{ background:var(--accent); border-color:var(--accent); color:#fff; }
+</style>
+</head>
+<body>
+  <nav class="toolnav">
+    <a href="./svg-tools.html">🎨 Home</a>
+    <a href="./svg-drawing-tool.html">✏️ Draw</a>
+    <a href="./svg-step-editor.html" aria-current="page">🛠️ Step Editor</a>
+    <a href="./svg-playground.html">🧪 Playground</a>
+  </nav>
+  <h1>🛠️ Step Editor</h1>
+  <p class="hint">Paste the steps I give you (or from the draw tool) into the box, hit <b>Load</b>,
+    then step through with ◀ ▶. Edit any stroke's SVG and the picture updates live. Tweak hints,
+    add/delete strokes & steps, even draw new strokes right on the canvas. Then <b>Copy</b> the
+    result back. Past steps show faded; the current step is bold (just like the app).</p>
+
+  <h2>1 ▸ Paste & load</h2>
+  <div class="bar">
+    <label>base colour <input type="color" id="base" value="#2a2350"></label>
+    <label>viewBox <input type="text" id="vb" value="0 0 200 200" size="12"></label>
+    <button class="go" id="load">⤓ Load steps</button>
+    <button class="sm" id="sample">try a sample</button>
+  </div>
+  <textarea id="input" rows="5" placeholder='Paste step data, e.g.:
+{ hint: "Body", strokes: ["M 66,50 C 59,100 71,135 71,162"] },
+{ hint: "Head", strokes: ["M 80,40 a 20,20 0 1,0 40,0 a 20,20 0 1,0 -40,0"], color: "#d2232a" },
+
+…OR paste a whole <svg>…</svg> — each shape (path/line/rect/circle/…) becomes its own step.'></textarea>
+  <p class="hint">Paste either <b>step data</b> (the format I give you) <b>or a complete <code>&lt;svg&gt;</code></b>
+    — it auto-detects. An SVG is split one step per shape, in order; merge/reorder them below.</p>
+
+  <h2>2 ▸ Edit step by step</h2>
+  <div class="wrap">
+    <div>
+      <div class="stage"><svg id="art" viewBox="0 0 200 200">
+        <g class="grid" id="grid"></g><g id="ink"></g>
+        <path id="live" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <g id="nodes"></g>
+      </svg></div>
+      <div class="bar">
+        <button id="prev">◀ Back</button>
+        <button id="next">Next ▶</button>
+        <button class="sm" id="play">▶ Draw this step</button>
+      </div>
+      <div class="bar">
+        <label>pen <input type="color" id="pen" value="#2a2350"></label>
+        <label><input type="checkbox" id="drawon"> draw on canvas</label>
+        <button class="sm" id="undo">↶ undo draw</button>
+      </div>
+      <div class="bar">
+        <label><input type="checkbox" id="editpts"> ✋ drag points on ALL strokes</label>
+      </div>
+      <div class="bar" id="selbar" style="display:none; align-items:center; background:#eaf4fc; border-radius:10px; padding:6px 10px;">
+        <b style="color:#1c5a86">stroke ▸</b>
+        <label>colour <input type="color" id="selcol"></label>
+        <label>size <input type="range" id="selw" min="1" max="12" step="1" style="vertical-align:middle"></label>
+        <button class="sm" id="seldup">⧉ copy</button>
+        <button class="sm warn" id="seldel">✕ delete</button>
+        <button class="sm" id="seldone">done</button>
+      </div>
+      <p class="hint"><b>Click any stroke</b> on the canvas to pick it — then recolour, resize or drag its
+        points to reshape. Blue dots = on-line points · orange dots = curve control “magnets”. (Tick
+        “drag points on ALL strokes” to show every stroke's dots at once.) Strokes built from arcs (the
+        “0”) or relative commands show no dots — edit those in the text box.</p>
+      <p class="count" id="count">No steps loaded</p>
+    </div>
+
+    <div class="side">
+      <div class="bar">
+        <label style="flex:1">hint <input type="text" id="hint" style="width:100%" placeholder="instruction shown to the child"></label>
+      </div>
+      <div class="bar">
+        <label>step colour <input type="color" id="stepcol" value="#2a2350"></label>
+        <button class="sm" id="usebase">clear (use base)</button>
+      </div>
+      <div id="strokes"></div>
+      <div class="bar">
+        <button class="sm" id="addstroke">＋ add stroke</button>
+      </div>
+      <div class="bar">
+        <button class="sm" id="addstep">＋ step after</button>
+        <button class="sm" id="dupstep">⧉ duplicate</button>
+        <button class="sm" id="upstep">▲ move up</button>
+        <button class="sm" id="downstep">▼ move down</button>
+        <button class="sm warn" id="delstep">🗑 delete step</button>
+      </div>
+    </div>
+  </div>
+
+  <h2>3 ▸ Export</h2>
+  <div class="bar"><button class="go" id="copy">📋 Copy for Claude / the app</button></div>
+  <textarea id="out" rows="8" readonly></textarea>
+
+<script>
+const NS="http://www.w3.org/2000/svg";
+const $=id=>document.getElementById(id);
+const art=$("art"), ink=$("ink"), live=$("live");
+let steps=[], cur=0, vb="0 0 200 200", sel=null;   // sel = index of the picked stroke in the current step
+
+// faint grid
+(function(){const g=$("grid");for(let i=0;i<=200;i+=20)for(const a of [[i,0,i,200,!i],[0,i,200,i,!i]]){
+  const l=document.createElementNS(NS,"line");l.setAttribute("x1",a[0]);l.setAttribute("y1",a[1]);
+  l.setAttribute("x2",a[2]);l.setAttribute("y2",a[3]);if(a[4])l.setAttribute("class","axis");g.appendChild(l);} })();
+
+// ---------- load / parse ----------
+function load(text){
+  const raw=text.trim();
+  if(!raw) return;
+  if(raw[0]==="<"){ loadSvg(raw); return; }              // a full <svg> → split into steps
+  let t=raw.replace(/\/\/[^\n]*/g,"").trim();            // strip // comments
+  if(!t.startsWith("[")) t="["+t.replace(/,\s*$/,"")+"]"; // wrap loose entries
+  let arr;
+  try{ arr=Function('"use strict";return ('+t+')')(); }
+  catch(e){ alert("Couldn't parse the steps:\n"+e.message); return; }
+  if(!Array.isArray(arr)){ alert("Expected a list of steps."); return; }
+  steps=arr.map(s=>({
+    hint:s.hint||"", color:s.color||"",
+    strokes:(s.strokes||[]).map(st=> typeof st==="string" ? {d:st} : {d:st.d||"", w:st.w})
+  }));
+  cur=0; sel=null; vb=$("vb").value.trim()||"0 0 200 200"; renderAll();
+}
+// Turn one SVG element into a path `d` string.
+function elToD(el){
+  const n=t=>parseFloat(el.getAttribute(t))||0;
+  switch(el.tagName.toLowerCase()){
+    case "path": return el.getAttribute("d")||"";
+    case "line": return `M ${n('x1')},${n('y1')} L ${n('x2')},${n('y2')}`;
+    case "polyline": case "polygon": {
+      const p=(el.getAttribute("points")||"").trim().split(/[\s,]+/).map(Number);
+      let d=""; for(let i=0;i+1<p.length;i+=2) d+=(i?" L ":"M ")+p[i]+","+p[i+1];
+      return d + (el.tagName.toLowerCase()==="polygon"?" Z":""); }
+    case "rect": { const x=n('x'),y=n('y'),w=n('width'),h=n('height');
+      return `M ${x},${y} L ${x+w},${y} L ${x+w},${y+h} L ${x},${y+h} Z`; }
+    case "circle": { const cx=n('cx'),cy=n('cy'),r=n('r');
+      return `M ${cx-r},${cy} a ${r},${r} 0 1,0 ${2*r},0 a ${r},${r} 0 1,0 ${-2*r},0`; }
+    case "ellipse": { const cx=n('cx'),cy=n('cy'),rx=n('rx'),ry=n('ry');
+      return `M ${cx-rx},${cy} a ${rx},${ry} 0 1,0 ${2*rx},0 a ${rx},${ry} 0 1,0 ${-2*rx},0`; }
+  }
+  return "";
+}
+// Import a full <svg>: viewBox + one step per drawable shape (in document order).
+function loadSvg(text){
+  const doc=new DOMParser().parseFromString(text,"image/svg+xml");
+  if(doc.querySelector("parsererror")){ alert("Couldn't parse that SVG — check it's complete."); return; }
+  const svg=doc.querySelector("svg");
+  if(svg && svg.getAttribute("viewBox")){ vb=svg.getAttribute("viewBox").trim(); $("vb").value=vb; }
+  const els=[...doc.querySelectorAll("path,line,polyline,polygon,rect,circle,ellipse")];
+  if(!els.length){ alert("No drawable shapes (path/line/rect/circle…) found in that SVG."); return; }
+
+  // Is this an auto-traced / painted illustration (hundreds of filled blobs, no
+  // outline strokes) rather than a line drawing? Those can't become kid steps —
+  // import as ONE filled reference image so it's at least visible, and say so.
+  const filledOnly = els.filter(el=>{ const s=el.getAttribute("stroke"), f=el.getAttribute("fill");
+    return (!s||s==="none") && (f&&f!=="none"); });
+  if(els.length>60 && filledOnly.length >= els.length*0.8){
+    const strokes = els.map(el=>({ d:elToD(el), fill:el.getAttribute("fill")||"#999" }))
+                       .filter(s=>s.d);
+    steps=[{ hint:`Imported picture — ${strokes.length} filled shapes (reference only, not steps)`, color:"", strokes }];
+    cur=0; sel=null; renderAll();
+    alert(`That's an auto-traced picture: ${els.length} filled colour shapes, no outline strokes.\n\n`+
+      `Learn 2 Draw steps are a HANDFUL of outline strokes that draw themselves — not hundreds of `+
+      `colour blobs — so this can't become kid steps as-is.\n\n`+
+      `I've dropped it in as ONE filled reference image so you can see it. To turn it into a drawing, `+
+      `trace the main outlines by hand in Step 1 (Draw → SVG), using this as a guide.`);
+    return;
+  }
+
+  let transformed=false;
+  steps=els.map((el,i)=>{
+    if(el.getAttribute("transform") || el.closest("g[transform]")) transformed=true;
+    const stroke=el.getAttribute("stroke"), fill=el.getAttribute("fill");
+    const filled = (!stroke||stroke==="none") && (fill && fill!=="none");
+    const col = (stroke && stroke!=="none") ? stroke : (fill && fill!=="none" ? fill : "");
+    const st = filled ? {d:elToD(el), fill:col} : {d:elToD(el)};
+    return { hint:`${el.tagName} ${i+1}`, color:col, strokes:[st] };
+  }).filter(s=>s.strokes[0].d);
+  cur=0; renderAll();
+  if(transformed) alert("Heads up: some shapes use transform=… which I don't apply — they may sit in the wrong place. Drag them or edit the numbers to fix.");
+}
+$("load").onclick=()=>load($("input").value);
+$("sample").onclick=()=>{ $("input").value=
+`{ hint: "Draw the body", strokes: ["M 66,50 C 59,100 71,135 71,162 C 71,188 66,212 66,224 Q 100,230 134,224 C 134,212 129,188 129,162 C 129,135 141,100 134,50"] },
+{ hint: "Add the head", strokes: ["M 80,38 a 20,20 0 1,0 40,0 a 20,20 0 1,0 -40,0"], color: "#d2232a" },
+{ hint: "Two arms", strokes: ["M 66,70 L 40,95","M 134,70 L 160,95"], color: "#3a9d5d" }`;
+  load($("input").value); };
+
+// ---------- preview ----------
+function strokeColor(i,st){ return st.color || steps[i].color || $("base").value; }
+function mkPath(d){ const p=document.createElementNS(NS,"path");
+  p.setAttribute("d",d); p.setAttribute("fill","none");
+  p.setAttribute("stroke-linecap","round"); p.setAttribute("stroke-linejoin","round"); return p; }
+
+function renderPreview(animate){
+  art.setAttribute("viewBox",vb); ink.innerHTML="";
+  for(let i=0;i<=cur && i<steps.length;i++){
+    steps[i].strokes.forEach((st,j)=>{
+      if(!st.d) return;
+      if(i===cur && j===sel && !st.fill){            // selection halo under the picked stroke
+        const h=mkPath(st.d); h.setAttribute("stroke","#2e86c1");
+        h.setAttribute("stroke-width",(st.w||3)+8); h.setAttribute("opacity",.3);
+        h.style.pointerEvents="none"; ink.appendChild(h);
+      }
+      const p=mkPath(st.d);
+      p.style.pointerEvents="none";                   // clicks go to the fat hit-path, not the thin line
+      if(st.fill){                                   // imported filled shape: paint, don't stroke
+        p.setAttribute("fill", st.fill); p.setAttribute("stroke","none");
+      } else {
+        p.setAttribute("stroke",strokeColor(i,st));
+        p.setAttribute("stroke-width", st.w || 3);
+      }
+      if(i<cur) p.setAttribute("opacity",.32);
+      ink.appendChild(p);
+      if(animate && i===cur && !st.fill){            // only line strokes draw themselves
+        const L=Math.max(1,(p.getTotalLength&&p.getTotalLength())||150);
+        p.style.setProperty("--len",L); p.style.strokeDasharray=L; p.style.strokeDashoffset=L;
+        p.classList.add("draw");
+      }
+      if(i===cur && !st.fill){                        // fat invisible hit area → easy click-to-select
+        const hit=mkPath(st.d); hit.setAttribute("stroke","transparent");
+        hit.setAttribute("stroke-width",Math.max((st.w||3)+10,12));
+        hit.style.cursor="pointer"; hit.dataset.sj=j; ink.appendChild(hit);
+      }
+    });
+  }
+}
+
+// ---------- editor panel ----------
+function buildEditor(){
+  const has=steps.length>0;
+  $("hint").value = has?steps[cur].hint:"";
+  $("stepcol").value = (has&&steps[cur].color)||$("base").value;
+  const box=$("strokes"); box.innerHTML="";
+  if(!has) return;
+  if(steps[cur].strokes.length>40){            // imported reference image: too many to edit one-by-one
+    box.innerHTML=`<p style="color:#7a6fa0;line-height:1.5">This step has `+
+      `<b>${steps[cur].strokes.length} filled shapes</b> — a reference picture, not editable strokes. `+
+      `Trace its outlines by hand in Step 1 (Draw → SVG) to make a real drawing.</p>`;
+    return;
+  }
+  steps[cur].strokes.forEach((st,j)=>{
+    const div=document.createElement("div"); div.className="stk";
+    if(j===sel) div.style.boxShadow="0 0 0 2px #2e86c1";   // mirror the canvas selection
+    div.innerHTML=
+      `<div class="top"><span class="swatch" style="background:${strokeColor(cur,st)}"></span>`+
+      `<label>stroke ${j+1}</label>`+
+      `<input type="color" data-col="${j}" value="${toHex(strokeColor(cur,st))}" title="this stroke's colour">`+
+      `<label>w<input type="text" data-w="${j}" value="${st.w||''}" size="2" style="width:36px"></label>`+
+      `<button class="sm warn" data-del="${j}">✕</button></div>`+
+      `<textarea data-d="${j}" spellcheck="false">${st.d}</textarea>`;
+    box.appendChild(div);
+  });
+}
+function toHex(c){ if(/^#/.test(c))return c; const m=document.createElement("div");
+  m.style.color=c; document.body.appendChild(m); const rgb=getComputedStyle(m).color; m.remove();
+  const n=rgb.match(/\d+/g); return n?'#'+n.slice(0,3).map(x=>(+x).toString(16).padStart(2,'0')).join(''):'#2a2350'; }
+
+$("strokes").addEventListener("input",e=>{ const t=e.target, s=steps[cur];
+  if(t.dataset.d!==undefined){ s.strokes[+t.dataset.d].d=t.value; renderPreview(false); renderNodes(); renderExport(); }
+  else if(t.dataset.w!==undefined){ const v=t.value.trim(); s.strokes[+t.dataset.w].w=v?+v:undefined; renderPreview(false); renderExport(); }
+  else if(t.dataset.col!==undefined){ s.strokes[+t.dataset.col].color=t.value; renderPreview(false); buildEditor(); renderExport(); } });
+$("strokes").addEventListener("click",e=>{ if(e.target.dataset.del===undefined)return;
+  steps[cur].strokes.splice(+e.target.dataset.del,1); renderAll(); });
+
+$("hint").addEventListener("input",e=>{ if(steps[cur]){steps[cur].hint=e.target.value; renderExport();} });
+$("stepcol").addEventListener("input",e=>{ if(steps[cur]){steps[cur].color=e.target.value; renderPreview(false); buildEditor(); renderExport();} });
+$("usebase").onclick=()=>{ if(steps[cur]){steps[cur].color=""; renderPreview(false); buildEditor(); renderExport();} };
+$("base").addEventListener("input",()=>{ renderPreview(false); buildEditor(); });
+
+// ---------- structural ops ----------
+$("addstroke").onclick=()=>{ if(!steps.length)steps=[{hint:"",color:"",strokes:[]}],cur=0;
+  steps[cur].strokes.push({d:"M 90,90 L 110,110"}); renderAll(); };
+$("addstep").onclick=()=>{ steps.splice(cur+1,0,{hint:"",color:"",strokes:[]}); cur++; renderAll(); };
+$("dupstep").onclick=()=>{ if(!steps.length)return; const c=steps[cur];
+  steps.splice(cur+1,0,{hint:c.hint,color:c.color,strokes:c.strokes.map(s=>({...s}))}); cur++; renderAll(); };
+$("delstep").onclick=()=>{ if(!steps.length)return; steps.splice(cur,1); cur=Math.max(0,Math.min(cur,steps.length-1)); renderAll(); };
+$("upstep").onclick=()=>{ if(cur>0){ [steps[cur-1],steps[cur]]=[steps[cur],steps[cur-1]]; cur--; renderAll(); } };
+$("downstep").onclick=()=>{ if(cur<steps.length-1){ [steps[cur+1],steps[cur]]=[steps[cur],steps[cur+1]]; cur++; renderAll(); } };
+
+// ---------- navigation ----------
+function go(i,animate){ if(!steps.length)return; cur=Math.max(0,Math.min(steps.length-1,i)); sel=null; renderAll(); if(animate)renderPreview(true); }
+$("prev").onclick=()=>go(cur-1,false);
+$("next").onclick=()=>go(cur+1,true);
+$("play").onclick=()=>renderPreview(true);
+document.addEventListener("keydown",e=>{ if(e.target.tagName==="TEXTAREA"||e.target.tagName==="INPUT")return;
+  if(e.key==="ArrowRight"){go(cur+1,true);} else if(e.key==="ArrowLeft"){go(cur-1,false);} });
+
+// ---------- draw new strokes onto the current step ----------
+const r=v=>Math.round(v*10)/10;
+function vbParts(){ const p=(vb||"0 0 200 200").trim().split(/\s+/).map(Number);
+  return (p.length===4 && p.every(n=>!isNaN(n))) ? p : [0,0,200,200]; }
+function toVB(e){const b=art.getBoundingClientRect(); const [mx,my,w,h]=vbParts();
+  return {x:mx+(e.clientX-b.left)/b.width*w, y:my+(e.clientY-b.top)/b.height*h};}
+function pathFrom(p){ if(p.length<2)return p.length?`M ${r(p[0].x)},${r(p[0].y)}`:"";
+  if(p.length===2)return `M ${r(p[0].x)},${r(p[0].y)} L ${r(p[1].x)},${r(p[1].y)}`;
+  let d=`M ${r(p[0].x)},${r(p[0].y)}`;
+  for(let i=1;i<p.length-1;i++){const mx=(p[i].x+p[i+1].x)/2,my=(p[i].y+p[i+1].y)/2;d+=` Q ${r(p[i].x)},${r(p[i].y)} ${r(mx)},${r(my)}`;}
+  return d+` L ${r(p[p.length-1].x)},${r(p[p.length-1].y)}`; }
+let drawing=false, pts=[];
+art.addEventListener("pointerdown",e=>{ if(!$("drawon").checked||!steps.length)return;
+  drawing=true; pts=[toVB(e)]; live.setAttribute("stroke",$("pen").value); live.setAttribute("stroke-width",3);
+  art.setPointerCapture(e.pointerId); e.preventDefault(); });
+art.addEventListener("pointermove",e=>{ if(!drawing)return; const p=toVB(e),l=pts[pts.length-1];
+  if(Math.hypot(p.x-l.x,p.y-l.y)>=2){pts.push(p);live.setAttribute("d",pathFrom(pts));} });
+function endDraw(){ if(!drawing)return; drawing=false;
+  if(pts.length>=1)steps[cur].strokes.push({d:pathFrom(pts),color:$("pen").value});
+  live.removeAttribute("d"); pts=[]; renderAll(); }
+art.addEventListener("pointerup",endDraw); art.addEventListener("pointerleave",endDraw);
+$("undo").onclick=()=>{ if(steps.length&&steps[cur].strokes.length){steps[cur].strokes.pop();renderAll();} };
+
+// ---------- export ----------
+function renderExport(){
+  let s="const steps = [\n";
+  steps.forEach(st=>{
+    const strs=st.strokes.filter(x=>x.d).map(x=> x.w?`{ d: "${x.d}", w: ${x.w} }`:`"${x.d}"`);
+    const col=st.color?`, color: "${st.color}"`:"";
+    s+=`  { hint: ${JSON.stringify(st.hint||"")}, strokes: [${strs.join(", ")}]${col} },\n`;
+  });
+  $("out").value=s+"];";
+}
+$("copy").onclick=()=>{ renderExport(); $("out").select(); navigator.clipboard&&navigator.clipboard.writeText($("out").value); };
+
+// ---------- repaint ----------
+function renderAll(){
+  if(sel!==null && (!steps.length || sel>=steps[cur].strokes.length)) sel=null;   // drop stale selection
+  renderPreview(false); buildEditor(); renderExport(); renderNodes(); renderSel();
+  $("count").textContent = steps.length? `Step ${cur+1} / ${steps.length} · ${steps[cur].strokes.length} stroke(s)` : "No steps loaded";
+  $("prev").disabled=cur<=0; $("next").disabled=cur>=steps.length-1;
+}
+// ---------- pick & edit a single stroke (Playground-style) ----------
+function selectStroke(j){
+  if(j!==null && (!steps.length || j<0 || j>=steps[cur].strokes.length)) j=null;
+  sel=j; renderPreview(false); renderNodes(); renderSel(); buildEditor();
+}
+function renderSel(){
+  const bar=$("selbar");
+  if(sel===null || !steps.length || !steps[cur].strokes[sel]){ if(bar) bar.style.display="none"; return; }
+  bar.style.display="flex";
+  const st=steps[cur].strokes[sel];
+  $("selcol").value=toHex(strokeColor(cur,st));
+  $("selw").value=st.w||3;
+}
+$("selcol").addEventListener("input",e=>{ if(sel===null)return;
+  steps[cur].strokes[sel].color=e.target.value; renderPreview(false); buildEditor(); renderExport(); });
+$("selw").addEventListener("input",e=>{ if(sel===null)return;
+  steps[cur].strokes[sel].w=+e.target.value; renderPreview(false); buildEditor(); renderExport(); });
+$("seldup").onclick=()=>{ if(sel===null)return;
+  steps[cur].strokes.splice(sel+1,0,{...steps[cur].strokes[sel]}); sel++; renderAll(); };
+$("seldel").onclick=()=>{ if(sel===null)return; steps[cur].strokes.splice(sel,1); sel=null; renderAll(); };
+$("seldone").onclick=()=>selectStroke(null);
+
+// ---------- drag control points (path node editing, like the playground) ----------
+const nodes=$("nodes");
+const ARGC={M:2,L:2,T:2,H:1,V:1,C:6,S:4,Q:4};
+// Parse an ABSOLUTE path into segments. Returns null for arcs / relative commands.
+function parseAbs(d){
+  const t=(d.match(/[A-Za-z]|-?\.?\d+(?:\.\d+)?(?:e[-+]?\d+)?/gi)||[]);
+  const segs=[]; let i=0, cmd=null;
+  while(i<t.length){
+    if(/[A-Za-z]/.test(t[i])){ cmd=t[i]; i++; if(cmd==='Z'||cmd==='z'){ segs.push({cmd:'Z',nums:[]}); continue; } }
+    if(!cmd || cmd!==cmd.toUpperCase() || cmd==='A') return null;   // relative / arc → not draggable
+    const n=ARGC[cmd]; if(n===undefined) return null;
+    const nums=[];
+    for(let k=0;k<n;k++){ if(i>=t.length || /[A-Za-z]/.test(t[i])) return null; nums.push(parseFloat(t[i++])); }
+    segs.push({cmd,nums});
+    if(cmd==='M') cmd='L';                                          // implicit lineto after M
+  }
+  return segs.length?segs:null;
+}
+function serialize(segs){ return segs.map(s=> s.cmd+(s.nums.length? " "+s.nums.map(n=>Math.round(n*10)/10).join(",") : "")).join(" "); }
+// List draggable points; control points carry the anchor they tug (lx,ly) for a handle line.
+function nodeList(segs){
+  let cx=0,cy=0,sx=0,sy=0; const out=[];
+  segs.forEach((s,si)=>{ const N=s.nums;
+    if(s.cmd==='M'){ cx=N[0];cy=N[1];sx=cx;sy=cy; out.push({si,idx:0,k:'a'}); }
+    else if(s.cmd==='L'||s.cmd==='T'){ cx=N[0];cy=N[1]; out.push({si,idx:0,k:'a'}); }
+    else if(s.cmd==='H'){ cx=N[0]; } else if(s.cmd==='V'){ cy=N[0]; }
+    else if(s.cmd==='C'){ out.push({si,idx:0,k:'c',lx:cx,ly:cy}); out.push({si,idx:2,k:'c',lx:N[4],ly:N[5]}); out.push({si,idx:4,k:'a'}); cx=N[4];cy=N[5]; }
+    else if(s.cmd==='S'){ out.push({si,idx:0,k:'c',lx:N[2],ly:N[3]}); out.push({si,idx:2,k:'a'}); cx=N[2];cy=N[3]; }
+    else if(s.cmd==='Q'){ out.push({si,idx:0,k:'c',lx:cx,ly:cy}); out.push({si,idx:2,k:'a'}); cx=N[2];cy=N[3]; }
+    else if(s.cmd==='Z'){ cx=sx;cy=sy; }
+  });
+  return out;
+}
+function renderNodes(){
+  if(!nodes) return; nodes.innerHTML="";
+  if(!steps.length || $("drawon").checked) return;
+  const all=$("editpts").checked;
+  if(!all && sel===null) return;                                     // nothing to show
+  const sz=vbParts()[2]/60;                                          // dot size scales with the viewBox
+  steps[cur].strokes.forEach((st,sj)=>{
+    if(!all && sj!==sel) return;                                     // only the picked stroke's dots
+    const segs=parseAbs(st.d); if(!segs) return;                     // arcs/relative: no dots
+    nodeList(segs).forEach(pt=>{
+      const x=segs[pt.si].nums[pt.idx], y=segs[pt.si].nums[pt.idx+1];
+      if(pt.k==='c'){
+        const ln=document.createElementNS(NS,"line");
+        ln.setAttribute("x1",x);ln.setAttribute("y1",y);ln.setAttribute("x2",pt.lx);ln.setAttribute("y2",pt.ly);
+        ln.setAttribute("stroke","#e07b1a");ln.setAttribute("stroke-width",sz*0.25);
+        ln.setAttribute("stroke-dasharray",(sz*0.7)+" "+(sz*0.45)); nodes.appendChild(ln);
+      }
+      const c=document.createElementNS(NS,"circle");
+      c.setAttribute("cx",x);c.setAttribute("cy",y);c.setAttribute("r", pt.k==='c'?sz*0.8:sz);
+      c.setAttribute("fill", pt.k==='c'?"#e07b1a":"#2e86c1");
+      c.setAttribute("stroke","#fff");c.setAttribute("stroke-width",sz*0.32);
+      c.style.cursor="grab"; c.dataset.sj=sj; c.dataset.si=pt.si; c.dataset.idx=pt.idx;
+      nodes.appendChild(c);
+    });
+  });
+}
+let nodeDrag=null;
+art.addEventListener("pointerdown",e=>{
+  const t=e.target;
+  if(t.dataset && t.dataset.idx!==undefined){            // a draggable node dot (only rendered when editing)
+    nodeDrag={sj:+t.dataset.sj, si:+t.dataset.si, idx:+t.dataset.idx};
+    art.setPointerCapture(e.pointerId); e.preventDefault();
+  }
+});
+// click a stroke to pick it (the fat transparent hit-path carries data-sj); empty space deselects
+art.addEventListener("click",e=>{
+  if($("drawon").checked) return;
+  const t=e.target;
+  if(t.dataset && t.dataset.idx!==undefined) return;     // clicked a node, not a select
+  selectStroke(t.dataset && t.dataset.sj!==undefined ? +t.dataset.sj : null);
+});
+art.addEventListener("pointermove",e=>{
+  if(!nodeDrag) return;
+  const p=toVB(e), st=steps[cur].strokes[nodeDrag.sj], segs=parseAbs(st.d); if(!segs) return;
+  segs[nodeDrag.si].nums[nodeDrag.idx]=Math.round(p.x*10)/10;
+  segs[nodeDrag.si].nums[nodeDrag.idx+1]=Math.round(p.y*10)/10;
+  st.d=serialize(segs);
+  renderPreview(false); renderNodes(); renderExport();
+  const ta=$("strokes").querySelector('textarea[data-d="'+nodeDrag.sj+'"]'); if(ta) ta.value=st.d;
+});
+art.addEventListener("pointerup",()=>{ nodeDrag=null; });
+// keep "draw" and "drag points" mutually exclusive
+$("editpts").addEventListener("change",()=>{ if($("editpts").checked) $("drawon").checked=false; renderNodes(); });
+$("drawon").addEventListener("change",()=>{ if($("drawon").checked){ $("editpts").checked=false; renderNodes(); } });
+
+if(location.search.includes("demo")) $("sample").click();
+renderAll();
+</script>
+</body>
+</html>

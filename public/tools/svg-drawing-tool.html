@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Draw → SVG (for Learn 2 Draw)</title>
+<style>
+  :root{ --ink:#2a2350; --paper:#fdf6e9; --accent:#2e86c1; }
+  *{ box-sizing:border-box; }
+  body{ margin:0 auto; max-width:1040px; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif; padding:18px; }
+  h1{ font-size:1.4rem; margin:.1em 0; }
+  p{ line-height:1.45; }
+  .hint{ font-size:.85rem; color:#7a6fa0; }
+  .wrap{ display:flex; gap:22px; flex-wrap:wrap; align-items:flex-start; }
+  .stage{ background:#fff; border-radius:18px; box-shadow:0 6px 22px #0002; padding:10px; }
+  svg{ display:block; width:440px; height:440px; max-width:88vw; touch-action:none; cursor:crosshair; border-radius:10px; }
+  .grid line{ stroke:#e7e1f4; stroke-width:.5; }
+  .grid .axis{ stroke:#cdc4e8; stroke-width:1; }
+  .side{ flex:1; min-width:300px; }
+  .toolbar{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:10px 0; }
+  button{ font:inherit; font-weight:700; cursor:pointer; border:3px solid var(--accent);
+    background:#e9f3ff; color:#1c5a86; border-radius:999px; padding:7px 14px; }
+  button:active{ transform:translateY(1px); }
+  button.warn{ border-color:#c0556e; background:#ffeef2; color:#9c2547; }
+  button.go{ border-color:#3a9d5d; background:#e9fbef; color:#1c6e3a; }
+  button.tool{ padding:6px 12px; }
+  button.tool.on{ background:var(--accent); border-color:var(--accent); color:#fff; }
+  .swatches{ display:flex; gap:6px; flex-wrap:wrap; }
+  .sw{ width:26px; height:26px; border-radius:50%; border:2px solid #fff; box-shadow:0 0 0 1.5px #bbb; cursor:pointer; }
+  .sw.on{ box-shadow:0 0 0 2.5px var(--ink); transform:scale(1.12); }
+  label{ font-weight:700; font-size:.85rem; }
+  input[type=range]{ vertical-align:middle; }
+  .steps{ margin-top:6px; }
+  .step{ border:2px solid #e3ddf2; border-radius:12px; padding:8px 10px; margin:8px 0; background:#fff; }
+  .step h3{ margin:0 0 4px; font-size:.9rem; color:#5a4d8b; display:flex; justify-content:space-between; align-items:center; }
+  .stk{ font-family:ui-monospace,Menlo,monospace; font-size:11px; color:#444;
+    display:flex; gap:6px; align-items:flex-start; padding:2px 0; }
+  .stk .d{ word-break:break-all; flex:1; }
+  .dot{ width:11px; height:11px; border-radius:50%; flex:none; margin-top:2px; border:1px solid #0003; }
+  .x{ cursor:pointer; color:#c0556e; font-weight:900; padding:0 4px; }
+  textarea{ width:100%; height:150px; font-family:ui-monospace,Menlo,monospace; font-size:12px;
+    border:2px solid #d7cdf0; border-radius:10px; padding:8px; background:#fffdf8; }
+  code{ background:#efe9fb; padding:1px 5px; border-radius:5px; font-size:.9em; }
+  .count{ font-weight:700; color:#6a5d8b; }
+  .toolnav{ display:flex; flex-wrap:wrap; gap:8px; margin:0 0 16px; padding-bottom:12px; border-bottom:2px solid #ece7f6; }
+  .toolnav a{ text-decoration:none; font-weight:700; font-size:.9rem; color:#5a4d8b;
+    background:#fff; border:2px solid #e3ddf2; border-radius:999px; padding:6px 14px; transition:border-color .12s,color .12s; }
+  .toolnav a:hover{ border-color:var(--accent); color:#1c5a86; }
+  .toolnav a[aria-current]{ background:var(--accent); border-color:var(--accent); color:#fff; }
+</style>
+</head>
+<body>
+  <nav class="toolnav">
+    <a href="./svg-tools.html">🎨 Home</a>
+    <a href="./svg-drawing-tool.html" aria-current="page">✏️ Draw</a>
+    <a href="./svg-step-editor.html">🛠️ Step Editor</a>
+    <a href="./svg-playground.html">🧪 Playground</a>
+  </nav>
+  <h1>✏️ Draw → SVG</h1>
+  <p class="hint">Draw with your mouse (or finger) on the white card. Every time you press,
+    drag and release, that's <b>one stroke</b> → captured as a smooth SVG path. Group strokes
+    into <b>steps</b> with “Finish step”. When you're done, hit <b>Copy for Claude</b> and paste it to me.
+    The grid is the app's <code>0,0 → 200,200</code> box, so it drops straight into a drawing.</p>
+
+  <div class="wrap">
+    <div class="stage">
+      <svg id="pad" viewBox="0 0 200 200">
+        <image id="ref" x="0" y="0" width="200" height="200" opacity="0" preserveAspectRatio="xMidYMid meet"/>
+        <g class="grid" id="grid"></g>
+        <g id="ink"></g>
+        <path id="live" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <div class="side">
+      <div class="toolbar">
+        <div class="swatches" id="swatches"></div>
+        <input type="color" id="custom" value="#2e86c1" title="custom colour">
+      </div>
+      <div class="toolbar" id="tools">
+        <label>tool</label>
+        <button class="tool on" data-tool="free">✏️ Free</button>
+        <button class="tool" data-tool="line">╱ Line</button>
+        <button class="tool" data-tool="rect">▭ Rect</button>
+        <button class="tool" data-tool="ellipse">◯ Circle</button>
+      </div>
+      <div class="toolbar">
+        <label>pen <input type="range" id="width" min="1" max="10" step="1" value="4"></label>
+        <label title="Smooths shaky lines — higher = steadier curves (freehand only)">smooth
+          <input type="range" id="smooth" min="0" max="5" step="1" value="2"></label>
+        <button id="undo">↶ Undo stroke</button>
+        <button id="finish" class="go">✓ Finish step</button>
+        <button id="play">▶ Play</button>
+        <button id="clear" class="warn">🗑 Clear all</button>
+      </div>
+      <div class="toolbar">
+        <button id="pickbtn">📷 Trace a photo</button>
+        <input type="file" id="file" accept="image/*" style="display:none">
+        <label>fade <input type="range" id="refop" min="0" max="100" value="55"></label>
+        <span class="hint" id="reflabel"></span>
+      </div>
+      <p class="hint">…or <b>drag an image</b> onto the canvas, or <b>paste</b> one with ⌘/Ctrl-V.
+        (If the button does nothing, open this file as a real tab in Chrome — drag the
+        <code>.html</code> into the browser — not in an editor preview pane.)</p>
+      <p class="count"><span id="info">Step 1 · 0 strokes</span></p>
+
+      <div class="toolbar">
+        <label style="flex:1">step name <input type="text" id="stepname" placeholder="e.g. Body, Head, Tail…" style="width:100%"></label>
+        <button id="newstep" class="go">＋ New step</button>
+      </div>
+
+      <div class="steps" id="stepsView"></div>
+
+      <h3 style="margin:14px 0 4px;color:#5a4d8b;">Save / load</h3>
+      <div class="toolbar">
+        <button id="savefile">💾 Save to file</button>
+        <button id="openfile">📂 Open file</button>
+        <input type="file" id="loadf" accept=".json,application/json" style="display:none">
+        <span class="hint" id="saveinfo">auto-saved in this browser</span>
+      </div>
+
+      <h3 style="margin:14px 0 4px;color:#5a4d8b;">Export</h3>
+      <div class="toolbar">
+        <button id="copy" class="go">📋 Copy for Claude</button>
+        <button id="copyd">Copy raw d-strings</button>
+      </div>
+      <textarea id="out" readonly></textarea>
+    </div>
+  </div>
+
+<script>
+const NS="http://www.w3.org/2000/svg";
+const pad=document.getElementById("pad"), ink=document.getElementById("ink"),
+      live=document.getElementById("live"), out=document.getElementById("out"),
+      info=document.getElementById("info"), stepsView=document.getElementById("stepsView"),
+      ref=document.getElementById("ref");
+
+// --- faint coordinate grid (every 20 units, axes at 0) ---
+(function(){const g=document.getElementById("grid");
+  for(let i=0;i<=200;i+=20)for(const a of [[i,0,i,200,!i],[0,i,200,i,!i]]){
+    const l=document.createElementNS(NS,"line");
+    l.setAttribute("x1",a[0]);l.setAttribute("y1",a[1]);l.setAttribute("x2",a[2]);l.setAttribute("y2",a[3]);
+    if(a[4])l.setAttribute("class","axis"); g.appendChild(l);
+  }})();
+
+// --- colour palette ---
+const COLORS=["#2a2350","#2e86c1","#d2232a","#1f47c2","#3a9d5d","#e0a500","#e07b1a","#8a3ffc"];
+let color="#2a2350", width=4;
+const swWrap=document.getElementById("swatches");
+COLORS.forEach((c,i)=>{const s=document.createElement("div");s.className="sw"+(i?"":" on");
+  s.style.background=c;s.dataset.c=c;swWrap.appendChild(s);});
+swWrap.addEventListener("click",e=>{ if(!e.target.dataset.c)return;
+  color=e.target.dataset.c; document.getElementById("custom").value=color;
+  [...swWrap.children].forEach(s=>s.classList.toggle("on",s.dataset.c===color)); });
+document.getElementById("custom").addEventListener("input",e=>{ color=e.target.value;
+  [...swWrap.children].forEach(s=>s.classList.remove("on")); });
+document.getElementById("width").addEventListener("input",e=>width=+e.target.value);
+
+// --- tool + smoothing selection ---
+let tool="free", smooth=2;
+const toolsWrap=document.getElementById("tools");
+toolsWrap.addEventListener("click",e=>{ const b=e.target.closest(".tool"); if(!b)return;
+  tool=b.dataset.tool;
+  [...toolsWrap.querySelectorAll(".tool")].forEach(t=>t.classList.toggle("on",t===b)); });
+document.getElementById("smooth").addEventListener("input",e=>smooth=+e.target.value);
+
+// --- data: steps -> { name, strokes:[{d,color,width}] } ---
+let steps=[{name:"",strokes:[]}], cur=0;
+
+// --- coordinate mapping + smooth path builder ---
+const r=v=>Math.round(Math.max(0,Math.min(200,v))*10)/10;
+function toVB(e){const b=pad.getBoundingClientRect();
+  return {x:(e.clientX-b.left)/b.width*200, y:(e.clientY-b.top)/b.height*200};}
+// quadratic-midpoint smoothing: nice curves out of raw mouse points
+function pathFrom(pts){
+  if(pts.length===0) return "";
+  if(pts.length===1) return `M ${r(pts[0].x)},${r(pts[0].y)}`;
+  if(pts.length===2) return `M ${r(pts[0].x)},${r(pts[0].y)} L ${r(pts[1].x)},${r(pts[1].y)}`;
+  let d=`M ${r(pts[0].x)},${r(pts[0].y)}`;
+  for(let i=1;i<pts.length-1;i++){
+    const mx=(pts[i].x+pts[i+1].x)/2, my=(pts[i].y+pts[i+1].y)/2;
+    d+=` Q ${r(pts[i].x)},${r(pts[i].y)} ${r(mx)},${r(my)}`;
+  }
+  const n=pts.length-1;
+  return d+` L ${r(pts[n].x)},${r(pts[n].y)}`;
+}
+// moving-average smoothing — steadier curves from a shaky hand (more passes = smoother)
+function smoothPts(p,passes){
+  for(let k=0;k<passes;k++){
+    if(p.length<3) break;
+    const out=[p[0]];
+    for(let i=1;i<p.length-1;i++)
+      out.push({x:(p[i-1].x+2*p[i].x+p[i+1].x)/4, y:(p[i-1].y+2*p[i].y+p[i+1].y)/4});
+    out.push(p[p.length-1]); p=out;
+  }
+  return p;
+}
+// predefined shapes from a drag box (start -> end); square box ⇒ circle
+function shapeD(t,a,b){
+  if(t==="line") return `M ${r(a.x)},${r(a.y)} L ${r(b.x)},${r(b.y)}`;
+  const x=Math.min(a.x,b.x), y=Math.min(a.y,b.y), w=Math.abs(b.x-a.x), h=Math.abs(b.y-a.y);
+  if(t==="rect") return `M ${r(x)},${r(y)} L ${r(x+w)},${r(y)} L ${r(x+w)},${r(y+h)} L ${r(x)},${r(y+h)} Z`;
+  const cx=x+w/2, cy=y+h/2, rx=w/2, ry=h/2, rd=v=>Math.round(v*10)/10;  // rd: no 0–200 clamp (deltas go negative)
+  return `M ${r(cx-rx)},${r(cy)} a ${rd(rx)},${rd(ry)} 0 1,0 ${rd(2*rx)},0 a ${rd(rx)},${rd(ry)} 0 1,0 ${rd(-2*rx)},0`;
+}
+
+// --- drawing ---
+let drawing=false, pts=[], start=null, lastPos=null;
+pad.addEventListener("pointerdown",e=>{ drawing=true; start=toVB(e); pts=[start]; lastPos=start;
+  live.setAttribute("stroke",color); live.setAttribute("stroke-width",width);
+  pad.setPointerCapture(e.pointerId); e.preventDefault(); });
+pad.addEventListener("pointermove",e=>{ if(!drawing)return; const p=toVB(e); lastPos=p;
+  if(tool==="free"){ const last=pts[pts.length-1];
+    if(Math.hypot(p.x-last.x,p.y-last.y)>=2){ pts.push(p); live.setAttribute("d",pathFrom(pts)); } }
+  else { live.setAttribute("d", shapeD(tool,start,p)); } });
+function endStroke(){ if(!drawing)return; drawing=false;
+  let d="";
+  if(tool==="free"){ if(pts.length>=1) d=pathFrom(smoothPts(pts,smooth)); }
+  else if(lastPos && Math.hypot(lastPos.x-start.x,lastPos.y-start.y)>2) d=shapeD(tool,start,lastPos);
+  if(d) steps[cur].strokes.push({d, color, width});
+  live.removeAttribute("d"); pts=[]; start=null; lastPos=null; renderAll(); }
+pad.addEventListener("pointerup",endStroke);
+pad.addEventListener("pointerleave",endStroke);
+
+// --- render everything committed ---
+function renderAll(){
+  ink.innerHTML="";
+  steps.forEach(st=>st.strokes.forEach(s=>{
+    const p=document.createElementNS(NS,"path");
+    p.setAttribute("d",s.d); p.setAttribute("fill","none");
+    p.setAttribute("stroke",s.color); p.setAttribute("stroke-width",s.width);
+    p.setAttribute("stroke-linecap","round"); p.setAttribute("stroke-linejoin","round");
+    ink.appendChild(p);
+  }));
+  const total=steps.reduce((n,s)=>n+s.strokes.length,0);
+  const nm=steps[cur].name?` “${steps[cur].name}”`:"";
+  info.textContent=`Step ${cur+1}${nm} · ${steps[cur].strokes.length} strokes here · ${total} total`;
+  const sn=document.getElementById("stepname"); if(sn && document.activeElement!==sn) sn.value=steps[cur].name||"";
+  renderList(); renderExport(); autosave();
+}
+function renderList(){
+  stepsView.innerHTML="";
+  steps.forEach((st,i)=>{
+    if(!st.strokes.length && i!==cur) return;
+    const box=document.createElement("div"); box.className="step";
+    const h=document.createElement("h3");
+    h.innerHTML=`<span>Step ${i+1}${st.name?': '+st.name:''}${i===cur?' ✎':''}</span><span class="hint">${st.strokes.length} stroke(s)</span>`;
+    box.appendChild(h);
+    st.strokes.forEach((s,j)=>{
+      const row=document.createElement("div"); row.className="stk";
+      row.innerHTML=`<span class="dot" style="background:${s.color}"></span>`+
+        `<span class="d">${s.d}</span><span class="x" data-i="${i}" data-j="${j}">✕</span>`;
+      box.appendChild(row);
+    });
+    stepsView.appendChild(box);
+  });
+}
+stepsView.addEventListener("click",e=>{ if(!e.target.classList.contains("x"))return;
+  steps[+e.target.dataset.i].strokes.splice(+e.target.dataset.j,1); renderAll(); });
+
+// --- export ---
+function renderExport(){
+  let s="// Paste this to Claude. viewBox 0 0 200 200. Fill in real hints.\n";
+  steps.forEach((st,i)=>{ if(!st.strokes.length)return;
+    const cols=[...new Set(st.strokes.map(x=>x.color))];
+    const colAttr=cols.length===1?`, color: "${cols[0]}"`:"";
+    s+=`{ hint: ${JSON.stringify(st.name||("Step "+(i+1)))}, strokes: [`+
+       st.strokes.map(x=>`"${x.d}"`).join(", ")+`]${colAttr} },`;
+    if(cols.length>1) s+=`  // mixed colours: ${cols.join(", ")} — maybe split`;
+    s+="\n";
+  });
+  out.value=s.trim();
+}
+document.getElementById("copy").onclick=()=>{ renderExport(); out.select();
+  navigator.clipboard&&navigator.clipboard.writeText(out.value); };
+document.getElementById("copyd").onclick=()=>{
+  const all=steps.flatMap(st=>st.strokes.map(x=>x.d)).map(d=>`"${d}"`).join(",\n");
+  out.value=all; out.select(); navigator.clipboard&&navigator.clipboard.writeText(all); };
+
+// --- buttons ---
+document.getElementById("finish").onclick=()=>{ if(!steps[cur].strokes.length)return;
+  steps.push({name:"",strokes:[]}); cur=steps.length-1; renderAll(); };
+// add a fresh step even if the current one is empty, and jump to it to keep drawing
+document.getElementById("newstep").onclick=()=>{
+  if(steps[cur].strokes.length || steps[cur].name){ steps.push({name:"",strokes:[]}); cur=steps.length-1; }
+  renderAll(); document.getElementById("stepname").focus(); };
+document.getElementById("stepname").addEventListener("input",e=>{ steps[cur].name=e.target.value; renderList(); renderExport(); autosave(); });
+document.getElementById("undo").onclick=()=>{
+  if(steps[cur].strokes.length) steps[cur].strokes.pop();
+  else if(cur>0){ steps.pop(); cur--; }
+  renderAll(); };
+document.getElementById("clear").onclick=()=>{ steps=[{name:"",strokes:[]}]; cur=0; renderAll(); };
+
+// --- trace a reference photo behind the grid (button, drag-drop, or paste) ---
+const XLINK="http://www.w3.org/1999/xlink";
+let hasRef=false;
+ref.addEventListener("error",()=>alert(
+  "That image didn't load. Try a JPG or PNG — iPhone .HEIC photos often won't display."));
+function loadRefFile(f){
+  if(!f) return;
+  if(f.type && !/^image\//.test(f.type)){ alert("That's not an image file (use JPG or PNG)."); return; }
+  const rdr=new FileReader();
+  rdr.onload=()=>{ const url=rdr.result;                 // data: URL — works everywhere
+    ref.setAttributeNS(XLINK,"xlink:href",url);          // Safari needs xlink
+    ref.setAttribute("href",url);                        // modern browsers
+    hasRef=true; ref.setAttribute("opacity", document.getElementById("refop").value/100);
+    document.getElementById("reflabel").textContent="✓ photo loaded — trace over it"; };
+  rdr.onerror=()=>alert("Could not read that file.");
+  rdr.readAsDataURL(f);                                  // more reliable than object URLs
+}
+document.getElementById("pickbtn").onclick=()=>document.getElementById("file").click();
+document.getElementById("file").onchange=e=>loadRefFile(e.target.files&&e.target.files[0]);
+document.getElementById("refop").oninput=e=> ref.setAttribute("opacity", hasRef ? e.target.value/100 : 0);
+// drag an image file onto the page
+["dragenter","dragover","drop"].forEach(t=>document.addEventListener(t,e=>{
+  if(e.dataTransfer&&[...e.dataTransfer.types].includes("Files")) e.preventDefault(); }));
+document.addEventListener("drop",e=>{ const f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]; if(f)loadRefFile(f); });
+// paste an image from the clipboard
+document.addEventListener("paste",e=>{ const items=(e.clipboardData&&e.clipboardData.items)||[];
+  for(const it of items){ if(it.type&&it.type.startsWith("image/")){ loadRefFile(it.getAsFile()); break; } } });
+
+// --- animate: watch the whole drawing draw itself, step by step ---
+let playing=false;
+function animateAll(){
+  if(playing) return; playing=true;
+  document.getElementById("play").textContent="● Playing…";
+  const paths=[...ink.querySelectorAll("path")];
+  paths.forEach(p=>{ const L=Math.max(1,p.getTotalLength()); p.style.strokeDasharray=L; p.style.strokeDashoffset=L; });
+  let i=0;
+  const drawNext=()=>{
+    if(i>=paths.length){ playing=false; document.getElementById("play").textContent="▶ Play"; return; }
+    const p=paths[i++], L=Math.max(1,p.getTotalLength());
+    const a=p.animate([{strokeDashoffset:L},{strokeDashoffset:0}],
+      {duration:Math.min(Math.max(L*6,260),1200),easing:"linear",fill:"forwards"});
+    a.onfinish=()=>{ p.style.strokeDashoffset=0; setTimeout(drawNext,110); };
+  };
+  drawNext();
+}
+document.getElementById("play").onclick=()=>{ if(!playing) animateAll(); };
+
+// --- save / load locally (KAN-9) ---
+const LS="l2d_drawtool_v1";
+const saveinfo=document.getElementById("saveinfo");
+function normSteps(arr){ return arr.map(s=>({name:s.name||"",
+  strokes:(s.strokes||[]).filter(x=>x&&x.d).map(x=>({d:x.d,color:x.color||"#2a2350",width:x.width||4}))})); }
+function autosave(){ try{ localStorage.setItem(LS, JSON.stringify({v:1,steps})); }catch(e){} }
+function saveFile(){
+  const blob=new Blob([JSON.stringify({v:1,steps},null,1)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download="learn2draw-"+new Date().toISOString().slice(0,10)+".l2d.json";
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  if(saveinfo) saveinfo.textContent="✓ saved to your downloads";
+}
+function openProject(o){
+  if(!o || !Array.isArray(o.steps)){ alert("That isn't a saved drawing file."); return; }
+  steps=normSteps(o.steps); if(!steps.length) steps=[{name:"",strokes:[]}];
+  cur=steps.length-1; renderAll();
+  if(saveinfo) saveinfo.textContent="✓ loaded";
+}
+function openFile(f){ if(!f) return; const rdr=new FileReader();
+  rdr.onload=()=>{ try{ openProject(JSON.parse(rdr.result)); }catch(e){ alert("Couldn't read that file: "+e.message); } };
+  rdr.onerror=()=>alert("Could not read that file."); rdr.readAsText(f); }
+document.getElementById("savefile").onclick=saveFile;
+document.getElementById("openfile").onclick=()=>document.getElementById("loadf").click();
+document.getElementById("loadf").onchange=e=>openFile(e.target.files&&e.target.files[0]);
+
+// optional self-test: ?demo draws a sample stroke so the export is visible
+if(location.search.includes("demo")){
+  steps[0].strokes.push({d:"M 40,150 Q 70,40 100,40 Q 130,40 160,150",color:"#2e86c1",width:4});
+  steps.push({name:"",strokes:[{d:"M 70,150 L 130,150",color:"#d2232a",width:4}]}); cur=1;
+} else {
+  // restore the last auto-saved drawing so you can come back to it later
+  try{ const raw=localStorage.getItem(LS); if(raw){ const o=JSON.parse(raw);
+    if(o&&Array.isArray(o.steps)&&o.steps.some(s=>s.strokes&&s.strokes.length)){
+      steps=normSteps(o.steps); cur=steps.length-1;
+      if(saveinfo) saveinfo.textContent="↩ restored your last drawing"; } }
+  }catch(e){}
+}
+renderAll();
+</script>
+</body>
+</html>
